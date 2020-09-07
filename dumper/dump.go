@@ -1,17 +1,25 @@
 package main
 
 import (
-	"os/exec"
 	"bytes"
 	"log"
+	"os/exec"
+	"strconv"
 )
 
 const (
 	dotnetGCDumpBinary = "dotnet-gcdump"
 )
 
-func makeGcDump(pid, dumpOutput string) (error) {
-	cmd := exec.Command(dotnetGCDumpBinary, "collect", "-p", pid, "-o", dumpOutput)
+func makeGcDump(pid int, dumpOutput string) error {
+	cmd := exec.Command(
+		dotnetGCDumpBinary,
+		"collect",
+		"-p",
+		strconv.Itoa(pid),
+		"-o",
+		dumpOutput,
+	)
 
 	var gcDumpStdOut bytes.Buffer
 	cmd.Stdout = &gcDumpStdOut
