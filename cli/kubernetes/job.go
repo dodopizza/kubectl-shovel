@@ -85,3 +85,18 @@ func (k8s *Client) RunJob(
 
 	return nil
 }
+
+// DeleteJob deleting job
+func (k8s *Client) DeleteJob(name string) error {
+	propagationPolicy := metav1.DeletePropagationForeground
+	return k8s.
+		BatchV1().
+		Jobs(k8s.Namespace).
+		Delete(
+			context.Background(),
+			name,
+			metav1.DeleteOptions{
+				PropagationPolicy: &propagationPolicy,
+			},
+		)
+}

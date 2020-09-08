@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"log"
+
+	"github.com/dodopizza/kubectl-shovel/events"
 )
 
 func main() {
@@ -12,8 +12,11 @@ func main() {
 	flag.Parse()
 
 	if containerID == "" {
-		log.Fatal("ContainerID is empty")
+		events.NewEvent(events.Error, "ContainerID is empty")
 	}
 
-	fmt.Println(launch(containerID))
+	err := launch(containerID)
+	if err != nil {
+		events.NewEvent(events.Error, err.Error())
+	}
 }

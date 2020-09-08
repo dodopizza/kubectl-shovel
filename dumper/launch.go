@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"io/ioutil"
-	"log"
+
+	"github.com/dodopizza/kubectl-shovel/events"
 )
 
 const (
@@ -10,10 +12,19 @@ const (
 )
 
 func launch(containerID string) error {
+	events.NewEvent(
+		events.Status,
+		"Looking for container fs",
+	)
 	err := mapContainerTmp(containerID)
 	if err != nil {
 		return err
 	}
+
+	events.NewEvent(
+		events.Status,
+		"Starting dotnet-gcdump",
+	)
 	err = makeGcDump(1, output)
 	if err != nil {
 		return err
@@ -22,7 +33,11 @@ func launch(containerID string) error {
 	if err != nil {
 		return err
 	}
-	log.Println(string(dumpContent))
+
+	events.NewEvent(
+		events.Result,
+		base64.StdEncoding.EncodeToString(dumpContent),
+	)
 
 	return nil
 }

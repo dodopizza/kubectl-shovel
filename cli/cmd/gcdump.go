@@ -44,9 +44,10 @@ func (options *gcDumpOptions) checkFlags() *pflag.FlagSet {
 	flags.StringVar(&options.podName, "pod-name", options.podName, "Pod name for creating dump")
 	panicOnError(cobra.MarkFlagRequired(flags, "pod-name"))
 
-	flags.StringVar(
+	flags.StringVarP(
 		&options.output,
 		"output",
+		"o",
 		"./"+
 			strconv.Itoa(
 				int(time.Now().Unix()),
@@ -76,12 +77,7 @@ func (options *gcDumpOptions) makeGCDump() error {
 		return err
 	}
 	containerID := strings.TrimPrefix(pod.Status.ContainerStatuses[0].ContainerID, "docker://")
-	fmt.Printf(
-		"Run job %s for pod %s with container ID %s\n",
-		jobName,
-		options.podName,
-		containerID,
-	)
+	fmt.Println("Run diagnostics job")
 	err = k8s.RunJob(
 		jobName,
 		dumperImageName,
@@ -94,6 +90,21 @@ func (options *gcDumpOptions) makeGCDump() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("Waiting job to start")
+	podName, err := k8s.WaitPod(jobName)
+	if err != nil {
+		return err
+	}
+	readCloser, err := k8s.ReadPodLogs(podName)
+	if err != nil {
+		return err
+	}
+
+	handleLogs(readCloser, options.output)
+	fmt.Printf("Dump successfuly written to %s\n", options.output)
+
+	err = k8s.DeleteJob(jobName)
 
 	return nil
 }
