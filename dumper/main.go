@@ -2,15 +2,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 )
 
 func main() {
-	containerID := flag.String("containerID", "", "conrainerID for creating dump")
+	var containerID string
+	flag.StringVar(&containerID, "container-id", containerID, "ContainerID for creating dump")
+	flag.Parse()
 
-	if *containerID == "" {
-		log.Fatal("containerID is empty")
+	if containerID == "" {
+		log.Fatal("ContainerID is empty")
 	}
 
-	launch(*containerID)
+	fmt.Println(launch(containerID))
 }

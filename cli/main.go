@@ -1,7 +1,18 @@
 package main
 
-import "github.com/dodopizza/dotnet-k8s-dumper/cli/cmd"
+import (
+	"os"
+
+	"github.com/dodopizza/kubectl-shovel/cli/cmd"
+	"github.com/spf13/pflag"
+)
 
 func main() {
-	cmd.Execute()
+	flags := pflag.NewFlagSet("kubectl-flame", pflag.ExitOnError)
+	pflag.CommandLine = flags
+
+	rootCmd := cmd.NewShovelCommand()
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
