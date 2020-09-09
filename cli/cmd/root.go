@@ -16,6 +16,8 @@ func NewShovelCommand() *cobra.Command {
 		Short: "Get diagnostics from running in k8s dotnet application",
 	}
 
+	cmd.AddCommand(newDocCmd())
+
 	cmd.AddCommand(newGCDumpCommand())
 	cmd.AddCommand(newTraceCommand())
 
