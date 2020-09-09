@@ -6,20 +6,20 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-type gcDumpOptions struct {
+type traceOptions struct {
 	podName string
 	output  string
 
 	kubeFlags *genericclioptions.ConfigFlags
 }
 
-func newGCDumpCommand() *cobra.Command {
-	options := &gcDumpOptions{}
+func newTraceCommand() *cobra.Command {
+	options := &traceOptions{}
 	cmd := &cobra.Command{
-		Use:   "gcdump [flags]",
-		Short: "Get dotnet-gcdump results",
+		Use:   "trace [flags]",
+		Short: "Get dotnet-trace results",
 		RunE: func(*cobra.Command, []string) error {
-			return options.makeGCDump()
+			return options.maketrace()
 		},
 	}
 
@@ -32,8 +32,8 @@ func newGCDumpCommand() *cobra.Command {
 	return cmd
 }
 
-func (options *gcDumpOptions) checkFlags() *pflag.FlagSet {
-	flags := pflag.NewFlagSet("gcdump", pflag.ExitOnError)
+func (options *traceOptions) checkFlags() *pflag.FlagSet {
+	flags := pflag.NewFlagSet("trace", pflag.ExitOnError)
 	flags.StringVar(&options.podName, "pod-name", options.podName, "Pod name for creating dump")
 	panicOnError(cobra.MarkFlagRequired(flags, "pod-name"))
 
@@ -43,7 +43,7 @@ func (options *gcDumpOptions) checkFlags() *pflag.FlagSet {
 		"o",
 		"./"+
 			currentTime()+
-			".gcdump",
+			".trace",
 		"Dump output file",
 	)
 
@@ -53,11 +53,11 @@ func (options *gcDumpOptions) checkFlags() *pflag.FlagSet {
 	return flags
 }
 
-func (options *gcDumpOptions) makeGCDump() error {
+func (options *traceOptions) maketrace() error {
 	return run(
 		options.kubeFlags,
 		options.podName,
 		options.output,
-		"dotnet-gcdump",
+		"dotnet-trace",
 	)
 }

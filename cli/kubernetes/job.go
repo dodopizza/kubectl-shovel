@@ -40,7 +40,6 @@ func (k8s *Client) RunJob(
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: commonMeta,
 				Spec: v1.PodSpec{
-					HostPID: true,
 					Volumes: []apiv1.Volume{
 						{
 							Name: "dockerfs",

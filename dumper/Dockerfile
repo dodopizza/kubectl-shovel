@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-bionic as tools-install
 
-RUN dotnet tool install -g dotnet-gcdump
-
+RUN dotnet tool install -g dotnet-gcdump && \
+    dotnet tool install -g dotnet-trace
 
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 
