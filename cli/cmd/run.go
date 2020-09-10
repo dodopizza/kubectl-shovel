@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dodopizza/kubectl-shovel/cli/kubernetes"
+	"github.com/dodopizza/kubectl-shovel/pkg/kubernetes"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 func run(
 	kubeFlags *genericclioptions.ConfigFlags,
+	image,
 	podName,
 	output,
 	tool string,
@@ -28,7 +29,7 @@ func run(
 	fmt.Println("Run diagnostics job")
 	err = k8s.RunJob(
 		jobName,
-		dumperImageName,
+		image,
 		pod.Spec.NodeName,
 		[]string{
 			"--container-id",

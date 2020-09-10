@@ -7,7 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/dodopizza/kubectl-shovel/events"
+	"github.com/dodopizza/kubectl-shovel/pkg/events"
 )
 
 func handleLogs(readCloser io.ReadCloser, output string) {

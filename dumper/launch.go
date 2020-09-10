@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/dodopizza/kubectl-shovel/events"
+	"github.com/dodopizza/kubectl-shovel/pkg/events"
 )
 
 const ()

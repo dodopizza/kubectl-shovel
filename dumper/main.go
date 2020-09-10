@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/dodopizza/kubectl-shovel/events"
+	"github.com/dodopizza/kubectl-shovel/pkg/events"
 )
 
 func main() {

@@ -1,12 +1,16 @@
 package cmd
 
 import (
+	"strings"
+
+	"github.com/dodopizza/kubectl-shovel/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 type gcDumpOptions struct {
+	image   string
 	podName string
 	output  string
 
@@ -47,6 +51,19 @@ func (options *gcDumpOptions) checkFlags() *pflag.FlagSet {
 		"Dump output file",
 	)
 
+	flags.StringVar(
+		&options.image,
+		"image",
+		strings.Join(
+			[]string{
+				dumperImageName,
+				version.GetVersion(),
+			},
+			":",
+		),
+		"Image of dumper to use for job",
+	)
+
 	options.kubeFlags = genericclioptions.NewConfigFlags(false)
 	options.kubeFlags.AddFlags(flags)
 
@@ -56,6 +73,7 @@ func (options *gcDumpOptions) checkFlags() *pflag.FlagSet {
 func (options *gcDumpOptions) makeGCDump() error {
 	return run(
 		options.kubeFlags,
+		options.image,
 		options.podName,
 		options.output,
 		"dotnet-gcdump",
