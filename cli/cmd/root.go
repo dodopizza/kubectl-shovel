@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/dodopizza/kubectl-shovel/pkg/version"
 	"github.com/spf13/cobra"
 )
 
@@ -12,8 +13,9 @@ const (
 // NewShovelCommand initialize Shovel command
 func NewShovelCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   pluginName,
-		Short: "Get diagnostics from running in k8s dotnet application",
+		Use:     pluginName,
+		Short:   "Get diagnostics from running in k8s dotnet application",
+		Version: version.GetVersion(),
 	}
 
 	cmd.AddCommand(newDocCmd())

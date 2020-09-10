@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/dodopizza/kubectl-shovel/pkg/version"
@@ -22,6 +23,12 @@ func newGCDumpCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gcdump [flags]",
 		Short: "Get dotnet-gcdump results",
+		Long: "This subcommand will run dotnet-gcdump tool for running in k8s appplication.\n" +
+			"Result will be saved locally so you'll be able to analyze it with appropriate tools.\n" +
+			"You can find more info about dotnet-gcdump tool by the following links:\n\n" +
+			"\t* https://devblogs.microsoft.com/dotnet/collecting-and-analyzing-memory-dumps/\n" +
+			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-gcdump",
+		Example: fmt.Sprintf(examplesTemplate, "gcdump"),
 		RunE: func(*cobra.Command, []string) error {
 			return options.makeGCDump()
 		},
