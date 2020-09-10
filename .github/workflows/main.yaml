@@ -1,5 +1,5 @@
 ---
-name: CLI release
+name: Testing and publishing
 
 on:
   pull_request: {}

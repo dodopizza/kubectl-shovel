@@ -43,7 +43,7 @@ func processLogs(eventsChan chan string, done chan struct{}, output string) {
 		case events.Status:
 			fmt.Println(event.Message)
 		case events.Error:
-			fmt.Println("Error occured ", event.Message)
+			fmt.Println("Error occurred ", event.Message)
 			done <- struct{}{}
 		case events.Result:
 			data, err := base64.StdEncoding.DecodeString(event.Message)

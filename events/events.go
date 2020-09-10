@@ -21,17 +21,13 @@ const (
 )
 
 // NewEvent is used to publish new event
-func NewEvent(eventType EventType, message string) error {
-	data, err := json.Marshal(Event{
+func NewEvent(eventType EventType, message string) {
+	data, _ := json.Marshal(Event{
 		Type:    eventType,
 		Message: message,
 	})
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(data))
 
-	return nil
+	fmt.Println(string(data))
 }
 
 // GetEvent is used to read published event

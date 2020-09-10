@@ -52,9 +52,12 @@ func run(
 	}
 
 	handleLogs(readCloser, output)
-	fmt.Printf("Result successfuly written to %s\n", output)
+	fmt.Printf("Result successfully written to %s\n", output)
 
 	err = k8s.DeleteJob(jobName)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

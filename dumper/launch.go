@@ -27,6 +27,7 @@ func launch(containerID, tool string) error {
 			tool,
 		),
 	)
+
 	var output string
 	switch tool {
 	case dotnetGCDumpBinary:

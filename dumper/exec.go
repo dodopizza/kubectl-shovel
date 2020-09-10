@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"os/exec"
 
-	"github.com/dodopizza/kubectl-shovel/events"
+	"github.com/pkg/errors"
 )
 
 func runCommand(executable string, args ...string) error {
@@ -13,18 +13,12 @@ func runCommand(executable string, args ...string) error {
 		args...,
 	)
 
-	var Stdout bytes.Buffer
-	cmd.Stdout = &Stdout
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
 
 	err := cmd.Run()
-
-	events.NewEvent(
-		events.Status,
-		Stdout.String(),
-	)
-
 	if err != nil {
-		return err
+		return errors.Wrap(err, stdout.String())
 	}
 
 	return nil
