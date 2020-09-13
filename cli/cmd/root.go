@@ -13,9 +13,10 @@ const (
 // NewShovelCommand initialize Shovel command
 func NewShovelCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     pluginName,
-		Short:   "Get diagnostics from running in k8s dotnet application",
-		Version: version.GetVersion(),
+		Use:               pluginName,
+		Short:             "Get diagnostics from running in k8s dotnet application",
+		Version:           version.GetVersion(),
+		DisableAutoGenTag: true,
 	}
 
 	cmd.AddCommand(newDocCmd())
