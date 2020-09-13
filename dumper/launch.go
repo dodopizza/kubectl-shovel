@@ -23,7 +23,7 @@ func launch(containerID, tool string) error {
 	events.NewEvent(
 		events.Status,
 		fmt.Sprintf(
-			"Starting %s",
+			"Starting %s in job",
 			tool,
 		),
 	)

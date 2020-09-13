@@ -57,7 +57,7 @@ func processLogs(eventsChan chan string, done chan struct{}, output string) {
 				0777,
 			)
 			if err != nil {
-				fmt.Printf("Failed whil writing to file: %v\n", err)
+				fmt.Printf("Failed while writing to file: %v\n", err)
 			}
 			done <- struct{}{}
 		}

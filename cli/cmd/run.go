@@ -26,7 +26,7 @@ func run(
 
 	jobName := newJobName()
 	containerID := strings.TrimPrefix(pod.Status.ContainerStatuses[0].ContainerID, "docker://")
-	fmt.Println("Run diagnostics job")
+	fmt.Println("Spawn diagnostics job")
 	err = k8s.RunJob(
 		jobName,
 		image,
@@ -42,7 +42,7 @@ func run(
 		return err
 	}
 
-	fmt.Println("Waiting job to start")
+	fmt.Println("Waiting for a job to start")
 	jobPodName, err := k8s.WaitPod(jobName)
 	if err != nil {
 		return err
