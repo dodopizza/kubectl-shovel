@@ -1,10 +1,14 @@
 # kubectl shovel
 
-Plugin for kubectl that will help you to get diagnostic info from dotnet application.
-At the moment there is support for:
+Plugin for kubectl that will help you to gather diagnostic info from dotnet application.
+It can work with .Net Core 3.0+ applications and Kubernetes clusters with docker runtime.
+
+At the moment the following diagnostic tools are supported:
 
 * `dotnet-gcdump`
 * `dotnet-trace`
+
+Inspired by [`kubectl-flame`](https://github.com/VerizonMedia/kubectl-flame).
 
 ## Installation
 
