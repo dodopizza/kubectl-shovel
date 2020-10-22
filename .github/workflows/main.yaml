@@ -93,10 +93,10 @@ jobs:
     - name: Docker build and push
       uses: docker/build-push-action@v1
       with:
-        registry: ${{ secrets.DOCKER_REGISTRY }}
-        username: ${{ secrets.DODOREG_AZURECR_USERNAME }}
-        password: ${{ secrets.DODOREG_AZURECR_PASSWORD }}
-        repository: dumper
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        repository: /dodopizza/kubectl-shovel/dumper
         dockerfile: ./dumper/Dockerfile
         path: ./dumper
         tag_with_ref: true
