@@ -8,8 +8,6 @@ import (
 	"github.com/dodopizza/kubectl-shovel/pkg/events"
 )
 
-const ()
-
 func launch(containerID, tool string) error {
 	events.NewEvent(
 		events.Status,

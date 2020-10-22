@@ -1,5 +1,7 @@
 # kubectl shovel
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/dodopizza/kubectl-shovel)](https://goreportcard.com/report/github.com/dodopizza/kubectl-shovel)
+
 Plugin for kubectl that will help you to gather diagnostic info from dotnet application.
 It can work with .Net Core 3.0+ applications and Kubernetes clusters with docker runtime.
 

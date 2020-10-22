@@ -14,6 +14,7 @@ type Event struct {
 // EventType is type for further parsing
 type EventType string
 
+// available event types
 const (
 	Error  EventType = "error"
 	Status EventType = "status"
