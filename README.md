@@ -34,3 +34,7 @@ kubectl shovel trace --pod-name pod-name-74df554df7-qldq7 -o ./trace.nettrace
 ```
 
 You can find more info in [cli documentation](./cli/docs/kubectl-shovel.md) or by using `-h/--help` flag.
+
+# How it works
+
+It will run the job on the specified pod's node and mount its `/tmp` folder with dotnet-diagnostic socket. After this specified diagnostic tool will be launched.
