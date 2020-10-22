@@ -96,7 +96,7 @@ jobs:
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        repository: /dodopizza/kubectl-shovel/dumper
+        repository: dodopizza/kubectl-shovel/dumper
         dockerfile: ./dumper/Dockerfile
         path: ./dumper
         tag_with_ref: true

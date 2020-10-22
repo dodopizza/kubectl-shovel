@@ -1,5 +1,6 @@
 # kubectl shovel
 
+[![GitHub Release](https://img.shields.io/github/release/dodopizza/kuectl-shovel.svg?style=flat)](https://github.com/dodopizza/kubectl-shovel/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dodopizza/kubectl-shovel)](https://goreportcard.com/report/github.com/dodopizza/kubectl-shovel)
 
 Plugin for kubectl that will help you to gather diagnostic info from dotnet application.
