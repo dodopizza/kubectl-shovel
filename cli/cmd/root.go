@@ -7,7 +7,7 @@ import (
 
 const (
 	pluginName      = "kubectl-shovel"
-	dumperImageName = "docker.pkg.github.com/dodopizza/kubectl-shovel/dumper"
+	dumperImageName = "dodopizza/kubectl-shovel-dumper"
 )
 
 // NewShovelCommand initialize Shovel command
