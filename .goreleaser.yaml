@@ -4,6 +4,7 @@ project_name: kubectl-shovel
 builds:
 - binary: kubectl-shovel
   id: general
+  main: ./cli/main.go
   ldflags:
   - -s -w -X 'github.com/dodopizza/kubectl-shovel/pkg/version.Version=v{{ .Version }}'
   env:
@@ -26,7 +27,7 @@ archives:
   - goos: windows
     format: zip
   files:
-  - none*
+  - LICENSE
 
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'

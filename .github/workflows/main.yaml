@@ -133,6 +133,5 @@ jobs:
       with:
         version: v0.138.0
         args: release --rm-dist
-        workdir: cli
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
