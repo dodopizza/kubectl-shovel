@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	flags := pflag.NewFlagSet("kubectl-flame", pflag.ExitOnError)
+	flags := pflag.NewFlagSet("kubectl-shovel", pflag.ExitOnError)
 	pflag.CommandLine = flags
 
 	rootCmd := cmd.NewShovelCommand()
