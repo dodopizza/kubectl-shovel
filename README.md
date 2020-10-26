@@ -50,7 +50,7 @@ kubectl shovel trace --pod-name pod-name-74df554df7-qldq7 -o ./trace.nettrace
 
 You can find more info and examples in [cli documentation](./cli/docs/kubectl-shovel.md) or by using `-h/--help` flag.
 
-# How it works
+## How it works
 
 It runs the job with specified tool on the specified pod's node and mount its `/tmp` folder with dotnet-diagnostic socket.
 So it requires permissions to get pods and create jobs and allowance to mount `/var/lib/docker` path from a host in read-only mode.
