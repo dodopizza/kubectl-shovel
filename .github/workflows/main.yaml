@@ -127,10 +127,12 @@ jobs:
       run: |
         go mod download
     - name: Run GoReleaser
-      if: startsWith(github.ref, 'refs/tags')
       uses: goreleaser/goreleaser-action@v2.0.2
       with:
         version: v0.138.0
         args: release --rm-dist
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Update new version in krew-index
+      if: ${{ !contains(github.ref, 'beta') }}
+      uses: rajatjindal/krew-release-bot@v0.0.38
