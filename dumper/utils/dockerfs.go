@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"fmt"
@@ -7,8 +7,9 @@ import (
 	"path/filepath"
 )
 
-func mapContainerTmp(containerID string) error {
-	containerFS, err := getContainerMountpoint(containerID)
+// MapDockerContainerTmp will create symlink of docker container's /tmp folder to dumper's /tmp folder
+func MapDockerContainerTmp(containerID string) error {
+	containerFS, err := getDockerContainerMountpoint(containerID)
 	if err != nil {
 		return err
 	}
@@ -23,7 +24,7 @@ func mapContainerTmp(containerID string) error {
 	)
 }
 
-func getContainerMountpoint(containerID string) (string, error) {
+func getDockerContainerMountpoint(containerID string) (string, error) {
 	id, err := ioutil.ReadFile(
 		fmt.Sprintf(
 			"/var/lib/docker/image/overlay2/layerdb/mounts/%s/mount-id",

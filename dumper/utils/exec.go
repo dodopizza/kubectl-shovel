@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func runCommand(executable string, args ...string) error {
+func ExecCommand(executable string, args ...string) error {
 	cmd := exec.Command(
 		executable,
 		args...,
