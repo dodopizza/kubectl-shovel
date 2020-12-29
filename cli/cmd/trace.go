@@ -86,6 +86,6 @@ func (options *traceOptions) maketrace() error {
 		options.image,
 		options.podName,
 		options.output,
-		"dotnet-trace",
+		"trace",
 	)
 }

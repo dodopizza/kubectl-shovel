@@ -4,13 +4,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/dodopizza/kubectl-shovel/dumper/utils"
 	"github.com/dodopizza/kubectl-shovel/pkg/events"
-)
-
-const (
-	output = "/output"
 )
 
 func launch(executable string, args ...string) error {
@@ -27,11 +24,20 @@ func launch(executable string, args ...string) error {
 	events.NewEvent(
 		events.Status,
 		fmt.Sprintf(
-			"Starting %s in job",
+			"Running command: %s %s",
 			executable,
+			strings.Join(args, " "),
 		),
 	)
 
+	// if we do not set proper file extension dotnet tools will do it anyway
+	outputExtension := strings.TrimPrefix(executable, "dotnet-")
+	output := fmt.Sprintf("/output.%s", outputExtension)
+	args = append(
+		args,
+		"--output",
+		output,
+	)
 	err := utils.ExecCommand(
 		executable,
 		args...,
@@ -39,6 +45,10 @@ func launch(executable string, args ...string) error {
 	if err != nil {
 		return err
 	}
+	events.NewEvent(
+		events.Status,
+		"Gathering completed. Getting results",
+	)
 	result, err := ioutil.ReadFile(output)
 	if err != nil {
 		return err

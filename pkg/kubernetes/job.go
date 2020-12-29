@@ -14,6 +14,7 @@ func (k8s *Client) RunJob(
 	name,
 	image,
 	nodeName string,
+	volume *JobVolume,
 	cmdArgs []string,
 ) error {
 	imageName := image
@@ -36,16 +37,16 @@ func (k8s *Client) RunJob(
 			Parallelism:             int32Ptr(1),
 			Completions:             int32Ptr(1),
 			TTLSecondsAfterFinished: int32Ptr(5),
-			BackoffLimit:            int32Ptr(1),
+			BackoffLimit:            int32Ptr(0),
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: commonMeta,
 				Spec: v1.PodSpec{
 					Volumes: []apiv1.Volume{
 						{
-							Name: "dockerfs",
+							Name: volume.Name,
 							VolumeSource: apiv1.VolumeSource{
 								HostPath: &apiv1.HostPathVolumeSource{
-									Path: "/var/lib/docker",
+									Path: volume.HostPath,
 								},
 							},
 						},
@@ -53,7 +54,7 @@ func (k8s *Client) RunJob(
 					InitContainers: nil,
 					Containers: []apiv1.Container{
 						{
-							ImagePullPolicy: v1.PullAlways,
+							ImagePullPolicy: v1.PullIfNotPresent,
 							Name:            "kubectl-shovel",
 							Image:           imageName,
 							TTY:             true,
@@ -61,8 +62,8 @@ func (k8s *Client) RunJob(
 							Args:            cmdArgs,
 							VolumeMounts: []apiv1.VolumeMount{
 								{
-									Name:      "dockerfs",
-									MountPath: "/var/lib/docker",
+									Name:      volume.Name,
+									MountPath: volume.MountPath,
 								},
 							},
 						},

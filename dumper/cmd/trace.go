@@ -55,8 +55,6 @@ func makeTrace(options *traceOptions) error {
 		"collect",
 		"--process-id",
 		strconv.Itoa(options.pid),
-		"--output",
-		options.output,
 		"--duration",
 		"00:00:00:10",
 	)

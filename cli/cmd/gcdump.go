@@ -83,6 +83,6 @@ func (options *gcDumpOptions) makeGCDump() error {
 		options.image,
 		options.podName,
 		options.output,
-		"dotnet-gcdump",
+		"gcdump",
 	)
 }
