@@ -12,8 +12,7 @@ const (
 )
 
 type traceOptions struct {
-	pid    int
-	output string
+	pid int
 }
 
 func newTraceOptions() *traceOptions {

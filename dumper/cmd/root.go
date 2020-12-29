@@ -21,13 +21,18 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	err := initializeRootCmd()
+	if err != nil {
+		events.NewEvent(events.Error, err.Error())
+		os.Exit(1)
+	}
 	if err := rootCmd.Execute(); err != nil {
 		events.NewEvent(events.Error, err.Error())
 		os.Exit(1)
 	}
 }
 
-func init() {
+func initializeRootCmd() error {
 	rootCmd.
 		PersistentFlags().
 		StringVar(
@@ -44,8 +49,13 @@ func init() {
 			containerRuntime,
 			"Container ID to run tool for",
 		)
-	cobra.MarkFlagFilename(rootCmd.PersistentFlags(), "container-runtime")
+	err := rootCmd.MarkPersistentFlagRequired("container-runtime")
+	if err != nil {
+		return err
+	}
 
 	rootCmd.AddCommand(newGCDumpCommand())
 	rootCmd.AddCommand(newTraceCommand())
+
+	return nil
 }
