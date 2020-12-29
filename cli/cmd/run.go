@@ -25,18 +25,19 @@ func run(
 
 	jobName := newJobName()
 	containerInfo := kubernetes.GetContainerInfo(pod)
-	fmt.Println("Spawn diagnostics job")
+	jobVolume := kubernetes.NewJobVolume(containerInfo)
+	fmt.Println("Spawning diagnostics job")
 	err = k8s.RunJob(
 		jobName,
 		image,
 		pod.Spec.NodeName,
+		jobVolume,
 		[]string{
+			tool,
 			"--container-id",
 			containerInfo.ID,
 			"--container-runtime",
 			containerInfo.Runtime,
-			"--tool",
-			tool,
 		},
 	)
 	if err != nil {
