@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/dodopizza/kubectl-shovel/pkg/kubernetes"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -25,7 +24,7 @@ func run(
 	}
 
 	jobName := newJobName()
-	containerID := strings.TrimPrefix(pod.Status.ContainerStatuses[0].ContainerID, "docker://")
+	containerInfo := kubernetes.GetContainerInfo(pod)
 	fmt.Println("Spawn diagnostics job")
 	err = k8s.RunJob(
 		jobName,
@@ -33,7 +32,9 @@ func run(
 		pod.Spec.NodeName,
 		[]string{
 			"--container-id",
-			containerID,
+			containerInfo.ID,
+			"--container-runtime",
+			containerInfo.Runtime,
 			"--tool",
 			tool,
 		},
