@@ -6,7 +6,7 @@
 [![GitHub Release](https://img.shields.io/github/release/dodopizza/kubectl-shovel.svg?style=flat)](https://github.com/dodopizza/kubectl-shovel/releases)
 
 Plugin for kubectl that will help you to gather diagnostic info from running in Kubernetes dotnet applications.
-It can work with .NET Core 3.0+ applications and Kubernetes clusters with docker runtime.
+It can work with .NET Core 3.0+ applications and Kubernetes clusters with docker or containerd runtime.
 
 At the moment the following diagnostic tools are supported:
 
@@ -53,4 +53,4 @@ You can find more info and examples in [cli documentation](./cli/docs/kubectl-sh
 ## How it works
 
 It runs the job with specified tool on the specified pod's node and mount its `/tmp` folder with dotnet-diagnostic socket.
-So it requires permissions to get pods and create jobs and allowance to mount `/var/lib/docker` path from a host in read-only mode.
+So it requires permissions to get pods and create jobs and allowance to mount `/var/lib/docker` path for docker runtime and `/run/containerd/io.containerd.runtime.v2.task/k8s.io/` for containerd from a host in read-only mode.
