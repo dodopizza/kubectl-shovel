@@ -39,14 +39,41 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         args: "--disable-all -E golint,goimports,misspell"
 
+  tidy:
+    name: Mod tidy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - uses: actions/setup-go@v1
+      with:
+        go-version: "1.15"
+    - uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    - name: Install dependencies
+      run: |
+        go mod download
+    - name: Run tidy
+      run: |
+        go mod tidy -v
+    - name: Check if working tree is dirty
+      run: |
+        if [[ $(git diff --stat) != '' ]]; then
+          git diff
+          echo 'run `go mod tidy` and commit changes'
+          exit 1
+        fi
+
   test:
     name: Testing
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Unshallow
-      run: git fetch --prune --unshallow
     - uses: actions/setup-go@v1
       with:
         go-version: "1.15"
@@ -69,6 +96,7 @@ jobs:
     needs:
     - lint
     - format
+    - tidy
     - test
     steps:
     - name: Checkout
@@ -100,6 +128,7 @@ jobs:
     needs:
     - lint
     - format
+    - tidy
     - test
     - integration-tests
     steps:
@@ -139,6 +168,7 @@ jobs:
     needs:
     - lint
     - format
+    - tidy
     - test
     - integration-tests
     steps:
