@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ExecCommand is wrapper for running external processes
 func ExecCommand(executable string, args ...string) error {
 	cmd := exec.Command(
 		executable,

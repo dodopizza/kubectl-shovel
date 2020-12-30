@@ -33,5 +33,31 @@ func Test_GetContainerInfo(t *testing.T) {
 		require.Equal(t, tc.Runtime, info.Runtime)
 		require.Equal(t, tc.ID, info.ID)
 	}
+}
 
+func Test_NewJobVolume(t *testing.T) {
+	testCases := []struct {
+		runtime    string
+		volumeName string
+	}{
+		{
+			runtime:    "docker",
+			volumeName: "dockerfs",
+		},
+		{
+			runtime:    "",
+			volumeName: "dockerfs",
+		},
+		{
+			runtime:    "containerd",
+			volumeName: "tmp",
+		},
+	}
+
+	for _, tc := range testCases {
+		volume := NewJobVolume(&ContainerInfo{
+			Runtime: tc.runtime,
+		})
+		require.Equal(t, tc.volumeName, volume.Name)
+	}
 }
