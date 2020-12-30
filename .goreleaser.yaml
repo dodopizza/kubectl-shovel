@@ -6,7 +6,7 @@ builds:
   id: general
   main: ./cli/main.go
   ldflags:
-  - -s -w -X 'github.com/dodopizza/kubectl-shovel/pkg/version.Version=v{{ .Version }}'
+  - -s -w -X 'github.com/dodopizza/kubectl-shovel/internal/version.Version=v{{ .Version }}'
   env:
   - CGO_ENABLED=0
   goos:

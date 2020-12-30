@@ -47,14 +47,14 @@ func TestMain(m *testing.M) {
 		},
 	}
 
-	fmt.Println("Deploying dotnet sample app to cluster")
+	fmt.Println("Deploying dotnet sample app to cluster...")
 	_, err := k8s.CoreV1().Pods(namespace).Create(context.TODO(), sampleAppPod, metav1.CreateOptions{})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Waiting app to start")
+	fmt.Println("Waiting app to start...")
 	_, err = k8s.WaitPod(labels)
 	if err != nil {
 		fmt.Println(err)
