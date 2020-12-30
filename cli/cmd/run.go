@@ -45,7 +45,7 @@ func run(
 	}
 
 	fmt.Println("Waiting for a job to start")
-	jobPodName, err := k8s.WaitPod(jobName)
+	jobPodName, err := k8s.WaitPod(map[string]string{"job-name": jobName})
 	if err != nil {
 		return err
 	}
