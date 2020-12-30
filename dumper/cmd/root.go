@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/dodopizza/kubectl-shovel/pkg/events"
+	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/spf13/cobra"
 )
 

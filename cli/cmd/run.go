@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/dodopizza/kubectl-shovel/pkg/kubernetes"
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 

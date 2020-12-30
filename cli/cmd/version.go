@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/dodopizza/kubectl-shovel/pkg/version"
+	"github.com/dodopizza/kubectl-shovel/internal/version"
 	"github.com/spf13/cobra"
 )
 

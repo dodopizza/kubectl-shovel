@@ -1,4 +1,4 @@
-package utils
+package cmd
 
 import (
 	"fmt"
@@ -7,8 +7,7 @@ import (
 	"path/filepath"
 )
 
-// MapDockerContainerTmp will create symlink of docker container's /tmp folder to dumper's /tmp folder
-func MapDockerContainerTmp(containerID string) error {
+func mapDockerContainerTmp(containerID string) error {
 	containerFS, err := getDockerContainerMountpoint(containerID)
 	if err != nil {
 		return err

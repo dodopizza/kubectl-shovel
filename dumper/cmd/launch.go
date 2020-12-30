@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/dodopizza/kubectl-shovel/dumper/utils"
-	"github.com/dodopizza/kubectl-shovel/pkg/events"
+	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/utils"
 )
 
 func launch(executable string, args ...string) error {
@@ -16,7 +16,7 @@ func launch(executable string, args ...string) error {
 			events.Status,
 			"Looking for container fs",
 		)
-		err := utils.MapDockerContainerTmp(containerID)
+		err := mapDockerContainerTmp(containerID)
 		if err != nil {
 			return err
 		}
