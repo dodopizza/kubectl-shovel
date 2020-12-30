@@ -9,6 +9,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
@@ -25,7 +26,7 @@ func (k8s *Client) GetPodInfo(podName string) (*v1.Pod, error) {
 }
 
 // WaitPod will wait pod to start
-func (k8s *Client) WaitPod(jobName string) (string, error) {
+func (k8s *Client) WaitPod(labelSelector map[string]string) (string, error) {
 	var pod *v1.Pod
 	err := wait.Poll(1*time.Second, 5*time.Minute,
 		func() (bool, error) {
@@ -35,7 +36,7 @@ func (k8s *Client) WaitPod(jobName string) (string, error) {
 				List(
 					context.Background(),
 					metav1.ListOptions{
-						LabelSelector: fmt.Sprintf("job-name=%s", jobName),
+						LabelSelector: labels.Set(labelSelector).String(),
 					},
 				)
 			if err != nil {

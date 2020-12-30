@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -29,13 +28,14 @@ var (
 
 func TestMain(m *testing.M) {
 	k8s := newTestKubeClient()
+	labels := map[string]string{
+		"app": sampleAppName,
+	}
 
 	sampleAppPod := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: sampleAppName,
-			Labels: map[string]string{
-				"app": sampleAppName,
-			},
+			Name:   sampleAppName,
+			Labels: labels,
 		},
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
@@ -47,12 +47,19 @@ func TestMain(m *testing.M) {
 		},
 	}
 
+	fmt.Println("Deploying dotnet sample app to cluster")
 	_, err := k8s.CoreV1().Pods(namespace).Create(context.TODO(), sampleAppPod, metav1.CreateOptions{})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	<-time.After(10 * time.Second)
+
+	fmt.Println("Waiting app to start")
+	_, err = k8s.WaitPod(labels)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	exitCode := m.Run()
 	_ = k8s.CoreV1().Pods(namespace).Delete(context.TODO(), sampleAppName, metav1.DeleteOptions{PropagationPolicy: &deletePolicy})
 
