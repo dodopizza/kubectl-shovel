@@ -15,6 +15,7 @@ func ExecCommand(executable string, args ...string) error {
 
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
+	cmd.Stderr = &stdout
 
 	err := cmd.Run()
 	if err != nil {
