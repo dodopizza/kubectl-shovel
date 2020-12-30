@@ -22,7 +22,7 @@ var (
 	sampleAppImage = "mcr.microsoft.com/dotnet/core/samples:aspnetapp"
 	namespace      = "default"
 	cliPath        = "./bin/kubectl-shovel"
-	dumperImage    = "kubectl-shovel/integration-tests"
+	dumperImage    = "kubectl-shovel/dumper-integration-tests"
 	tempDirPattern = "*-kubectl-shovel"
 )
 
