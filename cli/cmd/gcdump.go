@@ -37,13 +37,13 @@ func newGCDumpCommand() *cobra.Command {
 	cmd.
 		PersistentFlags().
 		AddFlagSet(
-			options.checkFlags(),
+			options.parseFlags(),
 		)
 
 	return cmd
 }
 
-func (options *gcDumpOptions) checkFlags() *pflag.FlagSet {
+func (options *gcDumpOptions) parseFlags() *pflag.FlagSet {
 	flags := pflag.NewFlagSet("gcdump", pflag.ExitOnError)
 	flags.StringVar(&options.podName, "pod-name", options.podName, "Pod name for creating dump")
 	panicOnError(cobra.MarkFlagRequired(flags, "pod-name"))
