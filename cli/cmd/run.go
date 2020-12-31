@@ -4,21 +4,17 @@ import (
 	"fmt"
 
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 func run(
-	kubeFlags *genericclioptions.ConfigFlags,
-	image,
-	podName,
-	output,
+	options *commonOptions,
 	tool string,
 ) error {
-	k8s, err := kubernetes.NewClient(kubeFlags)
+	k8s, err := kubernetes.NewClient(options.kubeFlags)
 	if err != nil {
 		return nil
 	}
-	pod, err := k8s.GetPodInfo(podName)
+	pod, err := k8s.GetPodInfo(options.podName)
 	if err != nil {
 		return err
 	}
@@ -29,7 +25,7 @@ func run(
 	fmt.Println("Spawning diagnostics job")
 	err = k8s.RunJob(
 		jobName,
-		image,
+		options.image,
 		pod.Spec.NodeName,
 		jobVolume,
 		[]string{
@@ -54,8 +50,8 @@ func run(
 		return err
 	}
 
-	handleLogs(readCloser, output)
-	fmt.Printf("Result successfully written to %s\n", output)
+	handleLogs(readCloser, options.output)
+	fmt.Printf("Result successfully written to %s\n", options.output)
 
 	err = k8s.DeleteJob(jobName)
 	if err != nil {

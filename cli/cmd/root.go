@@ -16,6 +16,7 @@ func NewShovelCommand() *cobra.Command {
 		Use:               pluginName,
 		Short:             "Get diagnostics from running in k8s dotnet application",
 		Version:           version.GetVersion(),
+		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 	}
 
