@@ -33,20 +33,20 @@ func newTraceCommand() *cobra.Command {
 			"\tdotnet trace convert myapp.trace --format Speedscope\n\n" +
 			"And then analyzing it with https://www.speedscope.app/",
 		RunE: func(*cobra.Command, []string) error {
-			return options.maketrace()
+			return options.makeTrace()
 		},
 	}
 
 	cmd.
 		PersistentFlags().
 		AddFlagSet(
-			options.checkFlags(),
+			options.parseFlags(),
 		)
 
 	return cmd
 }
 
-func (options *traceOptions) checkFlags() *pflag.FlagSet {
+func (options *traceOptions) parseFlags() *pflag.FlagSet {
 	flags := pflag.NewFlagSet("trace", pflag.ExitOnError)
 	flags.StringVar(&options.podName, "pod-name", options.podName, "Pod name for creating dump")
 	panicOnError(cobra.MarkFlagRequired(flags, "pod-name"))
@@ -58,7 +58,7 @@ func (options *traceOptions) checkFlags() *pflag.FlagSet {
 		"./"+
 			currentTime()+
 			".trace",
-		"Dump output file",
+		"Trace output file",
 	)
 
 	flags.StringVar(
@@ -80,7 +80,7 @@ func (options *traceOptions) checkFlags() *pflag.FlagSet {
 	return flags
 }
 
-func (options *traceOptions) maketrace() error {
+func (options *traceOptions) makeTrace() error {
 	return run(
 		options.kubeFlags,
 		options.image,
