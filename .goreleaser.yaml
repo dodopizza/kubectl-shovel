@@ -43,6 +43,7 @@ changelog:
     - static check
     - lint
     - format
+    - tidy
 
 release:
   name_template: "{{ .ProjectName }}-v{{ .Version }}"
