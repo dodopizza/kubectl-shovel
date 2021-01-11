@@ -11,15 +11,13 @@ import (
 )
 
 func launch(executable string, args ...string) error {
-	if containerRuntime == "docker" {
-		events.NewEvent(
-			events.Status,
-			"Looking for container fs",
-		)
-		err := mapDockerContainerTmp(containerID)
-		if err != nil {
-			return err
-		}
+	events.NewEvent(
+		events.Status,
+		"Looking for and mapping container fs",
+	)
+	err := mapContainerTmp(containerInfo)
+	if err != nil {
+		return err
 	}
 	events.NewEvent(
 		events.Status,
@@ -38,7 +36,7 @@ func launch(executable string, args ...string) error {
 		"--output",
 		output,
 	)
-	err := utils.ExecCommand(
+	err = utils.ExecCommand(
 		executable,
 		args...,
 	)

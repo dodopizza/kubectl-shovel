@@ -1,7 +1,6 @@
 package kubernetes
 
 import (
-	"fmt"
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
@@ -37,12 +36,9 @@ func GetContainerInfo(pod *v1.Pod) *ContainerInfo {
 func NewJobVolume(containerInfo *ContainerInfo) *JobVolume {
 	if containerInfo.Runtime == "containerd" {
 		return &JobVolume{
-			Name: "tmp",
-			HostPath: fmt.Sprintf(
-				"/run/containerd/io.containerd.runtime.v2.task/k8s.io/%s/rootfs/tmp",
-				containerInfo.ID,
-			),
-			MountPath: "/tmp",
+			Name:      "containerdfs",
+			HostPath:  "/run/containerd",
+			MountPath: "/run/containerd",
 		}
 	}
 
