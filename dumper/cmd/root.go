@@ -4,17 +4,18 @@ import (
 	"os"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/spf13/cobra"
 )
 
 var (
-	containerID      = ""
-	containerRuntime = ""
+	containerInfo = kubernetes.ContainerInfo{}
 )
 
 var rootCmd = &cobra.Command{
 	Use:               "dumper",
 	Short:             "Tool to gather diagnostic information from dotnet process",
+	SilenceUsage:      true,
 	DisableAutoGenTag: true,
 }
 
@@ -36,18 +37,18 @@ func initializeRootCmd() error {
 	rootCmd.
 		PersistentFlags().
 		StringVar(
-			&containerID,
+			&containerInfo.ID,
 			"container-id",
-			containerID,
+			containerInfo.ID,
 			"Container ID to run tool for",
 		)
 	rootCmd.
 		PersistentFlags().
 		StringVar(
-			&containerRuntime,
+			&containerInfo.Runtime,
 			"container-runtime",
-			containerRuntime,
-			"Container ID to run tool for",
+			containerInfo.Runtime,
+			"Container Runtime to run tool for",
 		)
 	err := rootCmd.MarkPersistentFlagRequired("container-runtime")
 	if err != nil {
