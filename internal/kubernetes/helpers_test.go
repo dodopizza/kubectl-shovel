@@ -50,7 +50,7 @@ func Test_NewJobVolume(t *testing.T) {
 		},
 		{
 			runtime:    "containerd",
-			volumeName: "tmp",
+			volumeName: "containerdfs",
 		},
 	}
 
