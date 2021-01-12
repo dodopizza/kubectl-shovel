@@ -53,4 +53,4 @@ You can find more info and examples in [cli documentation](./cli/docs/kubectl-sh
 ## How it works
 
 It runs the job with specified tool on the specified pod's node and mount its `/tmp` folder with dotnet-diagnostic socket.
-So it requires permissions to get pods and create jobs and allowance to mount `/var/lib/docker` path for docker runtime and `/run/containerd/io.containerd.runtime.v2.task/k8s.io/` for containerd from a host in read-only mode.
+So it requires permissions to get pods and create jobs and allowance to mount `/var/lib/docker` path for docker runtime and `/run/containerd` for containerd from a host in read-only mode.
