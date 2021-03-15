@@ -54,3 +54,36 @@ You can find more info and examples in [cli documentation](./cli/docs/kubectl-sh
 
 It runs the job with specified tool on the specified pod's node and mount its `/tmp` folder with dotnet-diagnostic socket.
 So it requires permissions to get pods and create jobs and allowance to mount `/var/lib/docker` path for docker runtime and `/run/containerd` for containerd from a host in read-only mode.
+
+## Development
+
+### Prerequisites
+
+* golang
+* docker
+* kind
+
+### Testing
+
+#### Unit tests:
+
+```
+make test-unit
+```
+
+#### Integration tests
+
+> kind-clusters use containerd as container runtime, so functionality with docker-runtime won't be covered.
+
+* Integration tests require running kind-cluster. You can create it with `kind create cluster`. Also you can specify some version for cluster: `kind create cluster --image=kindest/node:<version>`, e.g v1.19.1 version.
+* Then run integration tests with `make test-integration`. It will:
+  * Build docker image for dumper
+  * Upload it to kind-cluster
+  * Build CLI
+  * Run tests using these artifacts
+
+#### All in one
+
+```
+make test
+```

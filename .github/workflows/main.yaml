@@ -59,7 +59,7 @@ jobs:
         go mod download
     - name: Run tidy
       run: |
-        go mod tidy -v
+        make tidy
     - name: Check if working tree is dirty
       run: |
         if [[ $(git diff --stat) != '' ]]; then
@@ -88,7 +88,7 @@ jobs:
         go mod download
     - name: Run tests
       run: |
-        go test -v -cover ./...
+        make test-unit
   
   integration-tests:
     name: Integration tests
@@ -119,7 +119,7 @@ jobs:
         image: kindest/node:v1.19.1
     - name: Run tests
       run: |
-        ./hacks/run-integration-tests.sh
+        make test-integration
 
   publish-dumper:
     name: Publishing dumper docker image
