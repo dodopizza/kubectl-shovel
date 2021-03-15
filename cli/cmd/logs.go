@@ -8,19 +8,18 @@ import (
 	"io/ioutil"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/pkg/errors"
 )
 
-func handleLogs(readCloser io.ReadCloser, output string) {
+func handleLogs(readCloser io.ReadCloser, output string) error {
 	eventsChan := make(chan string)
-	done := make(chan struct{})
+	defer close(eventsChan)
 
-	go processLogs(eventsChan, done, output)
 	go func() {
 		defer readCloser.Close()
 		r := bufio.NewReader(readCloser)
 		for {
 			bytes, err := r.ReadBytes('\n')
-
 			if err != nil {
 				return
 			}
@@ -29,37 +28,50 @@ func handleLogs(readCloser io.ReadCloser, output string) {
 		}
 	}()
 
-	<-done
-	close(eventsChan)
+	return processLogs(eventsChan, output)
 }
 
-func processLogs(eventsChan chan string, done chan struct{}, output string) {
+func processLogs(eventsChan chan string, output string) error {
+LOOP:
 	for rawEvent := range eventsChan {
 		event, err := events.GetEvent(rawEvent)
 		if err != nil {
-			continue
+			return errors.Wrap(err, "Got malformed event")
 		}
+
 		switch event.Type {
 		case events.Status:
 			fmt.Println(event.Message)
 		case events.Error:
-			fmt.Println("Error occurred ", event.Message)
-			done <- struct{}{}
+			return fmt.Errorf("Error in job occurred: %s", event.Message)
 		case events.Result:
-			data, err := base64.StdEncoding.DecodeString(event.Message)
-			if err != nil {
-				fmt.Printf("Failed while decoding dump: %v\n", err)
+			if err := saveResult(event.Message, output); err != nil {
+				return errors.Wrap(err, "Error occurred while saving results")
 			}
 
-			err = ioutil.WriteFile(
-				output,
-				data,
-				0777,
-			)
-			if err != nil {
-				fmt.Printf("Failed while writing to file: %v\n", err)
-			}
-			done <- struct{}{}
+			fmt.Printf("Result successfully written to %s\n", output)
+			break LOOP
+		default:
+			return fmt.Errorf("Got unknown event type: %s", event.Type)
 		}
 	}
+
+	return nil
+}
+
+func saveResult(message, output string) error {
+	data, err := base64.StdEncoding.DecodeString(message)
+	if err != nil {
+		return errors.Wrap(err, "Failed while decoding dump")
+	}
+
+	if err := ioutil.WriteFile(
+		output,
+		data,
+		0777,
+	); err != nil {
+		return errors.Wrap(err, "Failed while writing to file")
+	}
+
+	return nil
 }

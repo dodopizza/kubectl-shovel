@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
+	"github.com/pkg/errors"
 )
 
 func run(
@@ -45,17 +46,18 @@ func run(
 	if err != nil {
 		return err
 	}
+
 	readCloser, err := k8s.ReadPodLogs(jobPodName)
 	if err != nil {
 		return err
 	}
 
-	handleLogs(readCloser, options.output)
-	fmt.Printf("Result successfully written to %s\n", options.output)
-
-	err = k8s.DeleteJob(jobName)
-	if err != nil {
+	if err := handleLogs(readCloser, options.output); err != nil {
 		return err
+	}
+
+	if err := k8s.DeleteJob(jobName); err != nil {
+		return errors.Wrap(err, "Error while deleting pod")
 	}
 
 	return nil

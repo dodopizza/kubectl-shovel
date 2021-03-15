@@ -18,8 +18,7 @@ func ExecCommand(executable string, args ...string) error {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stdout
 
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		return errors.Wrap(err, stdout.String())
 	}
 

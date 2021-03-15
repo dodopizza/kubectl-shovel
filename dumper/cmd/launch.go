@@ -15,8 +15,7 @@ func launch(executable string, args ...string) error {
 		events.Status,
 		"Looking for and mapping container fs",
 	)
-	err := mapContainerTmp(containerInfo)
-	if err != nil {
+	if err := mapContainerTmp(containerInfo); err != nil {
 		return err
 	}
 	events.NewEvent(
@@ -36,11 +35,10 @@ func launch(executable string, args ...string) error {
 		"--output",
 		output,
 	)
-	err = utils.ExecCommand(
+	if err := utils.ExecCommand(
 		executable,
 		args...,
-	)
-	if err != nil {
+	); err != nil {
 		return err
 	}
 	events.NewEvent(

@@ -2,7 +2,7 @@ package kubernetes
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"io"
 	"time"
 
@@ -50,7 +50,7 @@ func (k8s *Client) WaitPod(labelSelector map[string]string) (string, error) {
 			pod = &podList.Items[0]
 			switch pod.Status.Phase {
 			case v1.PodFailed:
-				return false, fmt.Errorf("pod failed")
+				return false, errors.New("Pod has been failed")
 			case v1.PodSucceeded, v1.PodRunning:
 				return true, nil
 			default:

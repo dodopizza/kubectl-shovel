@@ -3,6 +3,8 @@ package events
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 // Event is struct for events
@@ -35,7 +37,7 @@ func NewEvent(eventType EventType, message string) {
 func GetEvent(data string) (*Event, error) {
 	event := &Event{}
 	if err := json.Unmarshal([]byte(data), event); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Can't parse event")
 	}
 
 	return event, nil
