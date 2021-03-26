@@ -11,10 +11,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/dodopizza/kubectl-shovel/internal/utils"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
 
 var (
@@ -61,7 +61,11 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	exitCode := m.Run()
-	_ = k8s.CoreV1().Pods(namespace).Delete(context.TODO(), sampleAppName, metav1.DeleteOptions{PropagationPolicy: &deletePolicy})
+	_ = k8s.CoreV1().Pods(namespace).Delete(
+		context.TODO(),
+		sampleAppName,
+		metav1.DeleteOptions{PropagationPolicy: &deletePolicy},
+	)
 
 	os.Exit(exitCode)
 }
@@ -70,8 +74,8 @@ func Test_TraceSubcommand(t *testing.T) {
 	dir, _ := ioutil.TempDir("", tempDirPattern)
 	defer os.RemoveAll(dir)
 	outputFilename := filepath.Join(dir, "trace-test")
-	err := utils.ExecCommand(
-		cliPath,
+
+	args := []string{
 		"trace",
 		"--pod-name",
 		sampleAppName,
@@ -79,9 +83,10 @@ func Test_TraceSubcommand(t *testing.T) {
 		outputFilename,
 		"--image",
 		dumperImage,
-	)
-
-	require.NoError(t, err)
+	}
+	os.Args = append([]string{os.Args[0]}, args...)
+	rootCmd := cmd.NewShovelCommand()
+	require.NoError(t, rootCmd.Execute())
 
 	file, err := os.Stat(outputFilename)
 	require.NoError(t, err)
@@ -92,8 +97,7 @@ func Test_GCDumpSubcommand(t *testing.T) {
 	dir, _ := ioutil.TempDir("", tempDirPattern)
 	defer os.RemoveAll(dir)
 	outputFilename := filepath.Join(dir, "gcdump-test")
-	err := utils.ExecCommand(
-		cliPath,
+	args := []string{
 		"gcdump",
 		"--pod-name",
 		sampleAppName,
@@ -101,9 +105,10 @@ func Test_GCDumpSubcommand(t *testing.T) {
 		outputFilename,
 		"--image",
 		dumperImage,
-	)
-
-	require.NoError(t, err)
+	}
+	os.Args = append([]string{os.Args[0]}, args...)
+	rootCmd := cmd.NewShovelCommand()
+	require.NoError(t, rootCmd.Execute())
 
 	file, err := os.Stat(outputFilename)
 	require.NoError(t, err)

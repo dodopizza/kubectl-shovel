@@ -57,9 +57,11 @@ func run(
 		return err
 	}
 
+	fmt.Println("Getting results from job")
 	if err := k8s.Copy(jobPodName, resultFilePath, options.output); err != nil {
-		return err
+		return errors.Wrap(err, "Error while getting results")
 	}
+	fmt.Printf("Result successfully written to %s\n", options.output)
 
 	if err := k8s.DeleteJob(jobName); err != nil {
 		return errors.Wrap(err, "Error while deleting pod")

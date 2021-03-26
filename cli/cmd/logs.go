@@ -45,7 +45,6 @@ LOOP:
 			return "", fmt.Errorf("Error in job occurred: %s", event.Message)
 		case events.Completed:
 			resultFilePath = event.Message
-			fmt.Printf("Results located at %s", resultFilePath)
 			break LOOP
 		default:
 			return "", fmt.Errorf("Got unknown event type: %s", event.Type)

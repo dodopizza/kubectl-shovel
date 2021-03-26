@@ -32,15 +32,6 @@ rm "${project_dir}/dumper/dumper"
 echo "Loading dumper's image to kind cluster..."
 kind load docker-image ${image_repository}:${image_tag}
 
-cli_binary_path="${project_dir}/test/integration/bin"
-mkdir -p ${cli_binary_path}
-
-echo "Building cli..."
-CGO_ENABLED=0 \
-  go build -v \
-  -o ${cli_binary_path}/kubectl-shovel \
-  ${project_dir}/cli
-
 echo "Running tests..."
 go test -v \
   --tags=integration \

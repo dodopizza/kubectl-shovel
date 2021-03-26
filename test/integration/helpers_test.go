@@ -5,11 +5,12 @@ package integration_test
 import (
 	"path/filepath"
 
-	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
 var deletePolicy = metav1.DeletePropagationForeground

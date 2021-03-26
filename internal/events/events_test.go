@@ -20,9 +20,9 @@ var testCases = []struct {
 		eventString: `{"type":"error","message":"text error message"}`,
 	},
 	{
-		eventType:   Result,
+		eventType:   Completed,
 		message:     "someresult",
-		eventString: `{"type":"result","message":"someresult"}`,
+		eventString: `{"type":"completed","message":"someresult"}`,
 	},
 	{
 		eventType:   "custom",
