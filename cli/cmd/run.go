@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/dodopizza/kubectl-shovel/internal/deadman"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/pkg/errors"
 )
@@ -47,6 +49,13 @@ func run(
 		return err
 	}
 
+	go func() {
+		for true {
+			deadman.Alive(k8s, jobPodName)
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
 	readCloser, err := k8s.ReadPodLogs(jobPodName)
 	if err != nil {
 		return err
@@ -58,7 +67,7 @@ func run(
 	}
 
 	fmt.Println("Getting results from job")
-	if err := k8s.Copy(jobPodName, resultFilePath, options.output); err != nil {
+	if err := k8s.CopyFromPod(jobPodName, resultFilePath, options.output); err != nil {
 		return errors.Wrap(err, "Error while getting results")
 	}
 	fmt.Printf("Result successfully written to %s\n", options.output)

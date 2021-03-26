@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dodopizza/kubectl-shovel/internal/deadman"
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/utils"
 )
@@ -54,8 +55,16 @@ func launch(executable string, args ...string) error {
 		output,
 	)
 
-	// TODO: Replace with dead man switch mechanism (check for file existence, for example)
-	time.Sleep(60 * time.Second)
+	for true {
+		isAlive, err := deadman.IsOperatorAlive()
+		if err != nil {
+			return err
+		}
+		if !isAlive {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
 
 	return nil
 }
