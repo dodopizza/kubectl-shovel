@@ -55,7 +55,7 @@ func launch(executable string, args ...string) error {
 		output,
 	)
 
-	for true {
+	for {
 		isAlive, err := deadman.IsOperatorAlive()
 		if err != nil {
 			return err

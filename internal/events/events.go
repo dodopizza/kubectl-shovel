@@ -18,8 +18,8 @@ type EventType string
 
 // available event types
 const (
-	Error  EventType = "error"
-	Status EventType = "status"
+	Error     EventType = "error"
+	Status    EventType = "status"
 	Completed EventType = "completed"
 )
 

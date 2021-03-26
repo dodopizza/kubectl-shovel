@@ -49,10 +49,13 @@ func run(
 		return err
 	}
 
+	deadmanAliveTicker := time.NewTicker(1 * time.Second)
 	go func() {
-		for true {
-			deadman.Alive(k8s, jobPodName)
-			time.Sleep(1 * time.Second)
+		for range deadmanAliveTicker.C {
+			if err := deadman.Alive(k8s, jobPodName); err != nil {
+				fmt.Printf("Error on deadman alive call: %s", err)
+				break
+			}
 		}
 	}()
 
@@ -72,8 +75,10 @@ func run(
 	}
 	fmt.Printf("Result successfully written to %s\n", options.output)
 
+	deadmanAliveTicker.Stop()
+
 	if err := k8s.DeleteJob(jobName); err != nil {
-		return errors.Wrap(err, "Error while deleting pod")
+		return errors.Wrap(err, "Error while deleting job")
 	}
 
 	return nil
