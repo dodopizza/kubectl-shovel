@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/utils"
@@ -43,16 +43,19 @@ func launch(executable string, args ...string) error {
 	}
 	events.NewEvent(
 		events.Status,
-		"Gathering completed. Getting results",
+		"Gathering completed",
 	)
-	result, err := ioutil.ReadFile(output)
+	_, err := ioutil.ReadFile(output)
 	if err != nil {
 		return err
 	}
 	events.NewEvent(
-		events.Result,
-		base64.StdEncoding.EncodeToString(result),
+		events.Completed,
+		output,
 	)
+
+	// TODO: Replace with dead man switch mechanism (check for file existence, for example)
+	time.Sleep(60 * time.Second)
 
 	return nil
 }

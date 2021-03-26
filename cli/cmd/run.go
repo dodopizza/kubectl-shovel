@@ -52,7 +52,12 @@ func run(
 		return err
 	}
 
-	if err := handleLogs(readCloser, options.output); err != nil {
+	var resultFilePath string
+	if resultFilePath, err = handleLogs(readCloser); err != nil {
+		return err
+	}
+
+	if err := k8s.Copy(jobPodName, resultFilePath, options.output); err != nil {
 		return err
 	}
 

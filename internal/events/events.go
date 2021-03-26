@@ -20,7 +20,7 @@ type EventType string
 const (
 	Error  EventType = "error"
 	Status EventType = "status"
-	Result EventType = "result"
+	Completed EventType = "completed"
 )
 
 // NewEvent is used to publish new event

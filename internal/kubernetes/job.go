@@ -100,3 +100,23 @@ func (k8s *Client) DeleteJob(name string) error {
 			},
 		)
 }
+
+// Copy file from pod to local file
+func (k8s *Client) Copy(podName, podFilePath, localFilePath string) error {
+	// // genericclioptions.IOStreams{In: &bytes.Buffer{}, Out: output, ErrOut: output}
+	// ioStreams, _, _, _ := genericclioptions.NewTestIOStreams()
+	// opts := cp.NewCopyOptions(ioStreams)
+	// src := fileSpec{
+	// 	File: test.src,
+	// }
+	// dest := fileSpec{
+	// 	PodNamespace: "pod-ns",
+	// 	PodName:      "pod-name",
+	// 	File:         test.dest,
+	// }
+	// opts.Complete(tf, cmd)
+
+	// err = opts.copyToPod(src, dest, &kexec.ExecOptions{})
+
+	return nil
+}
