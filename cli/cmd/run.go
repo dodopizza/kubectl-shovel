@@ -2,10 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/dodopizza/kubectl-shovel/internal/deadman"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
+	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 	"github.com/pkg/errors"
 )
 
@@ -49,13 +48,10 @@ func run(
 		return err
 	}
 
-	deadmanAliveTicker := time.NewTicker(1 * time.Second)
+	op := watchdog.NewOperator(k8s, jobPodName)
 	go func() {
-		for range deadmanAliveTicker.C {
-			if err := deadman.Alive(k8s, jobPodName); err != nil {
-				fmt.Printf("Error on deadman alive call: %s", err)
-				break
-			}
+		if err := op.Run(); err != nil {
+			fmt.Println(err)
 		}
 	}()
 
@@ -74,8 +70,6 @@ func run(
 		return errors.Wrap(err, "Error while getting results")
 	}
 	fmt.Printf("Result successfully written to %s\n", options.output)
-
-	deadmanAliveTicker.Stop()
 
 	if err := k8s.DeleteJob(jobName); err != nil {
 		return errors.Wrap(err, "Error while deleting job")

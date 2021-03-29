@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-	"time"
 
-	"github.com/dodopizza/kubectl-shovel/internal/deadman"
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/utils"
+	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
 func launch(executable string, args ...string) error {
@@ -55,15 +54,12 @@ func launch(executable string, args ...string) error {
 		output,
 	)
 
-	for {
-		isAlive, err := deadman.IsOperatorAlive()
-		if err != nil {
-			return err
-		}
-		if !isAlive {
-			break
-		}
-		time.Sleep(1 * time.Second)
+	if err := watchdog.Watch(); err != nil {
+		events.NewEvent(
+			events.Error,
+			err.Error(),
+		)
+		return err
 	}
 
 	return nil
