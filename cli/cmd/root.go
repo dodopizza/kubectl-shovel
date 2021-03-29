@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/dodopizza/kubectl-shovel/internal/version"
 	"github.com/spf13/cobra"
+
+	"github.com/dodopizza/kubectl-shovel/internal/version"
 )
 
 const (

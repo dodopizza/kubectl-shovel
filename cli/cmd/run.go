@@ -3,8 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/pkg/errors"
+
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
+	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
 func run(
@@ -47,17 +49,31 @@ func run(
 		return err
 	}
 
+	op := watchdog.NewOperator(k8s, jobPodName)
+	go func() {
+		if err := op.Run(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	readCloser, err := k8s.ReadPodLogs(jobPodName)
 	if err != nil {
 		return err
 	}
 
-	if err := handleLogs(readCloser, options.output); err != nil {
+	var resultFilePath string
+	if resultFilePath, err = handleLogs(readCloser); err != nil {
 		return err
 	}
 
+	fmt.Println("Getting results from job")
+	if err := k8s.CopyFromPod(jobPodName, resultFilePath, options.output); err != nil {
+		return errors.Wrap(err, "Error while getting results")
+	}
+	fmt.Printf("Result successfully written to %s\n", options.output)
+
 	if err := k8s.DeleteJob(jobName); err != nil {
-		return errors.Wrap(err, "Error while deleting pod")
+		return errors.Wrap(err, "Error while deleting job")
 	}
 
 	return nil

@@ -3,10 +3,11 @@ package cmd
 import (
 	"strings"
 
-	"github.com/dodopizza/kubectl-shovel/internal/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+
+	"github.com/dodopizza/kubectl-shovel/internal/version"
 )
 
 type commonOptions struct {

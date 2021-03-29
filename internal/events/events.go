@@ -18,9 +18,9 @@ type EventType string
 
 // available event types
 const (
-	Error  EventType = "error"
-	Status EventType = "status"
-	Result EventType = "result"
+	Error     EventType = "error"
+	Status    EventType = "status"
+	Completed EventType = "completed"
 )
 
 // NewEvent is used to publish new event
