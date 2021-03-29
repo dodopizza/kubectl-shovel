@@ -3,9 +3,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
-	"github.com/pkg/errors"
 )
 
 func run(

@@ -3,9 +3,10 @@ package cmd
 import (
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
-	"github.com/spf13/cobra"
 )
 
 var (
