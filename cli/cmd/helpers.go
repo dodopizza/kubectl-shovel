@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func panicOnError(err error) {
@@ -16,6 +18,7 @@ func newJobName() string {
 	return strings.Join(
 		[]string{
 			pluginName,
+			uuid.NewString(),
 			currentTime(),
 		},
 		"-",
