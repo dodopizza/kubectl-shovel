@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"strconv"
-
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -12,17 +11,11 @@ const (
 )
 
 type traceOptions struct {
-	pid int
-}
-
-func newTraceOptions() *traceOptions {
-	return &traceOptions{
-		pid: 1,
-	}
+	*flags.TraceFlagSet
 }
 
 func newTraceCommand() *cobra.Command {
-	options := newTraceOptions()
+	options := &traceOptions{}
 	cmd := &cobra.Command{
 		Use:   "trace [flags]",
 		Args:  cobra.NoArgs,
@@ -43,18 +36,21 @@ func newTraceCommand() *cobra.Command {
 }
 
 func (options *traceOptions) parseFlags() *pflag.FlagSet {
-	flags := pflag.NewFlagSet("trace", pflag.ExitOnError)
+	flagSet := pflag.NewFlagSet("trace", pflag.ExitOnError)
 
-	return flags
+	options.TraceFlagSet = flags.NewTraceFlagSet()
+	flagSet.AddFlagSet(options.TraceFlagSet.Parse())
+
+	return flagSet
 }
 
 func makeTrace(options *traceOptions) error {
+	args := append(
+		[]string{"collect"},
+		options.Args()...,
+	)
 	return launch(
 		dotnetTraceBinary,
-		"collect",
-		"--process-id",
-		strconv.Itoa(options.pid),
-		"--duration",
-		"00:00:00:10",
+		args...,
 	)
 }

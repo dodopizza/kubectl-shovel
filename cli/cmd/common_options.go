@@ -20,16 +20,16 @@ type commonOptions struct {
 }
 
 func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
-	flags := pflag.NewFlagSet("common", pflag.ExitOnError)
-	flags.StringVar(
+	flagSet := pflag.NewFlagSet("common", pflag.ExitOnError)
+	flagSet.StringVar(
 		&options.podName,
 		"pod-name",
 		options.podName,
 		"Target pod",
 	)
-	panicOnError(cobra.MarkFlagRequired(flags, "pod-name"))
+	panicOnError(cobra.MarkFlagRequired(flagSet, "pod-name"))
 
-	flags.StringVarP(
+	flagSet.StringVarP(
 		&options.containerName,
 		"container",
 		"c",
@@ -37,7 +37,7 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 		"Target container in pod. Required if pod run multiple containers",
 	)
 
-	flags.StringVarP(
+	flagSet.StringVarP(
 		&options.output,
 		"output",
 		"o",
@@ -48,7 +48,7 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 		"Output file",
 	)
 
-	flags.StringVar(
+	flagSet.StringVar(
 		&options.image,
 		"image",
 		strings.Join(
@@ -61,7 +61,7 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 		"Image of dumper to use for job",
 	)
 	options.kubeFlags = genericclioptions.NewConfigFlags(false)
-	options.kubeFlags.AddFlags(flags)
+	options.kubeFlags.AddFlags(flagSet)
 
-	return flags
+	return flagSet
 }

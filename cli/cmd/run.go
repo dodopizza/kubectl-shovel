@@ -12,6 +12,7 @@ import (
 func run(
 	options *commonOptions,
 	tool string,
+	args ...string,
 ) error {
 	k8s, err := kubernetes.NewClient(options.kubeFlags)
 	if err != nil {
@@ -34,18 +35,19 @@ func run(
 	jobVolume := kubernetes.NewJobVolume(containerInfo)
 
 	fmt.Println("Spawning diagnostics job")
+	args = append([]string{
+		tool,
+		"--container-id",
+		containerInfo.ID,
+		"--container-runtime",
+		containerInfo.Runtime,
+	}, args...)
 	if err := k8s.RunJob(
 		jobName,
 		options.image,
 		pod.Spec.NodeName,
 		jobVolume,
-		[]string{
-			tool,
-			"--container-id",
-			containerInfo.ID,
-			"--container-runtime",
-			containerInfo.Runtime,
-		},
+		args,
 	); err != nil {
 		return err
 	}

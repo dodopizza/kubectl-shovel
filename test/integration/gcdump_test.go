@@ -26,6 +26,14 @@ func Test_GCDumpSubcommand(t *testing.T) {
 			pod:  sampleAppPod(),
 		},
 		{
+			name: "Custom timeout",
+			args: []string{
+				"--timeout",
+				"60",
+			},
+			pod: sampleAppPod(),
+		},
+		{
 			name: "Multicontainer pod",
 			args: []string{
 				"--container",

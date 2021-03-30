@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -13,6 +14,7 @@ const (
 
 type gcDumpOptions struct {
 	*commonOptions
+	*flags.GCDumpFlagSet
 }
 
 func newGCDumpCommand() *cobra.Command {
@@ -43,15 +45,19 @@ func newGCDumpCommand() *cobra.Command {
 }
 
 func (options *gcDumpOptions) parseFlags() *pflag.FlagSet {
-	flags := pflag.NewFlagSet(gcDumpToolName, pflag.ExitOnError)
-	flags.AddFlagSet(options.commonOptions.newCommonFlags(gcDumpToolName))
+	flagSet := pflag.NewFlagSet(gcDumpToolName, pflag.ExitOnError)
+	flagSet.AddFlagSet(options.commonOptions.newCommonFlags(gcDumpToolName))
 
-	return flags
+	options.GCDumpFlagSet = flags.NewGCDumpFlagSet()
+	flagSet.AddFlagSet(options.GCDumpFlagSet.Parse())
+
+	return flagSet
 }
 
 func (options *gcDumpOptions) makeGCDump() error {
 	return run(
 		options.commonOptions,
 		gcDumpToolName,
+		options.Args()...,
 	)
 }
