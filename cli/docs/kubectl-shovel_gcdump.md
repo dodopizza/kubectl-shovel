@@ -48,7 +48,7 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
       --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string              Path to the kubeconfig file to use for CLI requests.
   -n, --namespace string               If present, the namespace scope for this CLI request
-  -o, --output string                  Output file (default "./1617126796.gcdump")
+  -o, --output string                  Output file (default "./1617127716.gcdump")
       --pod-name string                Target pod
   -p, --process-id int                 The process ID to collect the trace from (default 1)
       --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
