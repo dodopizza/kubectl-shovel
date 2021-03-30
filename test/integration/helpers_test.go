@@ -21,9 +21,13 @@ import (
 )
 
 var (
-	sampleAppName  = "sample-app"
-	sampleAppImage = "mcr.microsoft.com/dotnet/core/samples:aspnetapp"
-	deletePolicy   = metav1.DeletePropagationForeground
+	sampleAppName       = "sample-app"
+	sampleAppImage      = "mcr.microsoft.com/dotnet/core/samples:aspnetapp"
+	deletePolicy        = metav1.DeletePropagationForeground
+	targetContainerName = "target"
+	namespace           = "default"
+	dumperImage         = "kubectl-shovel/dumper-integration-tests"
+	tempDirPattern      = "*-kubectl-shovel"
 )
 
 func newTestKubeClient() *kubernetes.Client {
@@ -44,19 +48,47 @@ func newTestKubeClient() *kubernetes.Client {
 	}
 }
 
-func setup(t *testing.T) (string, func()) {
+func setup(t *testing.T, pod *v1.Pod) func() {
 	t.Helper()
+	k8s := newTestKubeClient()
+
+	fmt.Println("Deploying target pod to cluster...")
+	_, err := k8s.CoreV1().Pods(namespace).Create(
+		context.Background(),
+		pod,
+		metav1.CreateOptions{},
+	)
+	require.NoError(t, err)
+
+	fmt.Println("Waiting app to start...")
+	_, err = k8s.WaitPod(map[string]string{
+		"app": pod.Name,
+	})
+	require.NoError(t, err)
+
+	return func() {
+		_ = k8s.CoreV1().Pods(namespace).Delete(
+			context.TODO(),
+			pod.Name,
+			metav1.DeleteOptions{PropagationPolicy: &deletePolicy},
+		)
+	}
+}
+
+func newRandomString() string {
+	return uuid.NewString()
+}
+
+func sampleAppPod() *v1.Pod {
 	targetPodName := fmt.Sprintf(
 		"%s-%s",
 		sampleAppName,
-		newRandom(),
+		newRandomString(),
 	)
-	k8s := newTestKubeClient()
 	labels := map[string]string{
 		"app": targetPodName,
 	}
-
-	sampleAppPod := &v1.Pod{
+	return &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   targetPodName,
 			Labels: labels,
@@ -64,7 +96,32 @@ func setup(t *testing.T) (string, func()) {
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
 				{
-					Name:  "target",
+					Name:  targetContainerName,
+					Image: sampleAppImage,
+				},
+			},
+		},
+	}
+}
+
+func multiContainerPod() *v1.Pod {
+	targetPodName := fmt.Sprintf(
+		"%s-%s",
+		sampleAppName,
+		newRandomString(),
+	)
+	labels := map[string]string{
+		"app": targetPodName,
+	}
+	return &v1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   targetPodName,
+			Labels: labels,
+		},
+		Spec: v1.PodSpec{
+			Containers: []v1.Container{
+				{
+					Name:  targetContainerName,
 					Image: sampleAppImage,
 				},
 				{
@@ -74,28 +131,4 @@ func setup(t *testing.T) (string, func()) {
 			},
 		},
 	}
-
-	fmt.Println("Deploying dotnet sample app to cluster...")
-	_, err := k8s.CoreV1().Pods(namespace).Create(
-		context.Background(),
-		sampleAppPod,
-		metav1.CreateOptions{},
-	)
-	require.NoError(t, err)
-
-	fmt.Println("Waiting app to start...")
-	_, err = k8s.WaitPod(labels)
-	require.NoError(t, err)
-
-	return targetPodName, func() {
-		_ = k8s.CoreV1().Pods(namespace).Delete(
-			context.TODO(),
-			targetPodName,
-			metav1.DeleteOptions{PropagationPolicy: &deletePolicy},
-		)
-	}
-}
-
-func newRandom() string {
-	return uuid.New().String()
 }
