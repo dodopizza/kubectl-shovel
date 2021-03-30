@@ -2,10 +2,6 @@
 
 Get diagnostics from running in k8s dotnet application
 
-### Synopsis
-
-Get diagnostics from running in k8s dotnet application
-
 ### Options
 
 ```
