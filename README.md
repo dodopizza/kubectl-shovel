@@ -48,6 +48,7 @@ Or trace:
 kubectl shovel trace --pod-name pod-name-74df554df7-qldq7 -o ./trace.nettrace
 ```
 
+Most of dotnet tools flags supported as well to use, e.g `--duration` and `--format` for `trace`.
 You can find more info and examples in [cli documentation](./cli/docs/kubectl-shovel.md) or by using `-h/--help` flag.
 
 ## How it works

@@ -4,7 +4,7 @@ Get dotnet-trace results
 
 ### Synopsis
 
-This subcommand will capture 10 seconds of runtime events with dotnet-trace tool for running in k8s appplication.
+This subcommand will capture runtime events with dotnet-trace tool for running in k8s appplication.
 Result will be saved locally in nettrace format so you'll be able to convert it and analyze with appropriate tools.
 You can find more info about dotnet-trace tool by the following links:
 
@@ -30,11 +30,18 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
 
 	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -n default
 
-One of the resulting trace usage examples is converting it to speedscope format:
+Use `--duration` to define duration of trace to 30 seconds:
+
+	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --duration 00:00:00:30
+
+Use `--format` to specify Speedscope format:
+
+	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --format Speedscope
+
+And then you can analyze it with https://www.speedscope.app/
+Or convert any other format to speedscope format with:
 
 	dotnet trace convert myapp.trace --format Speedscope
-
-And then analyzing it with https://www.speedscope.app/
 ```
 
 ### Options
@@ -63,7 +70,7 @@ And then analyzing it with https://www.speedscope.app/
       --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string              Path to the kubeconfig file to use for CLI requests.
   -n, --namespace string               If present, the namespace scope for this CLI request
-  -o, --output string                  Output file (default "./1617126796.trace")
+  -o, --output string                  Output file (default "./1617127716.trace")
       --pod-name string                Target pod
   -p, --process-id int                 The process ID to collect the trace from (default 1)
       --profile profile                A named pre-defined set of provider configurations that allowscommon tracing scenarios to be specified succinctly.
