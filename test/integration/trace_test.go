@@ -26,6 +26,22 @@ func Test_TraceSubcommand(t *testing.T) {
 			pod:  sampleAppPod(),
 		},
 		{
+			name: "Custom duration",
+			args: []string{
+				"--duration",
+				"00:00:00:15",
+			},
+			pod: sampleAppPod(),
+		},
+		{
+			name: "Custom format",
+			args: []string{
+				"--format",
+				"Speedscope",
+			},
+			pod: sampleAppPod(),
+		},
+		{
 			name: "Multicontainer pod",
 			args: []string{
 				"--container",

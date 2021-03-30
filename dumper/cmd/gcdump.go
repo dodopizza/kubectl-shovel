@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"strconv"
-
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -12,17 +11,11 @@ const (
 )
 
 type gcDumpOptions struct {
-	pid int
-}
-
-func newGCDumpOptions() *gcDumpOptions {
-	return &gcDumpOptions{
-		pid: 1,
-	}
+	*flags.GCDumpFlagSet
 }
 
 func newGCDumpCommand() *cobra.Command {
-	options := newGCDumpOptions()
+	options := &gcDumpOptions{}
 	cmd := &cobra.Command{
 		Use:   "gcdump [flags]",
 		Args:  cobra.NoArgs,
@@ -43,16 +36,21 @@ func newGCDumpCommand() *cobra.Command {
 }
 
 func (options *gcDumpOptions) parseFlags() *pflag.FlagSet {
-	flags := pflag.NewFlagSet("gcdump", pflag.ExitOnError)
+	flagSet := pflag.NewFlagSet("gcdump", pflag.ExitOnError)
 
-	return flags
+	options.GCDumpFlagSet = flags.NewGCDumpFlagSet()
+	flagSet.AddFlagSet(options.GCDumpFlagSet.Parse())
+
+	return flagSet
 }
 
 func makeGCDump(options *gcDumpOptions) error {
+	args := append(
+		[]string{"collect"},
+		options.Args()...,
+	)
 	return launch(
 		dotnetGCDumpBinary,
-		"collect",
-		"--process-id",
-		strconv.Itoa(options.pid),
+		args...,
 	)
 }

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -13,6 +14,7 @@ const (
 
 type traceOptions struct {
 	*commonOptions
+	*flags.TraceFlagSet
 }
 
 func newTraceCommand() *cobra.Command {
@@ -46,15 +48,19 @@ func newTraceCommand() *cobra.Command {
 }
 
 func (options *traceOptions) parseFlags() *pflag.FlagSet {
-	flags := pflag.NewFlagSet(traceToolName, pflag.ExitOnError)
-	flags.AddFlagSet(options.commonOptions.newCommonFlags(traceToolName))
+	flagSet := pflag.NewFlagSet(traceToolName, pflag.ExitOnError)
+	flagSet.AddFlagSet(options.commonOptions.newCommonFlags(traceToolName))
 
-	return flags
+	options.TraceFlagSet = flags.NewTraceFlagSet()
+	flagSet.AddFlagSet(options.TraceFlagSet.Parse())
+
+	return flagSet
 }
 
 func (options *traceOptions) makeTrace() error {
 	return run(
 		options.commonOptions,
 		traceToolName,
+		options.Args()...,
 	)
 }
