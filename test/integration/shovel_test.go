@@ -35,6 +35,8 @@ func Test_TraceSubcommand(t *testing.T) {
 		outputFilename,
 		"--image",
 		dumperImage,
+		"--container",
+		"target",
 	}
 	cmd := cmd.NewShovelCommand()
 	cmd.SetArgs(args)
@@ -59,6 +61,8 @@ func Test_GCDumpSubcommand(t *testing.T) {
 		outputFilename,
 		"--image",
 		dumperImage,
+		"--container",
+		"target",
 	}
 	cmd := cmd.NewShovelCommand()
 	cmd.SetArgs(args)

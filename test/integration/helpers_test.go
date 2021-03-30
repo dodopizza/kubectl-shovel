@@ -64,8 +64,12 @@ func setup(t *testing.T) (string, func()) {
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
 				{
-					Name:  targetPodName,
+					Name:  "target",
 					Image: sampleAppImage,
+				},
+				{
+					Name:  "sidecar",
+					Image: "gcr.io/google_containers/pause-amd64:3.1",
 				},
 			},
 		},
