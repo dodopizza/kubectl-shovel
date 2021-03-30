@@ -12,6 +12,9 @@ on:
     tags:
     - "*"
 
+env:
+  GOLANG_VERSION: "1.16"
+
 jobs:
   lint:
     name: Linting
@@ -22,7 +25,7 @@ jobs:
     - name: Lint
       uses: golangci/golangci-lint-action@v2
       with:
-        version: v1.29
+        version: v1.36
         github-token: ${{ secrets.GITHUB_TOKEN }}
         args: "--tests=false"
 
@@ -35,7 +38,7 @@ jobs:
     - name: Format
       uses: golangci/golangci-lint-action@v2
       with:
-        version: v1.29
+        version: v1.36
         github-token: ${{ secrets.GITHUB_TOKEN }}
         args: "--disable-all -E golint,goimports,misspell"
 
@@ -45,9 +48,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - uses: actions/setup-go@v1
+    - name: Setup Golang
+      uses: actions/setup-go@v2
       with:
-        go-version: "1.15"
+        go-version: ${{ env.GOLANG_VERSION }}
     - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
@@ -74,9 +78,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - uses: actions/setup-go@v1
+    - name: Setup Golang
+      uses: actions/setup-go@v2
       with:
-        go-version: "1.15"
+        go-version: ${{ env.GOLANG_VERSION }}
     - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
@@ -101,9 +106,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - uses: actions/setup-go@v1
+    - name: Setup Golang
+      uses: actions/setup-go@v2
       with:
-        go-version: "1.15"
+        go-version: ${{ env.GOLANG_VERSION }}
     - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
@@ -134,9 +140,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - uses: actions/setup-go@v1
+    - name: Setup Golang
+      uses: actions/setup-go@v2
       with:
-        go-version: "1.15"
+        go-version: ${{ env.GOLANG_VERSION }}
     - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
@@ -176,18 +183,16 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - uses: actions/setup-go@v1
+    - name: Setup Golang
+      uses: actions/setup-go@v2
       with:
-        go-version: "1.15"
+        go-version: ${{ env.GOLANG_VERSION }}
     - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-    - name: Install dependencies
-      run: |
-        go mod download
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v2
       with:
