@@ -19,7 +19,6 @@ func newJobName() string {
 		[]string{
 			pluginName,
 			uuid.NewString(),
-			currentTime(),
 		},
 		"-",
 	)
