@@ -57,6 +57,12 @@ So it requires permissions to get pods and create jobs and allowance to mount `/
 
 ## Development
 
+To run all kinds of checks and generators please use:
+
+```
+make prepare
+```
+
 ### Prerequisites
 
 * golang

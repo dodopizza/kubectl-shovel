@@ -2,10 +2,6 @@
 
 Print your cli version
 
-### Synopsis
-
-Print your cli version
-
 ```
 kubectl-shovel version [flags]
 ```
