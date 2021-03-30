@@ -66,11 +66,12 @@ func (k8s *Client) WaitPod(labelSelector map[string]string) (string, error) {
 }
 
 // ReadPodLogs stream logs from pod
-func (k8s *Client) ReadPodLogs(name string) (io.ReadCloser, error) {
+func (k8s *Client) ReadPodLogs(podName, containerName string) (io.ReadCloser, error) {
 	req := k8s.CoreV1().
 		Pods(k8s.Namespace).
-		GetLogs(name, &apiv1.PodLogOptions{
-			Follow: true,
+		GetLogs(podName, &apiv1.PodLogOptions{
+			Container: containerName,
+			Follow:    true,
 		})
 
 	readCloser, err := req.Stream(context.Background())

@@ -23,10 +23,18 @@ func run(
 	}
 
 	jobName := newJobName()
-	containerInfo := kubernetes.GetContainerInfo(pod)
+	containerInfo, err := kubernetes.GetContainerInfo(
+		pod,
+		options.containerName,
+	)
+	if err != nil {
+		return errors.Wrap(err, "Error while getting info about container")
+	}
+
 	jobVolume := kubernetes.NewJobVolume(containerInfo)
+
 	fmt.Println("Spawning diagnostics job")
-	err = k8s.RunJob(
+	if err := k8s.RunJob(
 		jobName,
 		options.image,
 		pod.Spec.NodeName,
@@ -38,8 +46,7 @@ func run(
 			"--container-runtime",
 			containerInfo.Runtime,
 		},
-	)
-	if err != nil {
+	); err != nil {
 		return err
 	}
 
@@ -56,7 +63,7 @@ func run(
 		}
 	}()
 
-	readCloser, err := k8s.ReadPodLogs(jobPodName)
+	readCloser, err := k8s.ReadPodLogs(jobPodName, "kubectl-shovel")
 	if err != nil {
 		return err
 	}

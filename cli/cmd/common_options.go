@@ -11,9 +11,10 @@ import (
 )
 
 type commonOptions struct {
-	image   string
-	podName string
-	output  string
+	image         string
+	podName       string
+	output        string
+	containerName string
 
 	kubeFlags *genericclioptions.ConfigFlags
 }
@@ -27,6 +28,14 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 		"Target pod",
 	)
 	panicOnError(cobra.MarkFlagRequired(flags, "pod-name"))
+
+	flags.StringVarP(
+		&options.containerName,
+		"container",
+		"c",
+		options.containerName,
+		"Target container in pod. Required if pod run multiple containers",
+	)
 
 	flags.StringVarP(
 		&options.output,
