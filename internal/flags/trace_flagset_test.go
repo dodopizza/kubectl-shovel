@@ -263,6 +263,18 @@ func Test_TraceFlagSet_Errors(t *testing.T) {
 			},
 		},
 		{
+			name: "Just numbers in duration",
+			args: []string{
+				"--duration", "100",
+			},
+		},
+		{
+			name: "Too low duration",
+			args: []string{
+				"--duration", "100ms",
+			},
+		},
+		{
 			name: "Empty duration",
 			args: []string{
 				"--duration", "",
