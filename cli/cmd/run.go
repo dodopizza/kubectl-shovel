@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pkg/errors"
@@ -59,8 +60,10 @@ func run(
 	}
 
 	op := watchdog.NewOperator(k8s, jobPodName)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	go func() {
-		if err := op.Run(); err != nil {
+		if err := op.Run(ctx); err != nil {
 			fmt.Println(err)
 		}
 	}()
