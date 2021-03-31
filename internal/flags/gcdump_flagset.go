@@ -1,13 +1,11 @@
 package flags
 
 import (
-	"strconv"
-
 	"github.com/spf13/pflag"
 )
 
 type GCDumpFlagSet struct {
-	Timeout int
+	Timeout Timeout
 	dt      *DotnetToolsFlagSet
 
 	flagSet *pflag.FlagSet
@@ -23,11 +21,10 @@ func NewGCDumpFlagSet() *GCDumpFlagSet {
 func (gc *GCDumpFlagSet) Parse() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-gcdump", pflag.ExitOnError)
 	flagSet.AddFlagSet(gc.dt.Parse())
-	flagSet.IntVar(
+	flagSet.Var(
 		&gc.Timeout,
-		"timeout",
-		gc.Timeout,
-		"Give up on collecting the GC dump if it takes longer than this many seconds",
+		gc.Timeout.Type(),
+		gc.Timeout.Description(),
 	)
 
 	gc.flagSet = flagSet
@@ -36,12 +33,10 @@ func (gc *GCDumpFlagSet) Parse() *pflag.FlagSet {
 
 func (gc *GCDumpFlagSet) Args() []string {
 	args := gc.dt.Args()
-	if gc.flagSet.Changed("timeout") {
+	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args = append(
 			args,
-			[]string{
-				"--timeout", strconv.Itoa(gc.Timeout),
-			}...,
+			FlagToArg(&gc.Timeout)...,
 		)
 	}
 	return args

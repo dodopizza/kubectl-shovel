@@ -29,7 +29,15 @@ func Test_TraceSubcommand(t *testing.T) {
 			name: "Custom duration",
 			args: []string{
 				"--duration",
-				"00:00:00:15",
+				"00:00:00:30",
+			},
+			pod: sampleAppPod(),
+		},
+		{
+			name: "Custom duration with units",
+			args: []string{
+				"--duration",
+				"1m",
 			},
 			pod: sampleAppPod(),
 		},
