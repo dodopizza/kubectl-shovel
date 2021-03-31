@@ -16,6 +16,9 @@ func (c *CLREvents) String() string {
 }
 
 func (c *CLREvents) Set(str string) error {
+	if strings.TrimSpace(str) == "" {
+		return fmt.Errorf("passed empty CLR Events")
+	}
 	events := strings.Split(str, CLREventsDelimiter)
 	*c = events
 	return nil

@@ -6,6 +6,10 @@ RESET  := $(shell tput -Txterm sgr0)
 .PHONY: all
 all: help
 
+.PHONY: cover
+cover:
+	go tool cover -html ./cover.out
+
 .PHONY: doc
 doc:
 	./hacks/run-doc-generation.sh
@@ -44,6 +48,7 @@ help:
 	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
 	@echo ''
 	@echo 'Targets:'
+	@echo "  ${YELLOW}cover            ${RESET} Open html coverage report in browser"
 	@echo "  ${YELLOW}doc              ${RESET} Run doc generation"
 	@echo "  ${YELLOW}lint             ${RESET} Run linters via golangci-lint"
 	@echo "  ${YELLOW}prepare          ${RESET} Run all available checks and generators"

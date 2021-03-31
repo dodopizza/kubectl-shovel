@@ -1,6 +1,9 @@
 package flags
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type Providers []string
 
@@ -13,6 +16,9 @@ func (p *Providers) String() string {
 }
 
 func (p *Providers) Set(str string) error {
+	if strings.TrimSpace(str) == "" {
+		return fmt.Errorf("empty providers given")
+	}
 	providers := strings.Split(str, ProvidersDelimiter)
 	*p = providers
 	return nil
