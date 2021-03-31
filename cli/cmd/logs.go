@@ -9,7 +9,7 @@ import (
 )
 
 func handleLogs(readCloser io.ReadCloser) (string, error) {
-	eventsChan := make(chan string)
+	eventsChan := make(chan string, 1)
 
 	go func() {
 		defer readCloser.Close()

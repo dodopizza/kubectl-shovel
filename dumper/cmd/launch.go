@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -54,7 +55,9 @@ func launch(executable string, args ...string) error {
 		output,
 	)
 
-	if err := watchdog.Watch(); err != nil {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if err := watchdog.Watch(ctx); err != nil {
 		events.NewEvent(
 			events.Error,
 			err.Error(),

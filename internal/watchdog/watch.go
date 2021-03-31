@@ -1,30 +1,39 @@
 package watchdog
 
 import (
+	"context"
 	"errors"
 	"os"
 	"time"
 )
 
-func Watch() error {
+func Watch(ctx context.Context) error {
 	pingCh := make(chan struct{}, 1)
-	go watch(pingCh)
+	defer close(pingCh)
+	go watch(ctx, pingCh)
 	for {
 		select {
 		case <-pingCh:
+		case <-ctx.Done():
+			return nil
 		case <-time.After(deadAfterDuration):
 			return errors.New("There were no signals from operator for a long time")
 		}
 	}
 }
 
-func watch(pingCh chan<- struct{}) {
+func watch(ctx context.Context, pingCh chan<- struct{}) {
 	ticker := time.NewTicker(checkInterval)
 	defer ticker.Stop()
-	for range ticker.C {
-		isAlive := isOperatorAlive()
-		if isAlive {
-			pingCh <- struct{}{}
+	for {
+		select {
+		case <-ticker.C:
+			isAlive := isOperatorAlive()
+			if isAlive {
+				pingCh <- struct{}{}
+			}
+		case <-ctx.Done():
+			return
 		}
 	}
 }

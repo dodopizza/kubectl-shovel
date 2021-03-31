@@ -1,6 +1,7 @@
 package watchdog
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"os"
@@ -23,26 +24,34 @@ func NewOperator(k8s *kubernetes.Client, podName string) *Operator {
 	}
 }
 
-func (o *Operator) Run() error {
+func (o *Operator) Run(ctx context.Context) error {
 	successCh := make(chan struct{}, 1)
-	go o.run(successCh)
+	defer close(successCh)
+	go o.run(ctx, successCh)
 	for {
 		select {
 		case <-successCh:
+		case <-ctx.Done():
+			return nil
 		case <-time.After(deadAfterDuration):
 			return errors.New("There were some issues to send ping to pod for a long time")
 		}
 	}
 }
 
-func (o *Operator) run(successCh chan<- struct{}) {
+func (o *Operator) run(ctx context.Context, successCh chan<- struct{}) {
 	ticker := time.NewTicker(o.interval)
 	defer ticker.Stop()
-	for range ticker.C {
-		if err := o.ping(); err != nil {
-			continue
+	for {
+		select {
+		case <-ticker.C:
+			if err := o.ping(); err != nil {
+				continue
+			}
+			successCh <- struct{}{}
+		case <-ctx.Done():
+			return
 		}
-		successCh <- struct{}{}
 	}
 }
 
