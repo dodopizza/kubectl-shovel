@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -21,11 +19,5 @@ func newJobName() string {
 			uuid.NewString(),
 		},
 		"-",
-	)
-}
-
-func currentTime() string {
-	return strconv.Itoa(
-		int(time.Now().Unix()),
 	)
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -41,10 +42,10 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 		&options.output,
 		"output",
 		"o",
-		"./"+
-			currentTime()+
-			"."+
+		fmt.Sprintf(
+			"./output.%s",
 			tool,
+		),
 		"Output file",
 	)
 

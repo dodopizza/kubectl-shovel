@@ -62,7 +62,7 @@ Or convert any other format to speedscope format with:
       --cluster string                 The name of the kubeconfig cluster to use
   -c, --container string               Target container in pod. Required if pod run multiple containers
       --context string                 The name of the kubeconfig context to use
-      --duration duration              Trace for the given timespan and then automatically stop the trace. Provided in the form of dd:hh:mm:ss (default 00:00:00:10)
+      --duration duration              Trace for the given timespan and then automatically stop the trace.Provided in the form of dd:hh:mm:ss or corresponding time unit representation (e.g. 1s, 2m, 3h) (default 10s) (default 00:00:00:10)
       --format format                  Sets the output format for the trace file conversion. Supported formats:
                                        NetTrace, Chromium, Speedscope (default "NetTrace")
   -h, --help                           help for trace
@@ -70,7 +70,7 @@ Or convert any other format to speedscope format with:
       --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string              Path to the kubeconfig file to use for CLI requests.
   -n, --namespace string               If present, the namespace scope for this CLI request
-  -o, --output string                  Output file (default "./1617127716.trace")
+  -o, --output string                  Output file (default "./output.trace")
       --pod-name string                Target pod
   -p, --process-id int                 The process ID to collect the trace from (default 1)
       --profile profile                A named pre-defined set of provider configurations that allowscommon tracing scenarios to be specified succinctly.
