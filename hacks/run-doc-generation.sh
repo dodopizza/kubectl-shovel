@@ -1,4 +1,8 @@
 #!/bin/bash
 
 cd ./cli
-go run . doc
+go build \
+  -o ./bin/kubectl-shovel \
+  .
+
+HOME="/home/user" ./bin/kubectl-shovel doc

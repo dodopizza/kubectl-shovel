@@ -50,7 +50,7 @@ Or convert any other format to speedscope format with:
       --as string                      Username to impersonate for the operation
       --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
       --buffersize int                 Sets the size of the in-memory circular buffer, in megabytes (default 256)
-      --cache-dir string               Default cache directory (default "/Users/signal/.kube/cache")
+      --cache-dir string               Default cache directory (default "/home/user/.kube/cache")
       --certificate-authority string   Path to a cert file for the certificate authority
       --client-certificate string      Path to a client certificate file for TLS
       --client-key string              Path to a client key file for TLS
