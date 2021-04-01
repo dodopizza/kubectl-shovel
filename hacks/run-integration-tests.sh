@@ -35,7 +35,7 @@ kind load docker-image ${image_repository}:${image_tag}
 echo "Running tests..."
 go test -v \
   --tags=integration \
-  -timeout 100s \
+  -timeout 300s \
   ./test/integration/... | \
   sed "/PASS/s//$(printf "\033[32mPASS\033[0m")/" | \
   sed "/FAIL/s//$(printf "\033[31mFAIL\033[0m")/"
