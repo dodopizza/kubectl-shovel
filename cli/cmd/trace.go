@@ -31,7 +31,7 @@ func newTraceCommand() *cobra.Command {
 			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-trace",
 		Example: fmt.Sprintf(examplesTemplate, traceToolName) + "\n\n" +
 			"Use `--duration` to define duration of trace to 30 seconds:\n\n" +
-			"\tkubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --duration 00:00:00:30\n\n" +
+			"\tkubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --duration 30s\n\n" +
 			"Use `--format` to specify Speedscope format:\n\n" +
 			"\tkubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --format Speedscope\n\n" +
 			"And then you can analyze it with https://www.speedscope.app/\n" +

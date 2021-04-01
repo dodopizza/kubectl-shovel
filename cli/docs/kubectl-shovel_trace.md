@@ -32,7 +32,7 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
 
 Use `--duration` to define duration of trace to 30 seconds:
 
-	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --duration 00:00:00:30
+	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --duration 30s
 
 Use `--format` to specify Speedscope format:
 
