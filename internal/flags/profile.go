@@ -27,7 +27,6 @@ func (p *Profile) Set(str string) error {
 	if !ContainsItemString(supportedProfiles, str) {
 		return fmt.Errorf("unsupported profile \"%s\", must be one of: [%s]",
 			str, strings.Join(supportedProfiles, ", "))
-
 	}
 	*p = Profile(str)
 	return nil

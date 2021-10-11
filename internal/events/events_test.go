@@ -51,7 +51,7 @@ func Test_NewEvent(t *testing.T) {
 		writer.Close()
 
 		var buf bytes.Buffer
-		io.Copy(&buf, testStdout)
+		_, _ = io.Copy(&buf, testStdout)
 		actual := buf.String()
 		require.Equal(t, tc.eventString+"\n", actual)
 	}

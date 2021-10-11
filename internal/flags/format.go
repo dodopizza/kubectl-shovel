@@ -28,7 +28,6 @@ func (f *Format) Set(str string) error {
 	if !ContainsItemString(supportedFormats, str) {
 		return fmt.Errorf("unsupported format \"%s\", must be one of: [%s]",
 			str, strings.Join(supportedFormats, ", "))
-
 	}
 	*f = Format(str)
 	return nil
