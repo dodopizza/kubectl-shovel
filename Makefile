@@ -16,8 +16,7 @@ doc:
 
 .PHONY: lint
 lint:
-	golangci-lint run --tests=false
-	golangci-lint run --disable-all -E golint,goimports,misspell
+	golangci-lint run
 
 .PHONY: prepare
 prepare: tidy lint doc test
