@@ -29,6 +29,17 @@ spec:
         matchLabels:
           os: darwin
           arch: amd64
+    - {{addURIAndSha "https://github.com/dodopizza/kubectl-shovel/releases/download/{{ .TagName }}/kubectl-shovel_Darwin_arm64.tar.gz" .TagName | indent 6 }}
+      bin: kubectl-shovel
+      files:
+        - from: kubectl-shovel
+          to: .
+        - from: LICENSE
+          to: .
+      selector:
+        matchLabels:
+          os: darwin
+          arch: arm64
     - {{addURIAndSha "https://github.com/dodopizza/kubectl-shovel/releases/download/{{ .TagName }}/kubectl-shovel_Linux_x86_64.tar.gz" .TagName | indent 6 }}
       bin: kubectl-shovel
       files:
@@ -40,6 +51,17 @@ spec:
         matchLabels:
           os: linux
           arch: amd64
+    - {{addURIAndSha "https://github.com/dodopizza/kubectl-shovel/releases/download/{{ .TagName }}/kubectl-shovel_Linux_arm64.tar.gz" .TagName | indent 6 }}
+      bin: kubectl-shovel
+      files:
+        - from: kubectl-shovel
+          to: .
+        - from: LICENSE
+          to: .
+      selector:
+        matchLabels:
+          os: linux
+          arch: arm64
     - {{addURIAndSha "https://github.com/dodopizza/kubectl-shovel/releases/download/{{ .TagName }}/kubectl-shovel_Windows_x86_64.zip" .TagName | indent 6 }}
       bin: kubectl-shovel.exe
       files:
