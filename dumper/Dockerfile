@@ -1,14 +1,18 @@
 ARG ARCH=
+ARG RUNTIME_VERSION=3.1.20
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-bionic${ARCH} as tools-install
 
 RUN dotnet tool install -g dotnet-gcdump && \
-    dotnet tool install -g dotnet-trace
+    dotnet tool install -g dotnet-trace && \
+    dotnet tool install -g dotnet-dump
 
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1-bionic${ARCH}
+FROM mcr.microsoft.com/dotnet/core/runtime:${RUNTIME_VERSION}-bionic${ARCH}
 
+ARG RUNTIME_VERSION=3.1.20
 ARG DOTNET_TOOLS_PATH="/root/.dotnet/tools"
-ENV PATH="${PATH}:${DOTNET_TOOLS_PATH}"
+ARG DOTNET_INTERNAL_TOOLS_PATH="/usr/share/dotnet/shared/Microsoft.NETCore.App/${RUNTIME_VERSION}"
+ENV PATH="${PATH}:${DOTNET_TOOLS_PATH}:${DOTNET_INTERNAL_TOOLS_PATH}"
 WORKDIR /app
 
 COPY --from=tools-install ${DOTNET_TOOLS_PATH} ${DOTNET_TOOLS_PATH}
