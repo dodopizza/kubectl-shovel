@@ -43,8 +43,8 @@ func newManagedDumpCommand() *cobra.Command {
 }
 
 func (options *managedDumpOptions) parse() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet(gcDumpToolName, pflag.ExitOnError)
-	flagSet.AddFlagSet(options.commonOptions.newCommonFlags(gcDumpToolName))
+	flagSet := pflag.NewFlagSet(managedDumpToolName, pflag.ExitOnError)
+	flagSet.AddFlagSet(options.commonOptions.newCommonFlags(managedDumpToolName))
 
 	options.ManagedDumpFlagSet = flags.NewManagedDumpFlagSet()
 	flagSet.AddFlagSet(options.ManagedDumpFlagSet.Parse())
