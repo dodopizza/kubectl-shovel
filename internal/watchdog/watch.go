@@ -9,8 +9,9 @@ import (
 
 func Watch(ctx context.Context) error {
 	pingCh := make(chan struct{}, 1)
-	defer close(pingCh)
+
 	go watch(ctx, pingCh)
+
 	for {
 		select {
 		case <-pingCh:
@@ -25,6 +26,8 @@ func Watch(ctx context.Context) error {
 func watch(ctx context.Context, pingCh chan<- struct{}) {
 	ticker := time.NewTicker(checkInterval)
 	defer ticker.Stop()
+	defer close(pingCh)
+
 	for {
 		select {
 		case <-ticker.C:
