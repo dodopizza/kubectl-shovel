@@ -27,7 +27,14 @@ func Test_ManagedDumpSubcommand(t *testing.T) {
 			pod:  sampleAppPod(),
 		},
 		{
-			name: "Multicontainer pod",
+			name: "Custom type",
+			args: []string{
+				"--type", "Heap",
+			},
+			pod: sampleAppPod(),
+		},
+		{
+			name: "MultiContainer pod",
 			args: []string{
 				"--container",
 				targetContainerName,
