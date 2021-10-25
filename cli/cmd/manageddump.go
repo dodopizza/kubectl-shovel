@@ -26,7 +26,8 @@ func newManagedDumpCommand() *cobra.Command {
 		Long: "This subcommand will run dotnet-dump tool for running in k8s application.\n" +
 			"Result will be saved locally so you'll be able to analyze it with appropriate tools.\n" +
 			"You can find more info about dotnet-dump tool by the following links:\n\n" +
-			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-dump#using-dotnet-dump/\n",
+			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-dump\n" +
+			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/debug-linux-dumps\n",
 		Example: fmt.Sprintf(examplesTemplate, managedDumpToolName),
 		RunE: func(*cobra.Command, []string) error {
 			return options.run()
