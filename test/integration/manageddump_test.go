@@ -15,7 +15,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
 
-func Test_ManagedDumpSubcommand(t *testing.T) {
+func Test_DumpSubcommand(t *testing.T) {
 	testCases := []struct {
 		name string
 		args []string

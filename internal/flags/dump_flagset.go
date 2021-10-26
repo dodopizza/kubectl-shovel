@@ -4,22 +4,22 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type ManagedDumpFlagSet struct {
+type DumpFlagSet struct {
 	Diagnostics bool
 	Type        DumpType
 	dt          *DotnetToolsFlagSet
 	flagSet     *pflag.FlagSet
 }
 
-func NewManagedDumpFlagSet() *ManagedDumpFlagSet {
-	return &ManagedDumpFlagSet{
+func NewDumpFlagSet() *DumpFlagSet {
+	return &DumpFlagSet{
 		Diagnostics: false,
 		Type:        DumpTypeFull,
 		dt:          NewDotnetToolsFlagSet(),
 	}
 }
 
-func (dump *ManagedDumpFlagSet) Parse() *pflag.FlagSet {
+func (dump *DumpFlagSet) Parse() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-dump", pflag.ExitOnError)
 	flagSet.AddFlagSet(dump.dt.Parse())
 	flagSet.BoolVar(
@@ -38,7 +38,7 @@ func (dump *ManagedDumpFlagSet) Parse() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dump *ManagedDumpFlagSet) Args() []string {
+func (dump *DumpFlagSet) Args() []string {
 	args := dump.dt.Args()
 	if dump.flagSet.Changed("diag") {
 		args = append(args, "--diag")

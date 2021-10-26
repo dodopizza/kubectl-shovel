@@ -58,7 +58,7 @@ func initializeRootCmd() error {
 
 	rootCmd.AddCommand(newGCDumpCommand())
 	rootCmd.AddCommand(newTraceCommand())
-	rootCmd.AddCommand(newManagedDumpCommand())
+	rootCmd.AddCommand(newDumpCommand())
 
 	return nil
 }

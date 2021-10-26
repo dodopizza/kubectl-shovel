@@ -10,12 +10,12 @@ const (
 	dotnetDumpBinary = "dotnet-dump"
 )
 
-type managedDumpOptions struct {
-	*flags.ManagedDumpFlagSet
+type dumpOptions struct {
+	*flags.DumpFlagSet
 }
 
-func newManagedDumpCommand() *cobra.Command {
-	options := &managedDumpOptions{}
+func newDumpCommand() *cobra.Command {
+	options := &dumpOptions{}
 
 	cmd := &cobra.Command{
 		Use:   "dump [flags]",
@@ -23,7 +23,7 @@ func newManagedDumpCommand() *cobra.Command {
 		Short: "",
 		Long:  "",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return makeManagedDump(options)
+			return makeDump(options)
 		},
 	}
 
@@ -36,16 +36,16 @@ func newManagedDumpCommand() *cobra.Command {
 	return cmd
 }
 
-func (options *managedDumpOptions) parse() *pflag.FlagSet {
+func (options *dumpOptions) parse() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dump", pflag.ExitOnError)
 
-	options.ManagedDumpFlagSet = flags.NewManagedDumpFlagSet()
-	flagSet.AddFlagSet(options.ManagedDumpFlagSet.Parse())
+	options.DumpFlagSet = flags.NewDumpFlagSet()
+	flagSet.AddFlagSet(options.DumpFlagSet.Parse())
 
 	return flagSet
 }
 
-func makeManagedDump(options *managedDumpOptions) error {
+func makeDump(options *dumpOptions) error {
 	args := append(
 		[]string{"collect"},
 		options.Args()...,

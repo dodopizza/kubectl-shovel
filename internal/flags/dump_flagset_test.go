@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_ManagedDumpFlagSet(t *testing.T) {
+func Test_DumpFlagSet(t *testing.T) {
 	testCases := []struct {
 		name    string
 		args    []string
@@ -57,7 +57,7 @@ func Test_ManagedDumpFlagSet(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewManagedDumpFlagSet()
+			gc := NewDumpFlagSet()
 			flagSet.AddFlagSet(gc.Parse())
 
 			require.NoError(t, flagSet.Parse(tc.args))
@@ -66,7 +66,7 @@ func Test_ManagedDumpFlagSet(t *testing.T) {
 	}
 }
 
-func Test_ManagedDumpFlagSet_Errors(t *testing.T) {
+func Test_DumpFlagSet_Errors(t *testing.T) {
 	testCases := []struct {
 		name string
 		args []string
@@ -94,7 +94,7 @@ func Test_ManagedDumpFlagSet_Errors(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewGCDumpFlagSet()
+			gc := NewDumpFlagSet()
 			flagSet.AddFlagSet(gc.Parse())
 
 			require.Error(t, flagSet.Parse(tc.args))

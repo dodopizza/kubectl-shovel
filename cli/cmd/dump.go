@@ -8,27 +8,27 @@ import (
 )
 
 const (
-	managedDumpToolName = "dump"
+	dumpToolName = "dump"
 )
 
-type managedDumpOptions struct {
+type dumpOptions struct {
 	*commonOptions
-	*flags.ManagedDumpFlagSet
+	*flags.DumpFlagSet
 }
 
-func newManagedDumpCommand() *cobra.Command {
-	options := &managedDumpOptions{
+func newDumpCommand() *cobra.Command {
+	options := &dumpOptions{
 		commonOptions: &commonOptions{},
 	}
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s [flags]", managedDumpToolName),
+		Use:   fmt.Sprintf("%s [flags]", dumpToolName),
 		Short: "Get dotnet-dump results",
 		Long: "This subcommand will run dotnet-dump tool for running in k8s application.\n" +
 			"Result will be saved locally so you'll be able to analyze it with appropriate tools.\n" +
 			"You can find more info about dotnet-dump tool by the following links:\n\n" +
 			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-dump\n" +
 			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/debug-linux-dumps\n",
-		Example: fmt.Sprintf(examplesTemplate, managedDumpToolName),
+		Example: fmt.Sprintf(examplesTemplate, dumpToolName),
 		RunE: func(*cobra.Command, []string) error {
 			return options.run()
 		},
@@ -43,20 +43,20 @@ func newManagedDumpCommand() *cobra.Command {
 	return cmd
 }
 
-func (options *managedDumpOptions) parse() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet(managedDumpToolName, pflag.ExitOnError)
-	flagSet.AddFlagSet(options.commonOptions.newCommonFlags(managedDumpToolName))
+func (options *dumpOptions) parse() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet(dumpToolName, pflag.ExitOnError)
+	flagSet.AddFlagSet(options.commonOptions.newCommonFlags(dumpToolName))
 
-	options.ManagedDumpFlagSet = flags.NewManagedDumpFlagSet()
-	flagSet.AddFlagSet(options.ManagedDumpFlagSet.Parse())
+	options.DumpFlagSet = flags.NewDumpFlagSet()
+	flagSet.AddFlagSet(options.DumpFlagSet.Parse())
 
 	return flagSet
 }
 
-func (options *managedDumpOptions) run() error {
+func (options *dumpOptions) run() error {
 	return run(
 		options.commonOptions,
-		managedDumpToolName,
+		dumpToolName,
 		options.Args()...,
 	)
 }
