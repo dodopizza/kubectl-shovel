@@ -1,13 +1,12 @@
-ARG ARCH=
 ARG RUNTIME_VERSION=3.1.20
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-bionic${ARCH} as tools-install
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-bionic as tools-install
 
 RUN dotnet tool install -g dotnet-gcdump && \
     dotnet tool install -g dotnet-trace && \
     dotnet tool install -g dotnet-dump
 
-FROM mcr.microsoft.com/dotnet/core/runtime:${RUNTIME_VERSION}-bionic${ARCH}
+FROM mcr.microsoft.com/dotnet/core/runtime:${RUNTIME_VERSION}-bionic
 
 ARG RUNTIME_VERSION=3.1.20
 ARG DOTNET_TOOLS_PATH="/root/.dotnet/tools"

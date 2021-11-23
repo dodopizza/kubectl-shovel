@@ -13,11 +13,7 @@ if [ "${current_context}" != "${kind_context}" ]; then
 fi
 
 arch=${1:-amd64}
-if [ "$arch" == "amd64" ]; then
-  docker_build_args=""
-elif [ "$arch" == "arm64" ]; then
-  docker_build_args="--build-arg ARCH=-arm64v8"
-else
+if [ "$arch" != "amd64" ] && [ "$arch" != "arm64" ]; then
   echo "Unsupported arch, choose from: amd64 or arm64"
   exit 1
 fi
@@ -32,10 +28,12 @@ image_tag="latest"
 image_repository="kubectl-shovel/dumper-integration-tests"
 
 echo "Building dumper's image..."
-docker build \
+docker buildx build \
+  --platform "linux/$arch" \
+  --progress plain \
+  --load \
   -t ${image_repository}:${image_tag} \
   -f "${project_dir}/dumper/Dockerfile" \
-  $docker_build_args \
   "${project_dir}/dumper"
 rm "${project_dir}/dumper/bin/dumper"
 
