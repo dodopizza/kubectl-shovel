@@ -26,8 +26,9 @@ func NewOperator(k8s *kubernetes.Client, podName string) *Operator {
 
 func (o *Operator) Run(ctx context.Context) error {
 	successCh := make(chan struct{}, 1)
-	defer close(successCh)
+
 	go o.run(ctx, successCh)
+
 	for {
 		select {
 		case <-successCh:
@@ -42,6 +43,8 @@ func (o *Operator) Run(ctx context.Context) error {
 func (o *Operator) run(ctx context.Context, successCh chan<- struct{}) {
 	ticker := time.NewTicker(o.interval)
 	defer ticker.Stop()
+	defer close(successCh)
+
 	for {
 		select {
 		case <-ticker.C:
