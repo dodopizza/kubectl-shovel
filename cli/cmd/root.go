@@ -16,12 +16,12 @@ func NewShovelCommand() *cobra.Command {
 		DisableAutoGenTag: true,
 	}
 
-	cmd.AddCommand(newDocCmd())
-	cmd.AddCommand(newVersionCmd())
+	cmd.AddCommand(NewDocCommand())
+	cmd.AddCommand(NewVersionCommand())
 
-	cmd.AddCommand(newGCDumpCommand())
-	cmd.AddCommand(newTraceCommand())
-	cmd.AddCommand(newDumpCommand())
+	cmd.AddCommand(NewGCDumpCommand())
+	cmd.AddCommand(NewTraceCommand())
+	cmd.AddCommand(NewDumpCommand())
 
 	return cmd
 }

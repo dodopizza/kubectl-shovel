@@ -8,7 +8,8 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
-func newVersionCmd() *cobra.Command {
+// NewVersionCommand return command that returns plugin version
+func NewVersionCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
 		Args:  cobra.NoArgs,
