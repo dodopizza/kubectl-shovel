@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"context"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/google/uuid"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func JobName() string {
-	parts := []string{"kubectl-shovel", uuid.NewString()}
+	parts := []string{globals.PluginName, uuid.NewString()}
 	return strings.Join(parts, "-")
 }
 
@@ -62,7 +63,7 @@ func (k8s *Client) RunJob(
 					Containers: []apiv1.Container{
 						{
 							ImagePullPolicy: v1.PullIfNotPresent,
-							Name:            "kubectl-shovel",
+							Name:            globals.PluginName,
 							Image:           imageName,
 							TTY:             true,
 							Stdin:           true,

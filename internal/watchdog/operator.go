@@ -3,6 +3,7 @@ package watchdog
 import (
 	"context"
 	"errors"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"io/ioutil"
 	"os"
 	"time"
@@ -60,7 +61,7 @@ func (o *Operator) run(ctx context.Context, successCh chan<- struct{}) {
 
 // ping leave mark that operator is alive. Periodically update file at pod
 func (o *Operator) ping() error {
-	file, err := ioutil.TempFile("", "kubectl-shovel")
+	file, err := ioutil.TempFile("", globals.PluginName)
 	if err != nil {
 		return err
 	}

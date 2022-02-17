@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 
 	"github.com/pkg/errors"
 
@@ -66,7 +67,7 @@ func run(
 		}
 	}()
 
-	stream, err := k8s.ReadPodLogs(jobPodName, "kubectl-shovel")
+	stream, err := k8s.ReadPodLogs(jobPodName, globals.PluginName)
 	if err != nil {
 		return err
 	}

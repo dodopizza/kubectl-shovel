@@ -2,13 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 
-	"github.com/dodopizza/kubectl-shovel/internal/version"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
 type commonOptions struct {
@@ -52,13 +50,7 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 	flagSet.StringVar(
 		&options.image,
 		"image",
-		strings.Join(
-			[]string{
-				dumperImageName,
-				version.GetVersion(),
-			},
-			":",
-		),
+		globals.GetDumperImage(),
 		"Image of dumper to use for job",
 	)
 	options.kubeFlags = genericclioptions.NewConfigFlags(false)

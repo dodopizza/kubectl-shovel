@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/dodopizza/kubectl-shovel/internal/version"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
 func newVersionCmd() *cobra.Command {
@@ -14,7 +14,7 @@ func newVersionCmd() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Short: "Print your cli version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(version.GetVersion())
+			fmt.Println(globals.GetVersion())
 		},
 	}
 
