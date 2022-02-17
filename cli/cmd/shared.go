@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -18,7 +19,14 @@ type commonOptions struct {
 	kubeFlags *genericclioptions.ConfigFlags
 }
 
-func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
+type DiagnosticToolOptions struct {
+	CommonOptions           *commonOptions
+	FlagSetContainer        flags.FlagSetContainer
+	FlagSetContainerFactory flags.FlagSetContainerFactory
+	Tool                    string
+}
+
+func (options *commonOptions) Parse(tool string) *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("common", pflag.ExitOnError)
 	flagSet.StringVar(
 		&options.podName,
@@ -57,4 +65,26 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 	options.kubeFlags.AddFlags(flagSet)
 
 	return flagSet
+}
+
+func NewDiagnosticToolOptions(tool string, factory flags.FlagSetContainerFactory) *DiagnosticToolOptions {
+	return &DiagnosticToolOptions{
+		CommonOptions:           &commonOptions{},
+		FlagSetContainerFactory: factory,
+		Tool:                    tool,
+	}
+}
+
+func (dt *DiagnosticToolOptions) Parse() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet(dt.Tool, pflag.ExitOnError)
+	flagSet.AddFlagSet(dt.CommonOptions.Parse(dt.Tool))
+
+	dt.FlagSetContainer = dt.FlagSetContainerFactory()
+	flagSet.AddFlagSet(dt.FlagSetContainer.Parse())
+
+	return flagSet
+}
+
+func (dt *DiagnosticToolOptions) Run() error {
+	return launch(dt.CommonOptions, dt.Tool, dt.FlagSetContainer.Args()...)
 }

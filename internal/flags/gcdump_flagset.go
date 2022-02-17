@@ -12,7 +12,7 @@ type GCDumpFlagSet struct {
 	flagSet *pflag.FlagSet
 }
 
-func NewGCDumpFlagSet() *GCDumpFlagSet {
+func NewGCDumpFlagSet() FlagSetContainer {
 	return &GCDumpFlagSet{
 		Timeout: 30,
 		dt:      NewDotnetToolsFlagSet(),

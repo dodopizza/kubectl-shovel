@@ -21,7 +21,7 @@ type TraceFlagSet struct {
 	flagSet *pflag.FlagSet
 }
 
-func NewTraceFlagSet() *TraceFlagSet {
+func NewTraceFlagSet() FlagSetContainer {
 	return &TraceFlagSet{
 		BufferSize: 256,
 		dt:         NewDotnetToolsFlagSet(),

@@ -5,59 +5,24 @@ import (
 
 	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
-
-const (
-	gcDumpToolName = "gcdump"
-)
-
-type gcDumpOptions struct {
-	*commonOptions
-	*flags.GCDumpFlagSet
-}
 
 func newGCDumpCommand() *cobra.Command {
-	options := &gcDumpOptions{
-		commonOptions: &commonOptions{},
-	}
+	options := NewDiagnosticToolOptions("gcdump", flags.NewGCDumpFlagSet)
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s [flags]", gcDumpToolName),
+		Use:   fmt.Sprintf("%s [flags]", options.Tool),
 		Short: "Get dotnet-gcdump results",
 		Long: "This subcommand will run dotnet-gcdump tool for running in k8s appplication.\n" +
 			"Result will be saved locally so you'll be able to analyze it with appropriate tools.\n" +
 			"You can find more info about dotnet-gcdump tool by the following links:\n\n" +
 			"\t* https://devblogs.microsoft.com/dotnet/collecting-and-analyzing-memory-dumps/\n" +
 			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-gcdump",
-		Example: fmt.Sprintf(examplesTemplate, gcDumpToolName),
+		Example: fmt.Sprintf(examplesTemplate, options.Tool),
 		RunE: func(*cobra.Command, []string) error {
-			return options.makeGCDump()
+			return options.Run()
 		},
 	}
 
-	cmd.
-		Flags().
-		AddFlagSet(
-			options.parseFlags(),
-		)
-
+	cmd.Flags().AddFlagSet(options.Parse())
 	return cmd
-}
-
-func (options *gcDumpOptions) parseFlags() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet(gcDumpToolName, pflag.ExitOnError)
-	flagSet.AddFlagSet(options.commonOptions.newCommonFlags(gcDumpToolName))
-
-	options.GCDumpFlagSet = flags.NewGCDumpFlagSet()
-	flagSet.AddFlagSet(options.GCDumpFlagSet.Parse())
-
-	return flagSet
-}
-
-func (options *gcDumpOptions) makeGCDump() error {
-	return run(
-		options.commonOptions,
-		gcDumpToolName,
-		options.Args()...,
-	)
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
-func run(
+func launch(
 	options *commonOptions,
 	tool string,
 	args ...string,
