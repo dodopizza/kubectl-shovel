@@ -20,13 +20,12 @@ type commonOptions struct {
 }
 
 type DiagnosticToolOptions struct {
-	CommonOptions           *commonOptions
-	FlagSetContainer        flags.FlagSetContainer
-	FlagSetContainerFactory flags.FlagSetContainerFactory
-	Tool                    string
+	CommonOptions *commonOptions
+	FlagSet       flags.DotnetToolFlagSet
+	Tool          string
 }
 
-func (options *commonOptions) Parse(tool string) *pflag.FlagSet {
+func (options *commonOptions) GetFlags(tool string) *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("common", pflag.ExitOnError)
 	flagSet.StringVar(
 		&options.podName,
@@ -67,24 +66,21 @@ func (options *commonOptions) Parse(tool string) *pflag.FlagSet {
 	return flagSet
 }
 
-func NewDiagnosticToolOptions(tool string, factory flags.FlagSetContainerFactory) *DiagnosticToolOptions {
+func NewDiagnosticToolOptions(tool string, factory flags.DotnetToolFlagSetFactory) *DiagnosticToolOptions {
 	return &DiagnosticToolOptions{
-		CommonOptions:           &commonOptions{},
-		FlagSetContainerFactory: factory,
-		Tool:                    tool,
+		CommonOptions: &commonOptions{},
+		FlagSet:       factory(),
+		Tool:          tool,
 	}
 }
 
 func (dt *DiagnosticToolOptions) Parse() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet(dt.Tool, pflag.ExitOnError)
-	flagSet.AddFlagSet(dt.CommonOptions.Parse(dt.Tool))
-
-	dt.FlagSetContainer = dt.FlagSetContainerFactory()
-	flagSet.AddFlagSet(dt.FlagSetContainer.GetFlags())
-
-	return flagSet
+	fs := pflag.NewFlagSet(dt.Tool, pflag.ExitOnError)
+	fs.AddFlagSet(dt.CommonOptions.GetFlags(dt.Tool))
+	fs.AddFlagSet(dt.FlagSet.GetFlags())
+	return fs
 }
 
 func (dt *DiagnosticToolOptions) Run() error {
-	return launch(dt.CommonOptions, dt.Tool, dt.FlagSetContainer.GetArgs()...)
+	return launch(dt.CommonOptions, dt.Tool, dt.FlagSet.GetArgs()...)
 }

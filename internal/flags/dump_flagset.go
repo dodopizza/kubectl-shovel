@@ -12,7 +12,7 @@ type DumpFlagSet struct {
 	flagSet     *pflag.FlagSet
 }
 
-func NewDumpFlagSet() FlagSetContainer {
+func NewDumpFlagSet() DotnetToolFlagSet {
 	return &DumpFlagSet{
 		Diagnostics: false,
 		Type:        types.DumpTypeFull,

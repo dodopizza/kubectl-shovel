@@ -6,11 +6,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// todo: better naming
+type DotnetToolFlagSetFactory func() DotnetToolFlagSet
 
-type FlagSetContainerFactory func() FlagSetContainer
-
-type FlagSetContainer interface {
+type DotnetToolFlagSet interface {
 	GetFlags() *pflag.FlagSet
 	GetArgs() []string
 }

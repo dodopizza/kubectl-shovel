@@ -9,18 +9,17 @@ import (
 
 // CommandBuilder represents logic for building and running tools
 type CommandBuilder struct {
-	BinaryName              string
-	FlagSetContainer        flags.FlagSetContainer
-	FlagSetContainerFactory flags.FlagSetContainerFactory
-	ToolName                string
+	BinaryName string
+	FlagSet    flags.DotnetToolFlagSet
+	ToolName   string
 }
 
 // NewCommandBuilder returns options with specified tool name
-func NewCommandBuilder(binary, tool string, factory flags.FlagSetContainerFactory) *CommandBuilder {
+func NewCommandBuilder(binary, tool string, factory flags.DotnetToolFlagSetFactory) *CommandBuilder {
 	return &CommandBuilder{
-		BinaryName:              binary,
-		FlagSetContainerFactory: factory,
-		ToolName:                tool,
+		BinaryName: binary,
+		FlagSet:    factory(),
+		ToolName:   tool,
 	}
 }
 
@@ -41,18 +40,15 @@ func (db *CommandBuilder) Build() *cobra.Command {
 }
 
 func (db *CommandBuilder) flags() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet(db.ToolName, pflag.ExitOnError)
-
-	db.FlagSetContainer = db.FlagSetContainerFactory()
-	flagSet.AddFlagSet(db.FlagSetContainer.GetFlags())
-
-	return flagSet
+	fs := pflag.NewFlagSet(db.ToolName, pflag.ExitOnError)
+	fs.AddFlagSet(db.FlagSet.GetFlags())
+	return fs
 }
 
 func (db *CommandBuilder) run() error {
 	args := append(
 		[]string{"collect"},
-		db.FlagSetContainer.GetArgs()...,
+		db.FlagSet.GetArgs()...,
 	)
 
 	return launch(
