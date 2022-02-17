@@ -50,10 +50,8 @@ func initializeRootCmd() error {
 			containerInfo.Runtime,
 			"Container Runtime to run tool for",
 		)
-	err := rootCmd.MarkPersistentFlagRequired("container-runtime")
-	if err != nil {
-		return err
-	}
+	_ = rootCmd.MarkPersistentFlagRequired("container-id")
+	_ = rootCmd.MarkPersistentFlagRequired("container-runtime")
 
 	rootCmd.AddCommand(newGCDumpCommand())
 	rootCmd.AddCommand(newTraceCommand())

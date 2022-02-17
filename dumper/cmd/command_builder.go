@@ -7,39 +7,40 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// todo: better naming
-
-type DiagnosticBinaryOptions struct {
+// CommandBuilder represents logic for building and running tools
+type CommandBuilder struct {
 	BinaryName              string
 	FlagSetContainer        flags.FlagSetContainer
 	FlagSetContainerFactory flags.FlagSetContainerFactory
 	ToolName                string
 }
 
-func NewDiagnosticBinaryOptions(binary, tool string, factory flags.FlagSetContainerFactory) *DiagnosticBinaryOptions {
-	return &DiagnosticBinaryOptions{
+// NewCommandBuilder returns options with specified tool name
+func NewCommandBuilder(binary, tool string, factory flags.FlagSetContainerFactory) *CommandBuilder {
+	return &CommandBuilder{
 		BinaryName:              binary,
 		FlagSetContainerFactory: factory,
 		ToolName:                tool,
 	}
 }
 
-func (db *DiagnosticBinaryOptions) GetCommand() *cobra.Command {
+// Build will build command *cobra.Command from options
+func (db *CommandBuilder) Build() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   fmt.Sprintf("%s [flags]", db.ToolName),
 		Args:  cobra.NoArgs,
 		Short: "",
 		Long:  "",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return db.Run()
+			return db.run()
 		},
 	}
 
-	cmd.PersistentFlags().AddFlagSet(db.GetFlags())
+	cmd.PersistentFlags().AddFlagSet(db.flags())
 	return cmd
 }
 
-func (db *DiagnosticBinaryOptions) GetFlags() *pflag.FlagSet {
+func (db *CommandBuilder) flags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(db.ToolName, pflag.ExitOnError)
 
 	db.FlagSetContainer = db.FlagSetContainerFactory()
@@ -48,7 +49,7 @@ func (db *DiagnosticBinaryOptions) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (db *DiagnosticBinaryOptions) Run() error {
+func (db *CommandBuilder) run() error {
 	args := append(
 		[]string{"collect"},
 		db.FlagSetContainer.GetArgs()...,
