@@ -73,20 +73,3 @@ func getContainerInfoByName(
 		pod.Name,
 	)
 }
-
-// NewJobVolume create new helper job volume
-func NewJobVolume(containerInfo *ContainerInfo) *JobVolume {
-	if containerInfo.Runtime == "containerd" {
-		return &JobVolume{
-			Name:      "containerdfs",
-			HostPath:  "/run/containerd",
-			MountPath: "/run/containerd",
-		}
-	}
-
-	return &JobVolume{
-		Name:      "dockerfs",
-		HostPath:  "/var/lib/docker",
-		MountPath: "/var/lib/docker",
-	}
-}

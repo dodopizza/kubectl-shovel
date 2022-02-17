@@ -9,16 +9,25 @@ import (
 	"strings"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/utils"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
-func launch(executable string, args ...string) error {
+func launch(
+	commonOptions commonOptions,
+	executable string,
+	args ...string,
+) error {
 	events.NewEvent(
 		events.Status,
 		"Looking for and mapping container fs",
 	)
 
+	containerInfo := &kubernetes.ContainerInfo{
+		Runtime: commonOptions.containerRuntime,
+		ID:      commonOptions.containerID,
+	}
 	containerFS, err := containerInfo.GetMountPoint()
 	if err != nil {
 		return err

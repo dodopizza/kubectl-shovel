@@ -33,7 +33,7 @@ func launch(
 	}
 
 	jobName := kubernetes.JobName()
-	jobVolume := kubernetes.NewJobVolume(containerInfo)
+	jobVolume := containerInfo.GetJobVolume()
 
 	fmt.Println("Spawning diagnostics job")
 	args = append([]string{

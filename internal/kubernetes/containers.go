@@ -2,7 +2,6 @@ package kubernetes
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -16,13 +15,26 @@ type ContainerInfo struct {
 
 // GetMountPoint returns mount point depending ContainerRuntime
 func (ci *ContainerInfo) GetMountPoint() (string, error) {
-	switch ci.Runtime {
-	case "docker":
+	if ci.Runtime == "docker" {
 		return ci.dockerMountPoint()
-	case "containerd":
-		return ci.containerDMountPoint()
-	default:
-		return "", errors.New("unknown container runtime")
+	}
+	return ci.containerDMountPoint()
+}
+
+// GetJobVolume returns helper job volume
+func (ci *ContainerInfo) GetJobVolume() *JobVolume {
+	if ci.Runtime == "containerd" {
+		return &JobVolume{
+			Name:      "containerdfs",
+			HostPath:  "/run/containerd",
+			MountPath: "/run/containerd",
+		}
+	}
+
+	return &JobVolume{
+		Name:      "dockerfs",
+		HostPath:  "/var/lib/docker",
+		MountPath: "/var/lib/docker",
 	}
 }
 
