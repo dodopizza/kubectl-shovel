@@ -9,50 +9,46 @@ import (
 
 // CommandBuilder represents logic for building and running tools
 type CommandBuilder struct {
-	BinaryName string
-	FlagSet    flags.DotnetTool
-	ToolName   string
+	tool flags.DotnetTool
 }
 
 // NewCommandBuilder returns options with specified tool name
-func NewCommandBuilder(binary, tool string, factory flags.DotnetToolFactory) *CommandBuilder {
+func NewCommandBuilder(factory flags.DotnetToolFactory) *CommandBuilder {
 	return &CommandBuilder{
-		BinaryName: binary,
-		FlagSet:    factory(),
-		ToolName:   tool,
+		tool: factory(),
 	}
 }
 
 // Build will build command *cobra.Command from options
-func (db *CommandBuilder) Build() *cobra.Command {
+func (cb *CommandBuilder) Build() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s [flags]", db.ToolName),
+		Use:   fmt.Sprintf("%s [flags]", cb.tool.ToolName()),
 		Args:  cobra.NoArgs,
 		Short: "",
 		Long:  "",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return db.run()
+			return cb.run()
 		},
 	}
 
-	cmd.PersistentFlags().AddFlagSet(db.flags())
+	cmd.PersistentFlags().AddFlagSet(cb.flags())
 	return cmd
 }
 
-func (db *CommandBuilder) flags() *pflag.FlagSet {
-	fs := pflag.NewFlagSet(db.ToolName, pflag.ExitOnError)
-	fs.AddFlagSet(db.FlagSet.GetFlags())
+func (cb *CommandBuilder) flags() *pflag.FlagSet {
+	fs := pflag.NewFlagSet(cb.tool.ToolName(), pflag.ExitOnError)
+	fs.AddFlagSet(cb.tool.GetFlags())
 	return fs
 }
 
-func (db *CommandBuilder) run() error {
+func (cb *CommandBuilder) run() error {
 	args := append(
 		[]string{"collect"},
-		db.FlagSet.GetArgs()...,
+		cb.tool.GetArgs()...,
 	)
 
 	return launch(
-		db.BinaryName,
+		cb.tool.BinaryName(),
 		args...,
 	)
 }

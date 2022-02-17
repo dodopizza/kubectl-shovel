@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -53,9 +54,9 @@ func initializeRootCmd() error {
 	_ = rootCmd.MarkPersistentFlagRequired("container-id")
 	_ = rootCmd.MarkPersistentFlagRequired("container-runtime")
 
-	rootCmd.AddCommand(newGCDumpCommand())
-	rootCmd.AddCommand(newTraceCommand())
-	rootCmd.AddCommand(newDumpCommand())
+	rootCmd.AddCommand(NewCommandBuilder(flags.NewDotnetGCDump).Build())
+	rootCmd.AddCommand(NewCommandBuilder(flags.NewDotnetTrace).Build())
+	rootCmd.AddCommand(NewCommandBuilder(flags.NewDotnetDump).Build())
 
 	return nil
 }
