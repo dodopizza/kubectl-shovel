@@ -7,7 +7,7 @@ import (
 )
 
 func newDumpCommand() *cobra.Command {
-	options := NewDiagnosticToolOptions("dump", flags.NewDumpFlagSet)
+	options := NewDiagnosticToolOptions("dump", flags.NewDotnetDump)
 	cmd := &cobra.Command{
 		Use:   fmt.Sprintf("%s [flags]", options.Tool),
 		Short: "Get dotnet-dump results",

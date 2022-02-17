@@ -57,7 +57,7 @@ func Test_DumpFlagSet(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewDumpFlagSet()
+			gc := NewDotnetDump()
 			flagSet.AddFlagSet(gc.GetFlags())
 
 			require.NoError(t, flagSet.Parse(tc.args))
@@ -94,7 +94,7 @@ func Test_DumpFlagSet_Errors(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewDumpFlagSet()
+			gc := NewDotnetDump()
 			flagSet.AddFlagSet(gc.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))

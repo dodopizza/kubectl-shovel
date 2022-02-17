@@ -5,45 +5,54 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type DumpFlagSet struct {
+type DotnetDump struct {
 	Diagnostics bool
 	Type        types.DumpType
-	dt          *DotnetToolsFlagSet
-	flagSet     *pflag.FlagSet
+	dt          *DotnetToolShared
+
+	flagSet *pflag.FlagSet
 }
 
-func NewDumpFlagSet() DotnetToolFlagSet {
-	return &DumpFlagSet{
+func NewDotnetDump() DotnetTool {
+	return &DotnetDump{
 		Diagnostics: false,
 		Type:        types.DumpTypeFull,
-		dt:          NewDotnetToolsFlagSet(),
+		dt:          NewDotnetToolShared(),
 	}
 }
 
-func (dump *DumpFlagSet) GetFlags() *pflag.FlagSet {
+func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-dump", pflag.ExitOnError)
-	flagSet.AddFlagSet(dump.dt.GetFlags())
+	flagSet.AddFlagSet(d.dt.GetFlags())
 	flagSet.BoolVar(
-		&dump.Diagnostics,
+		&d.Diagnostics,
 		"diag",
-		dump.Diagnostics,
+		d.Diagnostics,
 		"Enable dump collection diagnostic logging",
 	)
 	flagSet.Var(
-		&dump.Type,
-		dump.Type.Type(),
-		dump.Type.Description(),
+		&d.Type,
+		d.Type.Type(),
+		d.Type.Description(),
 	)
 
-	dump.flagSet = flagSet
+	d.flagSet = flagSet
 	return flagSet
 }
 
-func (dump *DumpFlagSet) GetArgs() []string {
-	args := dump.dt.GetArgs()
-	if dump.flagSet.Changed("diag") {
+func (d *DotnetDump) GetArgs() []string {
+	args := d.dt.GetArgs()
+	if d.flagSet.Changed("diag") {
 		args = append(args, "--diag")
 	}
-	args = append(args, "--type", dump.Type.String())
+	args = append(args, "--type", d.Type.String())
 	return args
+}
+
+func (gc *DotnetDump) BinaryName() string {
+	return "dotnet-dump"
+}
+
+func (gc *DotnetDump) ToolName() string {
+	return "dump"
 }

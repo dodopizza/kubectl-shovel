@@ -206,7 +206,7 @@ func Test_TestFlagSet(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			trace := NewTraceFlagSet()
+			trace := NewDotnetTrace()
 			flagSet.AddFlagSet(trace.GetFlags())
 
 			require.NoError(t, flagSet.Parse(tc.args))
@@ -315,7 +315,7 @@ func Test_TraceFlagSet_Errors(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			trace := NewTraceFlagSet()
+			trace := NewDotnetTrace()
 			flagSet.AddFlagSet(trace.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))

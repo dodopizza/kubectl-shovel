@@ -5,22 +5,22 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type GCDumpFlagSet struct {
+type DotnetGCDump struct {
 	Timeout types.Timeout
-	dt      *DotnetToolsFlagSet
+	dt      *DotnetToolShared
 
 	flagSet *pflag.FlagSet
 }
 
-func NewGCDumpFlagSet() DotnetToolFlagSet {
-	return &GCDumpFlagSet{
+func NewDotnetGCDump() DotnetTool {
+	return &DotnetGCDump{
 		Timeout: 30,
-		dt:      NewDotnetToolsFlagSet(),
+		dt:      NewDotnetToolShared(),
 	}
 }
 
-func (gc *GCDumpFlagSet) GetFlags() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet("dotnet-gcdump", pflag.ExitOnError)
+func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet(gc.BinaryName(), pflag.ExitOnError)
 	flagSet.AddFlagSet(gc.dt.GetFlags())
 	flagSet.Var(
 		&gc.Timeout,
@@ -32,7 +32,7 @@ func (gc *GCDumpFlagSet) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (gc *GCDumpFlagSet) GetArgs() []string {
+func (gc *DotnetGCDump) GetArgs() []string {
 	args := gc.dt.GetArgs()
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args = append(
@@ -41,4 +41,12 @@ func (gc *GCDumpFlagSet) GetArgs() []string {
 		)
 	}
 	return args
+}
+
+func (gc *DotnetGCDump) BinaryName() string {
+	return "dotnet-gcdump"
+}
+
+func (gc *DotnetGCDump) ToolName() string {
+	return "gcdump"
 }

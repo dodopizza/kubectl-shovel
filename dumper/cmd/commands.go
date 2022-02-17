@@ -9,7 +9,7 @@ func newTraceCommand() *cobra.Command {
 	builder := NewCommandBuilder(
 		"dotnet-trace",
 		"trace",
-		flags.NewTraceFlagSet,
+		flags.NewDotnetTrace,
 	)
 	return builder.Build()
 }
@@ -18,7 +18,7 @@ func newGCDumpCommand() *cobra.Command {
 	builder := NewCommandBuilder(
 		"dotnet-gcdump",
 		"gcdump",
-		flags.NewGCDumpFlagSet,
+		flags.NewDotnetGCDump,
 	)
 	return builder.Build()
 }
@@ -27,7 +27,7 @@ func newDumpCommand() *cobra.Command {
 	options := NewCommandBuilder(
 		"dotnet-dump",
 		"dump",
-		flags.NewDumpFlagSet,
+		flags.NewDotnetDump,
 	)
 	return options.Build()
 }

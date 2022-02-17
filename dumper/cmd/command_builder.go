@@ -10,12 +10,12 @@ import (
 // CommandBuilder represents logic for building and running tools
 type CommandBuilder struct {
 	BinaryName string
-	FlagSet    flags.DotnetToolFlagSet
+	FlagSet    flags.DotnetTool
 	ToolName   string
 }
 
 // NewCommandBuilder returns options with specified tool name
-func NewCommandBuilder(binary, tool string, factory flags.DotnetToolFlagSetFactory) *CommandBuilder {
+func NewCommandBuilder(binary, tool string, factory flags.DotnetToolFactory) *CommandBuilder {
 	return &CommandBuilder{
 		BinaryName: binary,
 		FlagSet:    factory(),

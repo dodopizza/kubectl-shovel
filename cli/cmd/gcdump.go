@@ -8,7 +8,7 @@ import (
 )
 
 func newGCDumpCommand() *cobra.Command {
-	options := NewDiagnosticToolOptions("gcdump", flags.NewGCDumpFlagSet)
+	options := NewDiagnosticToolOptions("gcdump", flags.NewDotnetGCDump)
 	cmd := &cobra.Command{
 		Use:   fmt.Sprintf("%s [flags]", options.Tool),
 		Short: "Get dotnet-gcdump results",

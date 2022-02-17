@@ -8,7 +8,7 @@ import (
 )
 
 func newTraceCommand() *cobra.Command {
-	options := NewDiagnosticToolOptions("trace", flags.NewTraceFlagSet)
+	options := NewDiagnosticToolOptions("trace", flags.NewDotnetTrace)
 	cmd := &cobra.Command{
 		Use:   fmt.Sprintf("%s [flags]", options.Tool),
 		Short: "Get dotnet-trace results",

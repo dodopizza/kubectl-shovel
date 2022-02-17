@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type TraceFlagSet struct {
+type DotnetTrace struct {
 	BufferSize    int
 	CLREventLevel types.CLREventLevel
 	CLREvents     types.CLREvents
@@ -15,121 +15,128 @@ type TraceFlagSet struct {
 	Format        types.Format
 	Profile       types.Profile
 	Providers     types.Providers
-
-	dt *DotnetToolsFlagSet
+	dt            *DotnetToolShared
 
 	flagSet *pflag.FlagSet
 }
 
-func NewTraceFlagSet() DotnetToolFlagSet {
-	return &TraceFlagSet{
+func NewDotnetTrace() DotnetTool {
+	return &DotnetTrace{
 		BufferSize: 256,
-		dt:         NewDotnetToolsFlagSet(),
+		dt:         NewDotnetToolShared(),
 	}
 }
 
-func (trace *TraceFlagSet) GetFlags() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet("dotnet-trace", pflag.ExitOnError)
-	flagSet.AddFlagSet(trace.dt.GetFlags())
+func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet(t.BinaryName(), pflag.ExitOnError)
+	flagSet.AddFlagSet(t.dt.GetFlags())
 	flagSet.IntVar(
-		&trace.BufferSize,
+		&t.BufferSize,
 		"buffersize",
-		trace.BufferSize,
+		t.BufferSize,
 		"Sets the size of the in-memory circular buffer, in megabytes",
 	)
 
 	flagSet.Var(
-		&trace.CLREventLevel,
-		trace.CLREventLevel.Type(),
-		trace.CLREventLevel.Description(),
+		&t.CLREventLevel,
+		t.CLREventLevel.Type(),
+		t.CLREventLevel.Description(),
 	)
 
 	flagSet.Var(
-		&trace.CLREvents,
-		trace.CLREvents.Type(),
-		trace.CLREvents.Description(),
+		&t.CLREvents,
+		t.CLREvents.Type(),
+		t.CLREvents.Description(),
 	)
 
-	trace.Duration = types.Duration(types.DefaultDuration)
+	t.Duration = types.Duration(types.DefaultDuration)
 	flagSet.Var(
-		&trace.Duration,
-		trace.Duration.Type(),
-		trace.Duration.Description(),
-	)
-
-	flagSet.Var(
-		&trace.Format,
-		trace.Format.Type(),
-		trace.Format.Description(),
+		&t.Duration,
+		t.Duration.Type(),
+		t.Duration.Description(),
 	)
 
 	flagSet.Var(
-		&trace.Profile,
-		trace.Profile.Type(),
-		trace.Profile.Description(),
+		&t.Format,
+		t.Format.Type(),
+		t.Format.Description(),
 	)
 
 	flagSet.Var(
-		&trace.Providers,
-		trace.Providers.Type(),
-		trace.Providers.Description(),
+		&t.Profile,
+		t.Profile.Type(),
+		t.Profile.Description(),
 	)
 
-	trace.flagSet = flagSet
+	flagSet.Var(
+		&t.Providers,
+		t.Providers.Type(),
+		t.Providers.Description(),
+	)
+
+	t.flagSet = flagSet
 	return flagSet
 }
 
-func (trace *TraceFlagSet) GetArgs() []string {
-	args := trace.dt.GetArgs()
+func (t *DotnetTrace) GetArgs() []string {
+	args := t.dt.GetArgs()
 
-	if trace.flagSet.Changed("buffersize") {
+	if t.flagSet.Changed("buffersize") {
 		args = append(
 			args,
 			[]string{
-				"--buffersize", strconv.Itoa(trace.BufferSize),
+				"--buffersize", strconv.Itoa(t.BufferSize),
 			}...,
 		)
 	}
 
-	if trace.flagSet.Changed(trace.CLREventLevel.Type()) {
+	if t.flagSet.Changed(t.CLREventLevel.Type()) {
 		args = append(
 			args,
-			FlagToArg(&trace.CLREventLevel)...,
+			FlagToArg(&t.CLREventLevel)...,
 		)
 	}
 
-	if trace.flagSet.Changed(trace.CLREvents.Type()) {
+	if t.flagSet.Changed(t.CLREvents.Type()) {
 		args = append(
 			args,
-			FlagToArg(&trace.CLREvents)...,
+			FlagToArg(&t.CLREvents)...,
 		)
 	}
 
 	args = append(
 		args,
-		FlagToArg(&trace.Duration)...,
+		FlagToArg(&t.Duration)...,
 	)
 
-	if trace.flagSet.Changed(trace.Format.Type()) {
+	if t.flagSet.Changed(t.Format.Type()) {
 		args = append(
 			args,
-			FlagToArg(&trace.Format)...,
+			FlagToArg(&t.Format)...,
 		)
 	}
 
-	if trace.flagSet.Changed(trace.Profile.Type()) {
+	if t.flagSet.Changed(t.Profile.Type()) {
 		args = append(
 			args,
-			FlagToArg(&trace.Profile)...,
+			FlagToArg(&t.Profile)...,
 		)
 	}
 
-	if trace.flagSet.Changed(trace.Providers.Type()) {
+	if t.flagSet.Changed(t.Providers.Type()) {
 		args = append(
 			args,
-			FlagToArg(&trace.Providers)...,
+			FlagToArg(&t.Providers)...,
 		)
 	}
 
 	return args
+}
+
+func (t *DotnetTrace) BinaryName() string {
+	return "dotnet-trace"
+}
+
+func (t *DotnetTrace) ToolName() string {
+	return "trace"
 }

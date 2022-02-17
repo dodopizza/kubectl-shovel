@@ -21,7 +21,7 @@ type commonOptions struct {
 
 type DiagnosticToolOptions struct {
 	CommonOptions *commonOptions
-	FlagSet       flags.DotnetToolFlagSet
+	FlagSet       flags.DotnetTool
 	Tool          string
 }
 
@@ -66,7 +66,7 @@ func (options *commonOptions) GetFlags(tool string) *pflag.FlagSet {
 	return flagSet
 }
 
-func NewDiagnosticToolOptions(tool string, factory flags.DotnetToolFlagSetFactory) *DiagnosticToolOptions {
+func NewDiagnosticToolOptions(tool string, factory flags.DotnetToolFactory) *DiagnosticToolOptions {
 	return &DiagnosticToolOptions{
 		CommonOptions: &commonOptions{},
 		FlagSet:       factory(),
