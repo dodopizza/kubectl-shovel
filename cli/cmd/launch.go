@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 
 	"github.com/pkg/errors"
@@ -71,8 +72,10 @@ func launch(
 	if err != nil {
 		return err
 	}
+	defer stream.Close()
 
-	resultFilePath, err := handleLogs(stream)
+	awaiter := events.NewEventAwaiter()
+	resultFilePath, err := awaiter.AwaitCompletedEvent(stream)
 	if err != nil {
 		return err
 	}

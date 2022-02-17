@@ -7,12 +7,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-// ContainerInfo is information about container struct
-type ContainerInfo struct {
-	Runtime string
-	ID      string
-}
-
 // JobVolume is helper struct to describe job volume
 type JobVolume struct {
 	Name      string

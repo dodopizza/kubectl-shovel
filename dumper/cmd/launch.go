@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
@@ -16,9 +18,19 @@ func launch(executable string, args ...string) error {
 		events.Status,
 		"Looking for and mapping container fs",
 	)
-	if err := mapContainerTmp(containerInfo); err != nil {
+
+	containerFS, err := containerInfo.GetMountPoint()
+	if err != nil {
 		return err
 	}
+	err = os.RemoveAll("/tmp")
+	if err != nil {
+		return err
+	}
+	if err := os.Symlink(filepath.Join(containerFS, "tmp"), "/tmp"); err != nil {
+		return err
+	}
+
 	events.NewEvent(
 		events.Status,
 		fmt.Sprintf(
@@ -37,20 +49,20 @@ func launch(executable string, args ...string) error {
 		"--output",
 		output,
 	)
-	if err := utils.ExecCommand(
-		executable,
-		args...,
-	); err != nil {
+	if err := utils.ExecCommand(executable, args...); err != nil {
 		return err
 	}
+
 	events.NewEvent(
 		events.Status,
 		"Gathering completed",
 	)
-	_, err := ioutil.ReadFile(output)
+
+	_, err = ioutil.ReadFile(output)
 	if err != nil {
 		return err
 	}
+
 	events.NewEvent(
 		events.Completed,
 		output,
