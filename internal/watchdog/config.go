@@ -1,6 +1,8 @@
 package watchdog
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	deadAfterDuration = 1 * time.Minute

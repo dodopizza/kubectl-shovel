@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 
-	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
@@ -13,28 +10,15 @@ var (
 	containerInfo = kubernetes.ContainerInfo{}
 )
 
-var rootCmd = &cobra.Command{
-	Use:               "dumper",
-	Short:             "Tool to gather diagnostic information from dotnet process",
-	SilenceUsage:      true,
-	DisableAutoGenTag: true,
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := initializeRootCmd(); err != nil {
-		events.NewEvent(events.Error, err.Error())
-		os.Exit(1)
+func NewDumperCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "dumper",
+		Short:             "Tool to gather diagnostic information from dotnet process",
+		SilenceUsage:      true,
+		DisableAutoGenTag: true,
 	}
-	if err := rootCmd.Execute(); err != nil {
-		events.NewEvent(events.Error, err.Error())
-		os.Exit(1)
-	}
-}
 
-func initializeRootCmd() error {
-	rootCmd.
+	cmd.
 		PersistentFlags().
 		StringVar(
 			&containerInfo.ID,
@@ -42,7 +26,7 @@ func initializeRootCmd() error {
 			containerInfo.ID,
 			"Container ID to run tool for",
 		)
-	rootCmd.
+	cmd.
 		PersistentFlags().
 		StringVar(
 			&containerInfo.Runtime,
@@ -50,12 +34,12 @@ func initializeRootCmd() error {
 			containerInfo.Runtime,
 			"Container Runtime to run tool for",
 		)
-	_ = rootCmd.MarkPersistentFlagRequired("container-id")
-	_ = rootCmd.MarkPersistentFlagRequired("container-runtime")
+	_ = cmd.MarkPersistentFlagRequired("container-id")
+	_ = cmd.MarkPersistentFlagRequired("container-runtime")
 
-	rootCmd.AddCommand(NewGCDumpCommand())
-	rootCmd.AddCommand(NewTraceCommand())
-	rootCmd.AddCommand(NewDumpCommand())
+	cmd.AddCommand(NewGCDumpCommand())
+	cmd.AddCommand(NewTraceCommand())
+	cmd.AddCommand(NewDumpCommand())
 
-	return nil
+	return cmd
 }

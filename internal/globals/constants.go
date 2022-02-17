@@ -1,6 +1,8 @@
 package globals
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	PluginName      = "kubectl-shovel"

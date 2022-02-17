@@ -1,7 +1,15 @@
 package main
 
-import "github.com/dodopizza/kubectl-shovel/dumper/cmd"
+import (
+	"github.com/dodopizza/kubectl-shovel/dumper/cmd"
+	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"os"
+)
 
 func main() {
-	cmd.Execute()
+	rootCmd := cmd.NewDumperCommand()
+	if err := rootCmd.Execute(); err != nil {
+		events.NewEvent(events.Error, err.Error())
+		os.Exit(1)
+	}
 }

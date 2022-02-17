@@ -72,32 +72,32 @@ func NewCommandBuilder(factory flags.DotnetToolFactory) *CommandBuilder {
 	}
 }
 
-func (dt *CommandBuilder) Build(short, long, example string) *cobra.Command {
+func (cb *CommandBuilder) Build(short, long, example string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     fmt.Sprintf("%s [flags]", dt.tool.ToolName()),
+		Use:     fmt.Sprintf("%s [flags]", cb.tool.ToolName()),
 		Short:   short,
 		Long:    long,
 		Example: example,
 		RunE: func(*cobra.Command, []string) error {
-			return dt.run()
+			return cb.run()
 		},
 	}
-	cmd.Flags().AddFlagSet(dt.parse())
+	cmd.Flags().AddFlagSet(cb.parse())
 
 	return cmd
 }
 
-func (dt *CommandBuilder) Tool() string {
-	return dt.tool.ToolName()
+func (cb *CommandBuilder) Tool() string {
+	return cb.tool.ToolName()
 }
 
-func (dt *CommandBuilder) parse() *pflag.FlagSet {
-	fs := pflag.NewFlagSet(dt.tool.ToolName(), pflag.ExitOnError)
-	fs.AddFlagSet(dt.CommonOptions.GetFlags(dt.tool.ToolName()))
-	fs.AddFlagSet(dt.tool.GetFlags())
+func (cb *CommandBuilder) parse() *pflag.FlagSet {
+	fs := pflag.NewFlagSet(cb.tool.ToolName(), pflag.ExitOnError)
+	fs.AddFlagSet(cb.CommonOptions.GetFlags(cb.tool.ToolName()))
+	fs.AddFlagSet(cb.tool.GetFlags())
 	return fs
 }
 
-func (dt *CommandBuilder) run() error {
-	return launch(dt.CommonOptions, dt.tool.ToolName(), dt.tool.GetArgs()...)
+func (cb *CommandBuilder) run() error {
+	return launch(cb.CommonOptions, cb.tool.ToolName(), cb.tool.GetArgs()...)
 }
