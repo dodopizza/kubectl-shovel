@@ -15,7 +15,7 @@ import (
 )
 
 func launch(
-	commonOptions commonOptions,
+	options *commonOptions,
 	executable string,
 	args ...string,
 ) error {
@@ -25,8 +25,8 @@ func launch(
 	)
 
 	containerInfo := &kubernetes.ContainerInfo{
-		Runtime: commonOptions.containerRuntime,
-		ID:      commonOptions.containerID,
+		Runtime: options.containerRuntime,
+		ID:      options.containerID,
 	}
 	containerFS, err := containerInfo.GetMountPoint()
 	if err != nil {

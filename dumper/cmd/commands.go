@@ -6,16 +6,16 @@ import (
 )
 
 // NewGCDumpCommand return command that perform dotnet-gcdump on target process
-func NewGCDumpCommand() *cobra.Command {
-	return NewCommandBuilder(flags.NewDotnetGCDump).Build()
+func NewGCDumpCommand(commonOptions *commonOptions) *cobra.Command {
+	return NewCommandBuilder(commonOptions, flags.NewDotnetGCDump).Build()
 }
 
 // NewTraceCommand return command that perform dotnet-trace on target process
-func NewTraceCommand() *cobra.Command {
-	return NewCommandBuilder(flags.NewDotnetTrace).Build()
+func NewTraceCommand(commonOptions *commonOptions) *cobra.Command {
+	return NewCommandBuilder(commonOptions, flags.NewDotnetTrace).Build()
 }
 
 // NewDumpCommand return command that perform dotnet-dump on target process
-func NewDumpCommand() *cobra.Command {
-	return NewCommandBuilder(flags.NewDotnetDump).Build()
+func NewDumpCommand(commonOptions *commonOptions) *cobra.Command {
+	return NewCommandBuilder(commonOptions, flags.NewDotnetDump).Build()
 }

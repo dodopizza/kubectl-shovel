@@ -7,15 +7,42 @@ import (
 	"github.com/spf13/pflag"
 )
 
+type commonOptions struct {
+	containerID      string
+	containerRuntime string
+}
+
 // CommandBuilder represents logic for building and running tools
 type CommandBuilder struct {
-	tool flags.DotnetTool
+	CommonOptions *commonOptions
+	tool          flags.DotnetTool
+}
+
+func (options *commonOptions) GetFlags() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet("common", pflag.ExitOnError)
+	flagSet.StringVar(
+		&options.containerID,
+		"container-id",
+		options.containerID,
+		"Container ID to run tool for",
+	)
+	flagSet.StringVar(
+		&options.containerRuntime,
+		"container-runtime",
+		options.containerRuntime,
+		"Container Runtime to run tool for",
+	)
+	_ = cobra.MarkFlagRequired(flagSet, "container-id")
+	_ = cobra.MarkFlagRequired(flagSet, "container-runtime")
+
+	return flagSet
 }
 
 // NewCommandBuilder returns options with specified tool name
-func NewCommandBuilder(factory flags.DotnetToolFactory) *CommandBuilder {
+func NewCommandBuilder(options *commonOptions, factory flags.DotnetToolFactory) *CommandBuilder {
 	return &CommandBuilder{
-		tool: factory(),
+		tool:          factory(),
+		CommonOptions: options,
 	}
 }
 
@@ -48,6 +75,7 @@ func (cb *CommandBuilder) run() error {
 	)
 
 	return launch(
+		cb.CommonOptions,
 		cb.tool.BinaryName(),
 		args...,
 	)
