@@ -16,7 +16,7 @@ func NewDotnetToolsFlagSet() *DotnetToolsFlagSet {
 	}
 }
 
-func (dt *DotnetToolsFlagSet) Parse() *pflag.FlagSet {
+func (dt *DotnetToolsFlagSet) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-tools", pflag.ExitOnError)
 	flagSet.IntVarP(
 		&dt.ProcessID,
@@ -29,7 +29,7 @@ func (dt *DotnetToolsFlagSet) Parse() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dt *DotnetToolsFlagSet) Args() []string {
+func (dt *DotnetToolsFlagSet) GetArgs() []string {
 	return []string{
 		"--process-id", strconv.Itoa(dt.ProcessID),
 	}

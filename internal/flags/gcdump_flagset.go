@@ -19,9 +19,9 @@ func NewGCDumpFlagSet() FlagSetContainer {
 	}
 }
 
-func (gc *GCDumpFlagSet) Parse() *pflag.FlagSet {
+func (gc *GCDumpFlagSet) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-gcdump", pflag.ExitOnError)
-	flagSet.AddFlagSet(gc.dt.Parse())
+	flagSet.AddFlagSet(gc.dt.GetFlags())
 	flagSet.Var(
 		&gc.Timeout,
 		gc.Timeout.Type(),
@@ -32,8 +32,8 @@ func (gc *GCDumpFlagSet) Parse() *pflag.FlagSet {
 	return flagSet
 }
 
-func (gc *GCDumpFlagSet) Args() []string {
-	args := gc.dt.Args()
+func (gc *GCDumpFlagSet) GetArgs() []string {
+	args := gc.dt.GetArgs()
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args = append(
 			args,

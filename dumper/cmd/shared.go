@@ -43,7 +43,7 @@ func (db *DiagnosticBinaryOptions) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(db.ToolName, pflag.ExitOnError)
 
 	db.FlagSetContainer = db.FlagSetContainerFactory()
-	flagSet.AddFlagSet(db.FlagSetContainer.Parse())
+	flagSet.AddFlagSet(db.FlagSetContainer.GetFlags())
 
 	return flagSet
 }
@@ -51,7 +51,7 @@ func (db *DiagnosticBinaryOptions) GetFlags() *pflag.FlagSet {
 func (db *DiagnosticBinaryOptions) Run() error {
 	args := append(
 		[]string{"collect"},
-		db.FlagSetContainer.Args()...,
+		db.FlagSetContainer.GetArgs()...,
 	)
 
 	return launch(

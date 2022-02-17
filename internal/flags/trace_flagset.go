@@ -28,9 +28,9 @@ func NewTraceFlagSet() FlagSetContainer {
 	}
 }
 
-func (trace *TraceFlagSet) Parse() *pflag.FlagSet {
+func (trace *TraceFlagSet) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-trace", pflag.ExitOnError)
-	flagSet.AddFlagSet(trace.dt.Parse())
+	flagSet.AddFlagSet(trace.dt.GetFlags())
 	flagSet.IntVar(
 		&trace.BufferSize,
 		"buffersize",
@@ -79,8 +79,8 @@ func (trace *TraceFlagSet) Parse() *pflag.FlagSet {
 	return flagSet
 }
 
-func (trace *TraceFlagSet) Args() []string {
-	args := trace.dt.Args()
+func (trace *TraceFlagSet) GetArgs() []string {
+	args := trace.dt.GetArgs()
 
 	if trace.flagSet.Changed("buffersize") {
 		args = append(

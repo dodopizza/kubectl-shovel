@@ -58,10 +58,10 @@ func Test_DumpFlagSet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			gc := NewDumpFlagSet()
-			flagSet.AddFlagSet(gc.Parse())
+			flagSet.AddFlagSet(gc.GetFlags())
 
 			require.NoError(t, flagSet.Parse(tc.args))
-			require.Equal(t, tc.expArgs, gc.Args())
+			require.Equal(t, tc.expArgs, gc.GetArgs())
 		})
 	}
 }
@@ -95,7 +95,7 @@ func Test_DumpFlagSet_Errors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			gc := NewDumpFlagSet()
-			flagSet.AddFlagSet(gc.Parse())
+			flagSet.AddFlagSet(gc.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))
 		})

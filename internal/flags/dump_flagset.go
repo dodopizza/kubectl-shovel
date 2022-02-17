@@ -20,9 +20,9 @@ func NewDumpFlagSet() FlagSetContainer {
 	}
 }
 
-func (dump *DumpFlagSet) Parse() *pflag.FlagSet {
+func (dump *DumpFlagSet) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-dump", pflag.ExitOnError)
-	flagSet.AddFlagSet(dump.dt.Parse())
+	flagSet.AddFlagSet(dump.dt.GetFlags())
 	flagSet.BoolVar(
 		&dump.Diagnostics,
 		"diag",
@@ -39,8 +39,8 @@ func (dump *DumpFlagSet) Parse() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dump *DumpFlagSet) Args() []string {
-	args := dump.dt.Args()
+func (dump *DumpFlagSet) GetArgs() []string {
+	args := dump.dt.GetArgs()
 	if dump.flagSet.Changed("diag") {
 		args = append(args, "--diag")
 	}

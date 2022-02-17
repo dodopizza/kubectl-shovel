@@ -207,10 +207,10 @@ func Test_TestFlagSet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			trace := NewTraceFlagSet()
-			flagSet.AddFlagSet(trace.Parse())
+			flagSet.AddFlagSet(trace.GetFlags())
 
 			require.NoError(t, flagSet.Parse(tc.args))
-			require.Equal(t, tc.expArgs, trace.Args())
+			require.Equal(t, tc.expArgs, trace.GetArgs())
 		})
 	}
 }
@@ -316,7 +316,7 @@ func Test_TraceFlagSet_Errors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			trace := NewTraceFlagSet()
-			flagSet.AddFlagSet(trace.Parse())
+			flagSet.AddFlagSet(trace.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))
 		})

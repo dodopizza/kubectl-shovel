@@ -11,8 +11,8 @@ import (
 type FlagSetContainerFactory func() FlagSetContainer
 
 type FlagSetContainer interface {
-	Parse() *pflag.FlagSet
-	Args() []string
+	GetFlags() *pflag.FlagSet
+	GetArgs() []string
 }
 
 func FlagToArg(flag pflag.Value) []string {

@@ -80,11 +80,11 @@ func (dt *DiagnosticToolOptions) Parse() *pflag.FlagSet {
 	flagSet.AddFlagSet(dt.CommonOptions.Parse(dt.Tool))
 
 	dt.FlagSetContainer = dt.FlagSetContainerFactory()
-	flagSet.AddFlagSet(dt.FlagSetContainer.Parse())
+	flagSet.AddFlagSet(dt.FlagSetContainer.GetFlags())
 
 	return flagSet
 }
 
 func (dt *DiagnosticToolOptions) Run() error {
-	return launch(dt.CommonOptions, dt.Tool, dt.FlagSetContainer.Args()...)
+	return launch(dt.CommonOptions, dt.Tool, dt.FlagSetContainer.GetArgs()...)
 }
