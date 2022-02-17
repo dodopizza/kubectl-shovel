@@ -1,4 +1,4 @@
-ARG RUNTIME_VERSION=3.1.20
+ARG RUNTIME_VERSION=3.1.22
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-bionic as tools-install
 
@@ -8,7 +8,7 @@ RUN dotnet tool install -g dotnet-gcdump && \
 
 FROM mcr.microsoft.com/dotnet/core/runtime:${RUNTIME_VERSION}-bionic
 
-ARG RUNTIME_VERSION=3.1.20
+ARG RUNTIME_VERSION=3.1.22
 ARG DOTNET_TOOLS_PATH="/root/.dotnet/tools"
 ARG DOTNET_INTERNAL_TOOLS_PATH="/usr/share/dotnet/shared/Microsoft.NETCore.App/${RUNTIME_VERSION}"
 ENV PATH="${PATH}:${DOTNET_TOOLS_PATH}:${DOTNET_INTERNAL_TOOLS_PATH}"
