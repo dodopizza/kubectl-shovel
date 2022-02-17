@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/pflag"
 )
 
+// todo: better naming
+
 type FlagSetContainerFactory func() FlagSetContainer
 
 type FlagSetContainer interface {
