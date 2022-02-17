@@ -2,12 +2,19 @@ package kubernetes
 
 import (
 	"context"
+	"github.com/google/uuid"
+	"strings"
 
 	batchv1 "k8s.io/api/batch/v1"
 	apiv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func JobName() string {
+	parts := []string{"kubectl-shovel", uuid.NewString()}
+	return strings.Join(parts, "-")
+}
 
 // RunJob will run job with specified parameters
 func (k8s *Client) RunJob(

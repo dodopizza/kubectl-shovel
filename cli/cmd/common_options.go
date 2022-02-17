@@ -28,7 +28,7 @@ func (options *commonOptions) newCommonFlags(tool string) *pflag.FlagSet {
 		options.podName,
 		"Target pod",
 	)
-	panicOnError(cobra.MarkFlagRequired(flagSet, "pod-name"))
+	_ = cobra.MarkFlagRequired(flagSet, "pod-name")
 
 	flagSet.StringVarP(
 		&options.containerName,

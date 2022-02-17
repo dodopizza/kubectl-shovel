@@ -7,14 +7,13 @@ import (
 )
 
 const (
-	pluginName      = "kubectl-shovel"
 	dumperImageName = "dodopizza/kubectl-shovel-dumper"
 )
 
 // NewShovelCommand initialize Shovel command
 func NewShovelCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               pluginName,
+		Use:               "kubectl-shovel",
 		Short:             "Get diagnostics from running in k8s dotnet application",
 		Version:           version.GetVersion(),
 		SilenceUsage:      true,

@@ -8,31 +8,34 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 )
 
-func handleLogs(readCloser io.ReadCloser) (string, error) {
-	eventsChan := make(chan string, 1)
+func handleLogs(rc io.ReadCloser) (string, error) {
+	entries := make(chan string, 1)
 
 	go func() {
-		defer readCloser.Close()
-		defer close(eventsChan)
-		r := bufio.NewReader(readCloser)
-		var err error
-		for err != io.EOF {
-			var event string
-			event, err = r.ReadString('\n')
-			if err != nil && err != io.EOF {
+		defer rc.Close()
+		defer close(entries)
+		r := bufio.NewReader(rc)
+
+		for {
+			payload, err := r.ReadString('\n')
+
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
 				return
 			}
 
-			eventsChan <- event
+			entries <- payload
 		}
 	}()
 
-	return processLogs(eventsChan)
+	return processLogs(entries)
 }
 
-func processLogs(eventsChan chan string) (string, error) {
-	for rawEvent := range eventsChan {
-		event, err := events.GetEvent(rawEvent)
+func processLogs(entries chan string) (string, error) {
+	for entry := range entries {
+		event, err := events.GetEvent(entry)
 		if err != nil {
 			continue
 		}
@@ -41,11 +44,11 @@ func processLogs(eventsChan chan string) (string, error) {
 		case events.Status:
 			fmt.Println(event.Message)
 		case events.Error:
-			return "", fmt.Errorf("Error in job occurred: %s", event.Message)
+			return "", fmt.Errorf("error in job occurred: %s", event.Message)
 		case events.Completed:
 			return event.Message, nil
 		default:
-			return "", fmt.Errorf("Got unknown event type: %s", event.Type)
+			return "", fmt.Errorf("got unknown event type: %s", event.Type)
 		}
 	}
 
