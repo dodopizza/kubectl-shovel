@@ -23,8 +23,7 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := initializeRootCmd()
-	if err != nil {
+	if err := initializeRootCmd(); err != nil {
 		events.NewEvent(events.Error, err.Error())
 		os.Exit(1)
 	}

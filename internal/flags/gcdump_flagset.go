@@ -1,11 +1,12 @@
 package flags
 
 import (
+	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 	"github.com/spf13/pflag"
 )
 
 type GCDumpFlagSet struct {
-	Timeout Timeout
+	Timeout types.Timeout
 	dt      *DotnetToolsFlagSet
 
 	flagSet *pflag.FlagSet

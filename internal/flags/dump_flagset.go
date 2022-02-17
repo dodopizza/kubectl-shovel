@@ -1,12 +1,13 @@
 package flags
 
 import (
+	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 	"github.com/spf13/pflag"
 )
 
 type DumpFlagSet struct {
 	Diagnostics bool
-	Type        DumpType
+	Type        types.DumpType
 	dt          *DotnetToolsFlagSet
 	flagSet     *pflag.FlagSet
 }
@@ -14,7 +15,7 @@ type DumpFlagSet struct {
 func NewDumpFlagSet() *DumpFlagSet {
 	return &DumpFlagSet{
 		Diagnostics: false,
-		Type:        DumpTypeFull,
+		Type:        types.DumpTypeFull,
 		dt:          NewDotnetToolsFlagSet(),
 	}
 }

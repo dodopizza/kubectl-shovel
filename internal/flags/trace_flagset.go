@@ -1,6 +1,7 @@
 package flags
 
 import (
+	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 	"strconv"
 
 	"github.com/spf13/pflag"
@@ -8,12 +9,12 @@ import (
 
 type TraceFlagSet struct {
 	BufferSize    int
-	CLREventLevel CLREventLevel
-	CLREvents     CLREvents
-	Duration      Duration
-	Format        Format
-	Profile       Profile
-	Providers     Providers
+	CLREventLevel types.CLREventLevel
+	CLREvents     types.CLREvents
+	Duration      types.Duration
+	Format        types.Format
+	Profile       types.Profile
+	Providers     types.Providers
 
 	dt *DotnetToolsFlagSet
 
@@ -49,7 +50,7 @@ func (trace *TraceFlagSet) Parse() *pflag.FlagSet {
 		trace.CLREvents.Description(),
 	)
 
-	trace.Duration = Duration(defaultDuration)
+	trace.Duration = types.Duration(types.DefaultDuration)
 	flagSet.Var(
 		&trace.Duration,
 		trace.Duration.Type(),
