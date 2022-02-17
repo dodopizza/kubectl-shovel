@@ -49,10 +49,10 @@ func (d *DotnetDump) GetArgs() []string {
 	return args
 }
 
-func (gc *DotnetDump) BinaryName() string {
+func (d *DotnetDump) BinaryName() string {
 	return "dotnet-dump"
 }
 
-func (gc *DotnetDump) ToolName() string {
+func (d *DotnetDump) ToolName() string {
 	return "dump"
 }
