@@ -47,8 +47,9 @@ Or convert any other format to speedscope format with:
 ### Options
 
 ```
-      --as string                      Username to impersonate for the operation
+      --as string                      Username to impersonate for the operation. User could be a regular user or a service account in a namespace.
       --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+      --as-uid string                  UID to impersonate for the operation.
       --buffersize int                 Sets the size of the in-memory circular buffer, in megabytes (default 256)
       --cache-dir string               Default cache directory (default "/home/user/.kube/cache")
       --certificate-authority string   Path to a cert file for the certificate authority
