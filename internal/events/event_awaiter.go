@@ -28,12 +28,9 @@ func (ep *EventAwaiter) read(stream io.Reader) {
 
 	for {
 		payload, err := reader.ReadString('\n')
+		payloadOk := err == nil || err == io.EOF
 
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
+		if !payloadOk {
 			return
 		}
 
