@@ -69,14 +69,9 @@ func (cb *CommandBuilder) flags() *pflag.FlagSet {
 }
 
 func (cb *CommandBuilder) run() error {
-	args := append(
-		[]string{"collect"},
-		cb.tool.GetArgs()...,
-	)
-
 	return launch(
 		cb.CommonOptions,
 		cb.tool.BinaryName(),
-		args...,
+		cb.tool.GetArgs()...,
 	)
 }
