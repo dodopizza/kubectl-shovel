@@ -79,7 +79,7 @@ func (cb *CommandBuilder) Build(short, long, example string) *cobra.Command {
 		Long:    long,
 		Example: example,
 		RunE: func(*cobra.Command, []string) error {
-			return cb.run()
+			return cb.launch()
 		},
 	}
 	cmd.Flags().AddFlagSet(cb.parse())
@@ -96,8 +96,4 @@ func (cb *CommandBuilder) parse() *pflag.FlagSet {
 	fs.AddFlagSet(cb.CommonOptions.GetFlags(cb.tool.ToolName()))
 	fs.AddFlagSet(cb.tool.GetFlags())
 	return fs
-}
-
-func (cb *CommandBuilder) run() error {
-	return launch(cb.CommonOptions, cb.tool.ToolName(), cb.tool.GetArgs()...)
 }

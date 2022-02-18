@@ -54,7 +54,7 @@ func (cb *CommandBuilder) Build() *cobra.Command {
 		Short: "",
 		Long:  "",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return cb.run()
+			return cb.launch()
 		},
 	}
 
@@ -66,12 +66,4 @@ func (cb *CommandBuilder) flags() *pflag.FlagSet {
 	fs := pflag.NewFlagSet(cb.tool.ToolName(), pflag.ExitOnError)
 	fs.AddFlagSet(cb.tool.GetFlags())
 	return fs
-}
-
-func (cb *CommandBuilder) run() error {
-	return launch(
-		cb.CommonOptions,
-		cb.tool.BinaryName(),
-		cb.tool.GetArgs()...,
-	)
 }

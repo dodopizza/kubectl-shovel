@@ -14,19 +14,15 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
-func launch(
-	options *commonOptions,
-	executable string,
-	args ...string,
-) error {
+func (cb *CommandBuilder) launch() error {
 	events.NewEvent(
 		events.Status,
 		"Looking for and mapping container fs",
 	)
 
 	containerInfo := &kubernetes.ContainerInfo{
-		Runtime: options.containerRuntime,
-		ID:      options.containerID,
+		Runtime: cb.CommonOptions.containerRuntime,
+		ID:      cb.CommonOptions.containerID,
 	}
 	containerFS, err := containerInfo.GetMountPoint()
 	if err != nil {
@@ -44,21 +40,20 @@ func launch(
 		events.Status,
 		fmt.Sprintf(
 			"Running command: %s %s",
-			executable,
-			strings.Join(args, " "),
+			cb.tool.BinaryName(),
+			strings.Join(cb.tool.GetArgs(), " "),
 		),
 	)
 
 	// if we do not set proper file extension dotnet tools will do it anyway
 	// write output file to /tmp, because it's available in target and worker pods
-	outputExtension := strings.TrimPrefix(executable, "dotnet-")
-	output := fmt.Sprintf("/tmp/output.%s", outputExtension)
-	args = append(
-		args,
+	output := fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName())
+	args := append(
+		cb.tool.GetArgs(),
 		"--output",
 		output,
 	)
-	if err := utils.ExecCommand(executable, args...); err != nil {
+	if err := utils.ExecCommand(cb.tool.BinaryName(), args...); err != nil {
 		return err
 	}
 

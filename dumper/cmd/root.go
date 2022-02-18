@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewDumperCommand initialize Dumper command
 func NewDumperCommand() *cobra.Command {
 	options := &commonOptions{}
 	cmd := &cobra.Command{
