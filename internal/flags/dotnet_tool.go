@@ -41,7 +41,7 @@ func (dt *DotnetToolShared) GetFlags() *pflag.FlagSet {
 
 func (dt *DotnetToolShared) GetArgs() []string {
 	return []string{
-		"collect", "--process-id", strconv.Itoa(dt.ProcessID),
+		"--process-id", strconv.Itoa(dt.ProcessID),
 	}
 }
 

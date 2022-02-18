@@ -28,28 +28,29 @@ func (cb *CommandBuilder) launch() error {
 	if err != nil {
 		return err
 	}
-	err = os.RemoveAll("/tmp")
-	if err != nil {
+	if err := os.RemoveAll("/tmp"); err != nil {
 		return err
 	}
 	if err := os.Symlink(filepath.Join(containerFS, "tmp"), "/tmp"); err != nil {
 		return err
 	}
 
+	args := []string{"collect"}
+	args = append(args, cb.tool.GetArgs()...)
 	events.NewEvent(
 		events.Status,
 		fmt.Sprintf(
 			"Running command: %s %s",
 			cb.tool.BinaryName(),
-			strings.Join(cb.tool.GetArgs(), " "),
+			strings.Join(args, " "),
 		),
 	)
 
 	// if we do not set proper file extension dotnet tools will do it anyway
 	// write output file to /tmp, because it's available in target and worker pods
 	output := fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName())
-	args := append(
-		cb.tool.GetArgs(),
+	args = append(
+		args,
 		"--output",
 		output,
 	)
