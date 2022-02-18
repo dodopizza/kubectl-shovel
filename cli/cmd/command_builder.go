@@ -10,40 +10,43 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
-type commonOptions struct {
-	image         string
-	podName       string
-	output        string
-	containerName string
+// CommonOptions contains generic arguments for cli
+type CommonOptions struct {
+	Container string
+	Image     string
+	Pod       string
+	Output    string
 
-	kubeFlags *genericclioptions.ConfigFlags
+	kube *genericclioptions.ConfigFlags
 }
 
+// CommandBuilder represents logic for building and running tools
 type CommandBuilder struct {
-	CommonOptions *commonOptions
+	CommonOptions *CommonOptions
 	tool          flags.DotnetTool
 }
 
-func (options *commonOptions) GetFlags(tool string) *pflag.FlagSet {
+// GetFlags return FlagSet that describes generic options
+func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("common", pflag.ExitOnError)
 	flagSet.StringVar(
-		&options.podName,
+		&options.Pod,
 		"pod-name",
-		options.podName,
+		options.Pod,
 		"Target pod",
 	)
 	_ = cobra.MarkFlagRequired(flagSet, "pod-name")
 
 	flagSet.StringVarP(
-		&options.containerName,
+		&options.Container,
 		"container",
 		"c",
-		options.containerName,
+		options.Container,
 		"Target container in pod. Required if pod run multiple containers",
 	)
 
 	flagSet.StringVarP(
-		&options.output,
+		&options.Output,
 		"output",
 		"o",
 		fmt.Sprintf(
@@ -54,24 +57,25 @@ func (options *commonOptions) GetFlags(tool string) *pflag.FlagSet {
 	)
 
 	flagSet.StringVar(
-		&options.image,
+		&options.Image,
 		"image",
 		globals.GetDumperImage(),
 		"Image of dumper to use for job",
 	)
-	options.kubeFlags = genericclioptions.NewConfigFlags(false)
-	options.kubeFlags.AddFlags(flagSet)
+	options.kube = genericclioptions.NewConfigFlags(false)
+	options.kube.AddFlags(flagSet)
 
 	return flagSet
 }
 
 func NewCommandBuilder(factory flags.DotnetToolFactory) *CommandBuilder {
 	return &CommandBuilder{
-		CommonOptions: &commonOptions{},
+		CommonOptions: &CommonOptions{},
 		tool:          factory(),
 	}
 }
 
+// Build will build and returns *cobra.Command for specific tool
 func (cb *CommandBuilder) Build(short, long, example string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     fmt.Sprintf("%s [flags]", cb.tool.ToolName()),
@@ -87,6 +91,7 @@ func (cb *CommandBuilder) Build(short, long, example string) *cobra.Command {
 	return cmd
 }
 
+// Tool returns tool name that contains CommandBuilder
 func (cb *CommandBuilder) Tool() string {
 	return cb.tool.ToolName()
 }

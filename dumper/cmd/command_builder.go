@@ -7,29 +7,31 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type commonOptions struct {
-	containerID      string
-	containerRuntime string
+// ContainerOptions represents container info
+type ContainerOptions struct {
+	ID      string
+	Runtime string
 }
 
 // CommandBuilder represents logic for building and running tools
 type CommandBuilder struct {
-	CommonOptions *commonOptions
-	tool          flags.DotnetTool
+	ContainerOptions *ContainerOptions
+	tool             flags.DotnetTool
 }
 
-func (options *commonOptions) GetFlags() *pflag.FlagSet {
+// GetFlags return FlagSet that describes options for container selection
+func (options *ContainerOptions) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("common", pflag.ExitOnError)
 	flagSet.StringVar(
-		&options.containerID,
+		&options.ID,
 		"container-id",
-		options.containerID,
+		options.ID,
 		"Container ID to run tool for",
 	)
 	flagSet.StringVar(
-		&options.containerRuntime,
+		&options.Runtime,
 		"container-runtime",
-		options.containerRuntime,
+		options.Runtime,
 		"Container Runtime to run tool for",
 	)
 	_ = cobra.MarkFlagRequired(flagSet, "container-id")
@@ -39,10 +41,10 @@ func (options *commonOptions) GetFlags() *pflag.FlagSet {
 }
 
 // NewCommandBuilder returns options with specified tool name
-func NewCommandBuilder(options *commonOptions, factory flags.DotnetToolFactory) *CommandBuilder {
+func NewCommandBuilder(options *ContainerOptions, factory flags.DotnetToolFactory) *CommandBuilder {
 	return &CommandBuilder{
-		tool:          factory(),
-		CommonOptions: options,
+		tool:             factory(),
+		ContainerOptions: options,
 	}
 }
 

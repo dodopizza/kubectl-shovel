@@ -21,8 +21,8 @@ func (cb *CommandBuilder) launch() error {
 	)
 
 	containerInfo := &kubernetes.ContainerInfo{
-		Runtime: cb.CommonOptions.containerRuntime,
-		ID:      cb.CommonOptions.containerID,
+		Runtime: cb.ContainerOptions.Runtime,
+		ID:      cb.ContainerOptions.ID,
 	}
 	containerFS, err := containerInfo.GetMountPoint()
 	if err != nil {
