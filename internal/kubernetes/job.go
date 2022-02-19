@@ -12,6 +12,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// JobVolume is helper struct to describe job volume
+type JobVolume struct {
+	Name      string
+	HostPath  string
+	MountPath string
+}
+
 func JobName() string {
 	parts := []string{globals.PluginName, uuid.NewString()}
 	return strings.Join(parts, "-")
