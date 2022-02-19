@@ -18,6 +18,14 @@ doc:
 lint:
 	golangci-lint run
 
+.PHONY: build-cli
+build-cli:
+	go build -v -o ./cli/bin/kubectl-shovel ./cli
+
+.PHONY: build-dumper
+build-dumper:
+	go build -v -o ./dumper/bin/dumper ./dumper
+
 .PHONY: prepare
 prepare: tidy lint doc test
 
