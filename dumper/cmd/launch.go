@@ -33,23 +33,22 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 
-	args := []string{"collect"}
-	args = append(args, cb.tool.GetArgs()...)
-	events.NewStatusEvent(
-		fmt.Sprintf("Running command: %s %s",
-			cb.tool.BinaryName(),
-			strings.Join(args, " "),
-		),
-	)
-
 	// if we do not set proper file extension dotnet tools will do it anyway
 	// write output file to /tmp, because it's available in target and worker pods
 	output := fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName())
-	args = append(
-		args,
-		"--output",
-		output,
+	cb.tool.
+		GetProperties().
+		SetAction("collect").
+		SetOutput(fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName()))
+
+	events.NewStatusEvent(
+		fmt.Sprintf("Running command: %s %s",
+			cb.tool.BinaryName(),
+			strings.Join(cb.tool.FormatArgs(), " "),
+		),
 	)
+
+	args := cb.tool.FormatArgs()
 	if err := utils.ExecCommand(cb.tool.BinaryName(), args...); err != nil {
 		events.NewErrorEvent(err, "failed to execute tool command")
 		return err

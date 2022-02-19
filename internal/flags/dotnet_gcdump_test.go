@@ -89,7 +89,7 @@ func Test_GCDumpFlagSet(t *testing.T) {
 			flagSet.AddFlagSet(gc.GetFlags())
 
 			require.NoError(t, flagSet.Parse(tc.args))
-			require.Equal(t, tc.expArgs, gc.GetArgs())
+			require.Equal(t, tc.expArgs, gc.FormatArgs())
 		})
 	}
 }

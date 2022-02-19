@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -15,7 +16,7 @@ import (
 func (cb *CommandBuilder) args(info *kubernetes.ContainerInfo) []string {
 	args := []string{"--container-id", info.ID, "--container-runtime", info.Runtime}
 	args = append(args, cb.tool.ToolName())
-	args = append(args, cb.tool.GetArgs()...)
+	args = append(args, cb.tool.FormatArgs()...)
 	return args
 }
 
@@ -38,8 +39,11 @@ func (cb *CommandBuilder) launch() error {
 	jobName := kubernetes.JobName()
 	jobVolume := containerInfo.GetJobVolume()
 
-	fmt.Println("Spawning diagnostics job")
 	args := cb.args(containerInfo)
+	fmt.Printf(
+		"Spawning diagnostics job with command:\n%s\n",
+		strings.Join(args, " "),
+	)
 	if err := k8s.RunJob(
 		jobName,
 		cb.CommonOptions.Image,

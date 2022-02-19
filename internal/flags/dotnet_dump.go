@@ -6,24 +6,25 @@ import (
 )
 
 type DotnetDump struct {
+	*DotnetToolProperties
+
 	Diagnostics bool
 	Type        types.DumpType
-	dt          *DotnetToolProperties
 
 	flagSet *pflag.FlagSet
 }
 
 func NewDotnetDump() DotnetTool {
 	return &DotnetDump{
-		Diagnostics: false,
-		Type:        types.DumpTypeFull,
-		dt:          NewDotnetToolProperties(),
+		DotnetToolProperties: NewDotnetToolProperties(),
+		Diagnostics:          false,
+		Type:                 types.DumpTypeFull,
 	}
 }
 
 func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-dump", pflag.ExitOnError)
-	flagSet.AddFlagSet(d.dt.GetFlags())
+	flagSet.AddFlagSet(d.DotnetToolProperties.GetFlags())
 	flagSet.BoolVar(
 		&d.Diagnostics,
 		"diag",
@@ -40,8 +41,8 @@ func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (d *DotnetDump) GetArgs() []string {
-	args := d.dt.GetArgs()
+func (d *DotnetDump) FormatArgs() []string {
+	args := d.DotnetToolProperties.FormatArgs()
 	if d.flagSet.Changed("diag") {
 		args = append(args, "--diag")
 	}
@@ -57,6 +58,6 @@ func (d *DotnetDump) ToolName() string {
 	return "dump"
 }
 
-func (d *DotnetDump) GetProperties() *DotnetToolProperties {
-	return d.dt
+func (d *DotnetDump) GetProperties() DotnetToolFlags {
+	return d.DotnetToolProperties
 }

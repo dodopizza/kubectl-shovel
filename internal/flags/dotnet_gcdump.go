@@ -6,22 +6,23 @@ import (
 )
 
 type DotnetGCDump struct {
+	*DotnetToolProperties
+
 	Timeout types.Timeout
-	dt      *DotnetToolProperties
 
 	flagSet *pflag.FlagSet
 }
 
 func NewDotnetGCDump() DotnetTool {
 	return &DotnetGCDump{
-		Timeout: 30,
-		dt:      NewDotnetToolProperties(),
+		DotnetToolProperties: NewDotnetToolProperties(),
+		Timeout:              30,
 	}
 }
 
 func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(gc.BinaryName(), pflag.ExitOnError)
-	flagSet.AddFlagSet(gc.dt.GetFlags())
+	flagSet.AddFlagSet(gc.DotnetToolProperties.GetFlags())
 	flagSet.Var(
 		&gc.Timeout,
 		gc.Timeout.Type(),
@@ -32,8 +33,8 @@ func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (gc *DotnetGCDump) GetArgs() []string {
-	args := gc.dt.GetArgs()
+func (gc *DotnetGCDump) FormatArgs() []string {
+	args := gc.DotnetToolProperties.FormatArgs()
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args = append(
 			args,
@@ -51,6 +52,6 @@ func (gc *DotnetGCDump) ToolName() string {
 	return "gcdump"
 }
 
-func (gc *DotnetGCDump) GetProperties() *DotnetToolProperties {
-	return gc.dt
+func (gc *DotnetGCDump) GetProperties() DotnetToolFlags {
+	return gc.DotnetToolProperties
 }

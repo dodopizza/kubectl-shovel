@@ -8,6 +8,8 @@ import (
 )
 
 type DotnetTrace struct {
+	*DotnetToolProperties
+
 	BufferSize    int
 	CLREventLevel types.CLREventLevel
 	CLREvents     types.CLREvents
@@ -15,21 +17,20 @@ type DotnetTrace struct {
 	Format        types.Format
 	Profile       types.Profile
 	Providers     types.Providers
-	dt            *DotnetToolProperties
 
 	flagSet *pflag.FlagSet
 }
 
 func NewDotnetTrace() DotnetTool {
 	return &DotnetTrace{
-		BufferSize: 256,
-		dt:         NewDotnetToolProperties(),
+		DotnetToolProperties: NewDotnetToolProperties(),
+		BufferSize:           256,
 	}
 }
 
 func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(t.BinaryName(), pflag.ExitOnError)
-	flagSet.AddFlagSet(t.dt.GetFlags())
+	flagSet.AddFlagSet(t.DotnetToolProperties.GetFlags())
 	flagSet.IntVar(
 		&t.BufferSize,
 		"buffersize",
@@ -78,8 +79,8 @@ func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (t *DotnetTrace) GetArgs() []string {
-	args := t.dt.GetArgs()
+func (t *DotnetTrace) FormatArgs() []string {
+	args := t.DotnetToolProperties.FormatArgs()
 
 	if t.flagSet.Changed("buffersize") {
 		args = append(
@@ -141,6 +142,6 @@ func (t *DotnetTrace) ToolName() string {
 	return "trace"
 }
 
-func (t *DotnetTrace) GetProperties() *DotnetToolProperties {
-	return t.dt
+func (t *DotnetTrace) GetProperties() DotnetToolFlags {
+	return t.DotnetToolProperties
 }
