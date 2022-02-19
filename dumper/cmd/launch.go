@@ -15,10 +15,7 @@ import (
 )
 
 func (cb *CommandBuilder) launch() error {
-	events.NewEvent(
-		events.Status,
-		"Looking for and mapping container fs",
-	)
+	events.NewStatusEvent("Looking for and mapping container fs")
 
 	containerInfo := &kubernetes.ContainerInfo{
 		Runtime: cb.ContainerOptions.Runtime,
@@ -26,6 +23,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 	containerFS, err := containerInfo.GetMountPoint()
 	if err != nil {
+		events.NewErrorEvent(err, "unable to find mount point for container")
 		return err
 	}
 	if err := os.RemoveAll("/tmp"); err != nil {
@@ -37,10 +35,8 @@ func (cb *CommandBuilder) launch() error {
 
 	args := []string{"collect"}
 	args = append(args, cb.tool.GetArgs()...)
-	events.NewEvent(
-		events.Status,
-		fmt.Sprintf(
-			"Running command: %s %s",
+	events.NewStatusEvent(
+		fmt.Sprintf("Running command: %s %s",
 			cb.tool.BinaryName(),
 			strings.Join(args, " "),
 		),
@@ -55,31 +51,24 @@ func (cb *CommandBuilder) launch() error {
 		output,
 	)
 	if err := utils.ExecCommand(cb.tool.BinaryName(), args...); err != nil {
+		events.NewErrorEvent(err, "failed to execute tool command")
 		return err
 	}
-
-	events.NewEvent(
-		events.Status,
-		"Gathering completed",
-	)
+	events.NewStatusEvent("Gathering completed")
 
 	_, err = ioutil.ReadFile(output)
 	if err != nil {
+		events.NewErrorEvent(err, "failed to locate output result")
 		return err
 	}
 
-	events.NewEvent(
-		events.Completed,
-		output,
-	)
+	events.NewCompletedEvent(output)
 
+	// wait until output file to be copied from
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	if err := watchdog.Watch(ctx); err != nil {
-		events.NewEvent(
-			events.Error,
-			err.Error(),
-		)
+		events.NewErrorEvent(err, "failed to watch copy progress")
 		return err
 	}
 

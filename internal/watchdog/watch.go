@@ -18,7 +18,7 @@ func Watch(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case <-time.After(deadAfterDuration):
-			return errors.New("There were no signals from operator for a long time")
+			return errors.New("there were no signals from operator for a long time")
 		}
 	}
 }

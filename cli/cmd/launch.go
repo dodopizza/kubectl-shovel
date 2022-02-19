@@ -71,13 +71,13 @@ func (cb *CommandBuilder) launch() error {
 	defer stream.Close()
 
 	awaiter := events.NewEventAwaiter()
-	resultFilePath, err := awaiter.AwaitCompletedEvent(stream)
+	output, err := awaiter.AwaitCompletedEvent(stream)
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("Retrieve output from diagnostics job")
-	if err := k8s.CopyFromPod(jobPodName, resultFilePath, cb.CommonOptions.Output); err != nil {
+	if err := k8s.CopyFromPod(jobPodName, output, cb.CommonOptions.Output); err != nil {
 		return errors.Wrap(err, "Error while retrieving diagnostics job output")
 	}
 
