@@ -12,6 +12,13 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
+func (cb *CommandBuilder) args(info *kubernetes.ContainerInfo) []string {
+	args := []string{"--container-id", info.ID, "--container-runtime", info.Runtime}
+	args = append(args, cb.tool.ToolName())
+	args = append(args, cb.tool.GetArgs()...)
+	return args
+}
+
 func (cb *CommandBuilder) launch() error {
 	k8s, err := kubernetes.NewClient(cb.CommonOptions.kube)
 	if err != nil {
@@ -32,13 +39,7 @@ func (cb *CommandBuilder) launch() error {
 	jobVolume := containerInfo.GetJobVolume()
 
 	fmt.Println("Spawning diagnostics job")
-	args := append([]string{
-		"--container-id",
-		containerInfo.ID,
-		"--container-runtime",
-		containerInfo.Runtime,
-		cb.tool.ToolName(),
-	}, cb.tool.GetArgs()...)
+	args := cb.args(containerInfo)
 	if err := k8s.RunJob(
 		jobName,
 		cb.CommonOptions.Image,

@@ -8,7 +8,7 @@ import (
 type DotnetDump struct {
 	Diagnostics bool
 	Type        types.DumpType
-	dt          *DotnetToolShared
+	dt          *DotnetToolProperties
 
 	flagSet *pflag.FlagSet
 }
@@ -17,7 +17,7 @@ func NewDotnetDump() DotnetTool {
 	return &DotnetDump{
 		Diagnostics: false,
 		Type:        types.DumpTypeFull,
-		dt:          NewDotnetToolShared(),
+		dt:          NewDotnetToolProperties(),
 	}
 }
 
@@ -55,4 +55,8 @@ func (d *DotnetDump) BinaryName() string {
 
 func (d *DotnetDump) ToolName() string {
 	return "dump"
+}
+
+func (d *DotnetDump) GetProperties() *DotnetToolProperties {
+	return d.dt
 }

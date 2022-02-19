@@ -7,7 +7,7 @@ import (
 
 type DotnetGCDump struct {
 	Timeout types.Timeout
-	dt      *DotnetToolShared
+	dt      *DotnetToolProperties
 
 	flagSet *pflag.FlagSet
 }
@@ -15,7 +15,7 @@ type DotnetGCDump struct {
 func NewDotnetGCDump() DotnetTool {
 	return &DotnetGCDump{
 		Timeout: 30,
-		dt:      NewDotnetToolShared(),
+		dt:      NewDotnetToolProperties(),
 	}
 }
 
@@ -49,4 +49,8 @@ func (gc *DotnetGCDump) BinaryName() string {
 
 func (gc *DotnetGCDump) ToolName() string {
 	return "gcdump"
+}
+
+func (gc *DotnetGCDump) GetProperties() *DotnetToolProperties {
+	return gc.dt
 }

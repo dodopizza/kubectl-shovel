@@ -49,10 +49,7 @@ func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 		&options.Output,
 		"output",
 		"o",
-		fmt.Sprintf(
-			"./output.%s",
-			tool,
-		),
+		fmt.Sprintf("./output.%s", tool),
 		"Output file",
 	)
 

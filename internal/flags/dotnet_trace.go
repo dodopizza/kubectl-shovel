@@ -15,7 +15,7 @@ type DotnetTrace struct {
 	Format        types.Format
 	Profile       types.Profile
 	Providers     types.Providers
-	dt            *DotnetToolShared
+	dt            *DotnetToolProperties
 
 	flagSet *pflag.FlagSet
 }
@@ -23,7 +23,7 @@ type DotnetTrace struct {
 func NewDotnetTrace() DotnetTool {
 	return &DotnetTrace{
 		BufferSize: 256,
-		dt:         NewDotnetToolShared(),
+		dt:         NewDotnetToolProperties(),
 	}
 }
 
@@ -139,4 +139,8 @@ func (t *DotnetTrace) BinaryName() string {
 
 func (t *DotnetTrace) ToolName() string {
 	return "trace"
+}
+
+func (t *DotnetTrace) GetProperties() *DotnetToolProperties {
+	return t.dt
 }

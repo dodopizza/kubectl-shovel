@@ -9,24 +9,29 @@ import (
 
 type DotnetToolFactory func() DotnetTool
 
-type DotnetTool interface {
+type DotnetToolFlags interface {
 	GetFlags() *pflag.FlagSet
 	GetArgs() []string
-	BinaryName() string
-	ToolName() string
 }
 
-type DotnetToolShared struct {
+type DotnetTool interface {
+	DotnetToolFlags
+	BinaryName() string
+	ToolName() string
+	GetProperties() *DotnetToolProperties
+}
+
+type DotnetToolProperties struct {
 	ProcessID int
 }
 
-func NewDotnetToolShared() *DotnetToolShared {
-	return &DotnetToolShared{
+func NewDotnetToolProperties() *DotnetToolProperties {
+	return &DotnetToolProperties{
 		ProcessID: 1,
 	}
 }
 
-func (dt *DotnetToolShared) GetFlags() *pflag.FlagSet {
+func (dt *DotnetToolProperties) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-tools", pflag.ExitOnError)
 	flagSet.IntVarP(
 		&dt.ProcessID,
@@ -39,7 +44,7 @@ func (dt *DotnetToolShared) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dt *DotnetToolShared) GetArgs() []string {
+func (dt *DotnetToolProperties) GetArgs() []string {
 	return []string{
 		"--process-id", strconv.Itoa(dt.ProcessID),
 	}
