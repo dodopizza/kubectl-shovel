@@ -18,6 +18,10 @@ doc:
 lint:
 	golangci-lint run
 
+.PHONY: tidy
+tidy:
+	go mod tidy -v
+
 .PHONY: build-cli
 build-cli:
 	go build -v -o ./cli/bin/kubectl-shovel ./cli
@@ -25,9 +29,6 @@ build-cli:
 .PHONY: build-dumper
 build-dumper:
 	go build -v -o ./dumper/bin/dumper ./dumper
-
-.PHONY: prepare
-prepare: tidy lint doc test
 
 .PHONY: setup
 setup:
@@ -48,9 +49,8 @@ test-integration:
 test-integration-arm64:
 	./hacks/run-integration-tests.sh arm64
 
-.PHONY: tidy
-tidy:
-	go mod tidy -v
+.PHONY: prepare
+prepare: tidy lint doc build-cli build-dumper test
 
 .PHONY: help
 help:
@@ -62,10 +62,12 @@ help:
 	@echo "  ${YELLOW}cover                  ${RESET} Open html coverage report in browser"
 	@echo "  ${YELLOW}doc                    ${RESET} Run doc generation"
 	@echo "  ${YELLOW}lint                   ${RESET} Run linters via golangci-lint"
-	@echo "  ${YELLOW}prepare                ${RESET} Run all available checks and generators"
+	@echo "  ${YELLOW}tidy                   ${RESET} Run tidy for go module to remove unused dependencies"
+	@echo "  ${YELLOW}build-cli              ${RESET} Build cli component of shovel"
+	@echo "  ${YELLOW}build-dumper           ${RESET} Build dumper component of shovel"
 	@echo "  ${YELLOW}setup                  ${RESET} Setup local environment. Create kind cluster"
 	@echo "  ${YELLOW}test                   ${RESET} Run all available tests"
+	@echo "  ${YELLOW}test-unit              ${RESET} Run all unit tests"
 	@echo "  ${YELLOW}test-integration       ${RESET} Run all integration tests (for amd64 arch)"
 	@echo "  ${YELLOW}test-integration-arm64 ${RESET} Run all integration tests (for arm64 arch)"
-	@echo "  ${YELLOW}test-unit              ${RESET} Run all unit tests"
-	@echo "  ${YELLOW}tidy                   ${RESET} Run tidy for go module to remove unused dependencies"
+	@echo "  ${YELLOW}prepare                ${RESET} Run all available checks and generators"
