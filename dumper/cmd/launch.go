@@ -18,8 +18,8 @@ func (cb *CommandBuilder) launch() error {
 	events.NewStatusEvent("Looking for and mapping container fs")
 
 	containerInfo := &kubernetes.ContainerInfo{
-		Runtime: cb.ContainerOptions.Runtime,
-		ID:      cb.ContainerOptions.ID,
+		Runtime: cb.CommonOptions.ContainerRuntime,
+		ID:      cb.CommonOptions.ContainerID,
 	}
 	containerFS, err := containerInfo.GetMountPoint()
 	if err != nil {

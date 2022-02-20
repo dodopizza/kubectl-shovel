@@ -6,7 +6,7 @@ import (
 
 // NewDumperCommand initialize Dumper command
 func NewDumperCommand() *cobra.Command {
-	options := &ContainerOptions{}
+	options := &CommonOptions{}
 	cmd := &cobra.Command{
 		Use:               "dumper",
 		Short:             "Tool to gather diagnostic information from dotnet process",
