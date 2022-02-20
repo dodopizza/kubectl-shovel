@@ -29,15 +29,12 @@ func Test_NewRunJobSpec(t *testing.T) {
 					NodeName: "node",
 				},
 			}),
-			container: NewContainerInfo(&core.ContainerStatus{
-				ContainerID: "docker://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
-			}),
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			jobSpec := NewJobRunSpec(tc.args, tc.image, tc.pod, tc.container)
+			jobSpec := NewJobRunSpec(tc.args, tc.image, tc.pod)
 
 			require.Equal(t, expJobName, jobSpec.Name)
 			require.Equal(t, tc.args, jobSpec.Args)

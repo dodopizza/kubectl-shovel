@@ -24,7 +24,6 @@ type JobRunSpec struct {
 	Node      string
 	Selectors map[string]string
 	Volumes   []JobVolume
-	container *ContainerInfo
 }
 
 // JobVolume is helper struct to describe job volume customization
@@ -35,7 +34,7 @@ type JobVolume struct {
 }
 
 // NewJobRunSpec returns JobRunSpec constructed from specified args, image, pod and container
-func NewJobRunSpec(args []string, image string, pod *PodInfo, container *ContainerInfo) *JobRunSpec {
+func NewJobRunSpec(args []string, image string, pod *PodInfo) *JobRunSpec {
 	nameParts := []string{globals.PluginName, generator()}
 	name := strings.Join(nameParts, "-")
 
@@ -47,14 +46,13 @@ func NewJobRunSpec(args []string, image string, pod *PodInfo, container *Contain
 		Selectors: map[string]string{
 			"job-name": name,
 		},
-		Volumes:   []JobVolume{},
-		container: container,
+		Volumes: []JobVolume{},
 	}
 }
 
 // WithContainerFSVolume add container file system volumes to job spec
-func (j *JobRunSpec) WithContainerFSVolume() *JobRunSpec {
-	j.Volumes = append(j.Volumes, j.container.GetContainerFSVolume())
+func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec {
+	j.Volumes = append(j.Volumes, container.GetContainerFSVolume())
 	return j
 }
 

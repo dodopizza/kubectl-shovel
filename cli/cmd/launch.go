@@ -37,8 +37,8 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	jobSpec := kubernetes.
-		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod, targetContainer).
-		WithContainerFSVolume()
+		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod).
+		WithContainerFSVolume(targetContainer)
 
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
 	if err := k8s.RunJob(jobSpec); err != nil {
