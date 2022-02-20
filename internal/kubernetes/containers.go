@@ -4,13 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	core "k8s.io/api/core/v1"
 	"os"
+	"strings"
 )
 
 // ContainerInfo is information about container struct
 type ContainerInfo struct {
 	Runtime string
 	ID      string
+}
+
+// NewContainerInfo returns container info mapped from core.ContainerStatus
+func NewContainerInfo(cs *core.ContainerStatus) *ContainerInfo {
+	containerInfo := strings.Split(cs.ContainerID, "://")
+
+	return &ContainerInfo{
+		Runtime: containerInfo[0],
+		ID:      containerInfo[1],
+	}
 }
 
 // GetMountPoint returns mount point depending ContainerRuntime
@@ -21,17 +33,16 @@ func (ci *ContainerInfo) GetMountPoint() (string, error) {
 	return ci.containerDMountPoint()
 }
 
-// GetJobVolume returns helper job volume
-func (ci *ContainerInfo) GetJobVolume() *JobVolume {
+func (ci *ContainerInfo) GetContainerFSVolume() JobVolume {
 	if ci.Runtime == "containerd" {
-		return &JobVolume{
+		return JobVolume{
 			Name:      "containerdfs",
 			HostPath:  "/run/containerd",
 			MountPath: "/run/containerd",
 		}
 	}
 
-	return &JobVolume{
+	return JobVolume{
 		Name:      "dockerfs",
 		HostPath:  "/var/lib/docker",
 		MountPath: "/var/lib/docker",

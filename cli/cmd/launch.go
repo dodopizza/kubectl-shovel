@@ -26,41 +26,32 @@ func (cb *CommandBuilder) launch() error {
 		return errors.Wrap(err, "Failed to init kubernetes client")
 	}
 
-	pod, err := k8s.GetPodInfo(cb.CommonOptions.Pod)
+	targetPod, err := k8s.GetPodInfo(cb.CommonOptions.Pod)
 	if err != nil {
 		return errors.Wrap(err, "Failed to get info about target pod")
 	}
 
-	containerInfo, err := kubernetes.GetContainerInfo(pod, cb.CommonOptions.Container)
+	targetContainer, err := targetPod.FindContainerInfo(cb.CommonOptions.Container)
 	if err != nil {
-		return errors.Wrap(err, "Failed to get info about container")
+		return errors.Wrap(err, "Failed to get info about target container")
 	}
 
-	jobName := kubernetes.JobName()
-	jobVolume := containerInfo.GetJobVolume()
+	jobSpec := kubernetes.
+		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod).
+		WithContainerFSVolume(targetContainer)
 
-	args := cb.args(containerInfo)
-	fmt.Printf(
-		"Spawning diagnostics job with command:\n%s\n",
-		strings.Join(args, " "),
-	)
-	if err := k8s.RunJob(
-		jobName,
-		cb.CommonOptions.Image,
-		pod.Spec.NodeName,
-		jobVolume,
-		args,
-	); err != nil {
+	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
+	if err := k8s.RunJob(jobSpec); err != nil {
 		return errors.Wrap(err, "Failed to spawn diagnostics job")
 	}
 
 	fmt.Println("Waiting for a diagnostics job to start")
-	jobPodName, err := k8s.WaitPod(map[string]string{"job-name": jobName})
+	jobPod, err := k8s.WaitPod(jobSpec.Selectors)
 	if err != nil {
 		return errors.Wrap(err, "Failed to wait diagnostics job execution")
 	}
 
-	op := watchdog.NewOperator(k8s, jobPodName)
+	op := watchdog.NewOperator(k8s, jobPod.Name)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go func() {
@@ -69,25 +60,25 @@ func (cb *CommandBuilder) launch() error {
 		}
 	}()
 
-	stream, err := k8s.ReadPodLogs(jobPodName, globals.PluginName)
+	jobPodLogs, err := k8s.ReadPodLogs(jobPod.Name, globals.PluginName)
 	if err != nil {
-		return errors.Wrap(err, "Failed to read logs from diagnostics job pod")
+		return errors.Wrap(err, "Failed to read logs from diagnostics job targetPod")
 	}
-	defer stream.Close()
+	defer jobPodLogs.Close()
 
 	awaiter := events.NewEventAwaiter()
-	output, err := awaiter.AwaitCompletedEvent(stream)
+	output, err := awaiter.AwaitCompletedEvent(jobPodLogs)
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("Retrieve output from diagnostics job")
-	if err := k8s.CopyFromPod(jobPodName, output, cb.CommonOptions.Output); err != nil {
+	if err := k8s.CopyFromPod(jobPod.Name, output, cb.CommonOptions.Output); err != nil {
 		return errors.Wrap(err, "Error while retrieving diagnostics job output")
 	}
 
 	fmt.Printf("Result successfully written to %s\nCleanup diagnostics job", cb.CommonOptions.Output)
-	if err := k8s.DeleteJob(jobName); err != nil {
+	if err := k8s.DeleteJob(jobSpec.Name); err != nil {
 		return errors.Wrap(err, "Error while deleting job")
 	}
 

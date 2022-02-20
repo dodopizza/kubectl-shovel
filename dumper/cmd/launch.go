@@ -18,8 +18,8 @@ func (cb *CommandBuilder) launch() error {
 	events.NewStatusEvent("Looking for and mapping container fs")
 
 	containerInfo := &kubernetes.ContainerInfo{
-		Runtime: cb.ContainerOptions.Runtime,
-		ID:      cb.ContainerOptions.ID,
+		Runtime: cb.CommonOptions.ContainerRuntime,
+		ID:      cb.CommonOptions.ContainerID,
 	}
 	containerFS, err := containerInfo.GetMountPoint()
 	if err != nil {
@@ -37,7 +37,6 @@ func (cb *CommandBuilder) launch() error {
 	// write output file to /tmp, because it's available in target and worker pods
 	output := fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName())
 	cb.tool.
-		GetProperties().
 		SetAction("collect").
 		SetOutput(fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName()))
 
