@@ -36,12 +36,9 @@ func (cb *CommandBuilder) launch() error {
 		return errors.Wrap(err, "Failed to get info about target container")
 	}
 
-	jobSpec := kubernetes.NewJobRunSpec(
-		cb.args(targetContainer),
-		cb.CommonOptions.Image,
-		targetPod,
-		targetContainer,
-	)
+	jobSpec := kubernetes.
+		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod, targetContainer).
+		WithContainerFSVolume()
 
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
 	if err := k8s.RunJob(jobSpec); err != nil {

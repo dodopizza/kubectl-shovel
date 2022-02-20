@@ -47,38 +47,3 @@ func Test_NewRunJobSpec(t *testing.T) {
 		})
 	}
 }
-
-func Test_GetContainerJobVolume(t *testing.T) {
-	testCases := []struct {
-		name       string
-		runtime    string
-		volumeName string
-	}{
-		{
-			name:       "DockerFS used if specified",
-			runtime:    "docker",
-			volumeName: "dockerfs",
-		},
-		{
-			name:       "ContainerdFS used if specified",
-			runtime:    "containerd",
-			volumeName: "containerdfs",
-		},
-		{
-			name:       "DockerFS used in default",
-			runtime:    "",
-			volumeName: "dockerfs",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			container := &ContainerInfo{Runtime: tc.runtime}
-
-			volumes := container.GetJobVolumes()
-			volume := volumes[0]
-
-			require.Equal(t, tc.volumeName, volume.Name)
-		})
-	}
-}

@@ -25,13 +25,6 @@ func NewContainerInfo(cs *core.ContainerStatus) *ContainerInfo {
 	}
 }
 
-// GetJobVolumes returns helper job volume
-func (ci *ContainerInfo) GetJobVolumes() []JobVolume {
-	return []JobVolume{
-		ci.containerFs(),
-	}
-}
-
 // GetMountPoint returns mount point depending ContainerRuntime
 func (ci *ContainerInfo) GetMountPoint() (string, error) {
 	if ci.Runtime == "docker" {
@@ -40,7 +33,7 @@ func (ci *ContainerInfo) GetMountPoint() (string, error) {
 	return ci.containerDMountPoint()
 }
 
-func (ci *ContainerInfo) containerFs() JobVolume {
+func (ci *ContainerInfo) GetContainerFSVolume() JobVolume {
 	if ci.Runtime == "containerd" {
 		return JobVolume{
 			Name:      "containerdfs",

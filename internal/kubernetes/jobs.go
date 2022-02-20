@@ -24,6 +24,7 @@ type JobRunSpec struct {
 	Node      string
 	Selectors map[string]string
 	Volumes   []JobVolume
+	container *ContainerInfo
 }
 
 // JobVolume is helper struct to describe job volume customization
@@ -46,13 +47,20 @@ func NewJobRunSpec(args []string, image string, pod *PodInfo, container *Contain
 		Selectors: map[string]string{
 			"job-name": name,
 		},
-		Volumes: container.GetJobVolumes(),
+		Volumes:   []JobVolume{},
+		container: container,
 	}
 }
 
-func (js *JobRunSpec) volumes() []core.Volume {
-	volumes := make([]core.Volume, len(js.Volumes))
-	for i, volume := range js.Volumes {
+// WithContainerFSVolume add container file system volumes to job spec
+func (j *JobRunSpec) WithContainerFSVolume() *JobRunSpec {
+	j.Volumes = append(j.Volumes, j.container.GetContainerFSVolume())
+	return j
+}
+
+func (j *JobRunSpec) volumes() []core.Volume {
+	volumes := make([]core.Volume, len(j.Volumes))
+	for i, volume := range j.Volumes {
 		volumes[i] = core.Volume{
 			Name: volume.Name,
 			VolumeSource: core.VolumeSource{
@@ -65,9 +73,9 @@ func (js *JobRunSpec) volumes() []core.Volume {
 	return volumes
 }
 
-func (js *JobRunSpec) mounts() []core.VolumeMount {
-	volumeMounts := make([]core.VolumeMount, len(js.Volumes))
-	for i, volume := range js.Volumes {
+func (j *JobRunSpec) mounts() []core.VolumeMount {
+	volumeMounts := make([]core.VolumeMount, len(j.Volumes))
+	for i, volume := range j.Volumes {
 		volumeMounts[i] = core.VolumeMount{
 			Name:      volume.Name,
 			MountPath: volume.MountPath,

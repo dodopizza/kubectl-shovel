@@ -37,7 +37,6 @@ func (cb *CommandBuilder) launch() error {
 	// write output file to /tmp, because it's available in target and worker pods
 	output := fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName())
 	cb.tool.
-		GetProperties().
 		SetAction("collect").
 		SetOutput(fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName()))
 

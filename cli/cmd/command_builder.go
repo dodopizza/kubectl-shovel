@@ -3,11 +3,10 @@ package cmd
 import (
 	"fmt"
 	"github.com/dodopizza/kubectl-shovel/internal/flags"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
 // CommonOptions contains generic arguments for cli
@@ -28,24 +27,28 @@ type CommandBuilder struct {
 
 // GetFlags return FlagSet that describes generic options
 func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet("common", pflag.ExitOnError)
-	flagSet.StringVar(
-		&options.Pod,
-		"pod-name",
-		options.Pod,
-		"Target pod",
-	)
-	_ = cobra.MarkFlagRequired(flagSet, "pod-name")
-
-	flagSet.StringVarP(
+	fs := pflag.NewFlagSet("common", pflag.ExitOnError)
+	fs.StringVarP(
 		&options.Container,
 		"container",
 		"c",
 		options.Container,
 		"Target container in pod. Required if pod run multiple containers",
 	)
-
-	flagSet.StringVarP(
+	fs.StringVar(
+		&options.Image,
+		"image",
+		globals.GetDumperImage(),
+		"Image of dumper to use for job",
+	)
+	fs.StringVar(
+		&options.Pod,
+		"pod-name",
+		options.Pod,
+		"Target pod",
+	)
+	_ = cobra.MarkFlagRequired(fs, "pod-name")
+	fs.StringVarP(
 		&options.Output,
 		"output",
 		"o",
@@ -53,16 +56,10 @@ func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 		"Output file",
 	)
 
-	flagSet.StringVar(
-		&options.Image,
-		"image",
-		globals.GetDumperImage(),
-		"Image of dumper to use for job",
-	)
 	options.kube = genericclioptions.NewConfigFlags(false)
-	options.kube.AddFlags(flagSet)
+	options.kube.AddFlags(fs)
 
-	return flagSet
+	return fs
 }
 
 func NewCommandBuilder(factory flags.DotnetToolFactory) *CommandBuilder {
