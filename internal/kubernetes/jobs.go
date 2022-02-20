@@ -13,7 +13,7 @@ import (
 
 var (
 	// add ability to test behavior
-	generator = uuid.NewString()
+	generator = uuid.NewString
 )
 
 // JobRunSpec is helper struct to describe job spec customization
@@ -35,7 +35,7 @@ type JobVolume struct {
 
 // NewJobRunSpec returns JobRunSpec constructed from specified args, image, pod and container
 func NewJobRunSpec(args []string, image string, pod *PodInfo, container *ContainerInfo) *JobRunSpec {
-	nameParts := []string{globals.PluginName, generator}
+	nameParts := []string{globals.PluginName, generator()}
 	name := strings.Join(nameParts, "-")
 
 	return &JobRunSpec{
