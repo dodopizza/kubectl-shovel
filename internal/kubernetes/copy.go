@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	cp "k8s.io/kubectl/pkg/cmd/cp"
+	"k8s.io/kubectl/pkg/cmd/cp"
 )
 
 // CopyFromPod - copy file from pod to local file

@@ -5,7 +5,8 @@ import (
 	"github.com/spf13/cobra/doc"
 )
 
-func newDocCmd() *cobra.Command {
+// NewDocCommand return command that generate tool docs from sources
+func NewDocCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "doc",
 		Hidden: true,

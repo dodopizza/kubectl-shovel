@@ -7,19 +7,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-// ContainerInfo is information about container struct
-type ContainerInfo struct {
-	Runtime string
-	ID      string
-}
-
-// JobVolume is helper struct to describe job volume
-type JobVolume struct {
-	Name      string
-	HostPath  string
-	MountPath string
-}
-
 func int32Ptr(i int32) *int32 {
 	return &i
 }
@@ -31,7 +18,7 @@ func GetContainerInfo(
 ) (*ContainerInfo, error) {
 	if containerName == "" && len(pod.Status.ContainerStatuses) > 1 {
 		return nil, fmt.Errorf(
-			"Container name must be specified for pod %s, choose one of: [%s]",
+			"container name must be specified for pod %s, choose one of: [%s]",
 			pod.Name,
 			strings.Join(getContainerNames(pod), " "),
 		)
@@ -74,25 +61,8 @@ func getContainerInfoByName(
 	}
 
 	return v1.ContainerStatus{}, fmt.Errorf(
-		"Container %s is not valid for pod %s",
+		"container %s is not valid for pod %s",
 		containerName,
 		pod.Name,
 	)
-}
-
-// NewJobVolume create new helper job volume
-func NewJobVolume(containerInfo *ContainerInfo) *JobVolume {
-	if containerInfo.Runtime == "containerd" {
-		return &JobVolume{
-			Name:      "containerdfs",
-			HostPath:  "/run/containerd",
-			MountPath: "/run/containerd",
-		}
-	}
-
-	return &JobVolume{
-		Name:      "dockerfs",
-		HostPath:  "/var/lib/docker",
-		MountPath: "/var/lib/docker",
-	}
 }

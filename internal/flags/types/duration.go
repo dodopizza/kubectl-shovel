@@ -1,4 +1,4 @@
-package flags
+package types
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 type Duration time.Duration
 
 var (
-	defaultDuration = 10 * time.Second
+	DefaultDuration = 10 * time.Second
 	day             = 24 * time.Hour
 	unitPosition    = map[int]time.Duration{
 		0: 24 * time.Hour,
@@ -82,6 +82,6 @@ func (d *Duration) Description() string {
 		fmt.Sprintf(
 			"Provided in the form of dd:hh:mm:ss or "+
 				"corresponding time unit representation (e.g. 1s, 2m, 3h) (default %s)",
-			defaultDuration,
+			DefaultDuration,
 		)
 }

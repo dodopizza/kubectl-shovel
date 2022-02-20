@@ -1,7 +1,13 @@
 package main
 
-import "github.com/dodopizza/kubectl-shovel/dumper/cmd"
+import (
+	"github.com/dodopizza/kubectl-shovel/dumper/cmd"
+	"os"
+)
 
 func main() {
-	cmd.Execute()
+	rootCmd := cmd.NewDumperCommand()
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }

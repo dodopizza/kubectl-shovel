@@ -33,6 +33,24 @@ func NewEvent(eventType EventType, message string) {
 	fmt.Println(string(data))
 }
 
+// NewStatusEvent is used to publish status event
+func NewStatusEvent(message string) {
+	NewEvent(Status, message)
+}
+
+// NewCompletedEvent is used to publish completed event
+func NewCompletedEvent(message string) {
+	NewEvent(Completed, message)
+}
+
+// NewErrorEvent is used to publish error event
+func NewErrorEvent(err error, description string) {
+	if description != "" {
+		err = errors.Wrap(err, description)
+	}
+	NewEvent(Error, err.Error())
+}
+
 // GetEvent is used to read published event
 func GetEvent(data string) (*Event, error) {
 	event := &Event{}

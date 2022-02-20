@@ -1,4 +1,4 @@
-package version
+package globals
 
 // Version is variable to show version
 var Version = "undefined"

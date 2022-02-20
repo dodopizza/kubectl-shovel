@@ -50,7 +50,7 @@ func (k8s *Client) WaitPod(labelSelector map[string]string) (string, error) {
 			pod = &podList.Items[0]
 			switch pod.Status.Phase {
 			case v1.PodFailed:
-				return false, errors.New("Pod has been failed")
+				return false, errors.New("pod has been failed")
 			case v1.PodSucceeded, v1.PodRunning:
 				return true, nil
 			default:
@@ -74,10 +74,5 @@ func (k8s *Client) ReadPodLogs(podName, containerName string) (io.ReadCloser, er
 			Follow:    true,
 		})
 
-	readCloser, err := req.Stream(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	return readCloser, nil
+	return req.Stream(context.Background())
 }

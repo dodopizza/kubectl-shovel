@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_DumpFlagSet(t *testing.T) {
+func Test_GCDumpFlagSet(t *testing.T) {
 	testCases := []struct {
 		name    string
 		args    []string
@@ -18,7 +18,6 @@ func Test_DumpFlagSet(t *testing.T) {
 			args: []string{},
 			expArgs: []string{
 				"--process-id", "1",
-				"--type", "Full",
 			},
 		},
 		{
@@ -28,28 +27,57 @@ func Test_DumpFlagSet(t *testing.T) {
 			},
 			expArgs: []string{
 				"--process-id", "5",
-				"--type", "Full",
 			},
 		},
 		{
-			name: "Override Type",
+			name: "Override timeout",
 			args: []string{
-				"--type", "Heap",
+				"--timeout", "120",
 			},
 			expArgs: []string{
 				"--process-id", "1",
-				"--type", "Heap",
+				"--timeout", "120",
 			},
 		},
 		{
-			name: "Override Diagnostics",
+			name: "Override timeout in seconds",
 			args: []string{
-				"--diag",
+				"--timeout", "120s",
 			},
 			expArgs: []string{
 				"--process-id", "1",
-				"--diag",
-				"--type", "Full",
+				"--timeout", "120",
+			},
+		},
+		{
+			name: "Override timeout in minutes",
+			args: []string{
+				"--timeout", "2m",
+			},
+			expArgs: []string{
+				"--process-id", "1",
+				"--timeout", "120",
+			},
+		},
+		{
+			name: "Override timeout with milliseconds",
+			args: []string{
+				"--timeout", "60s50ms",
+			},
+			expArgs: []string{
+				"--process-id", "1",
+				"--timeout", "60",
+			},
+		},
+		{
+			name: "Override timeout and process id",
+			args: []string{
+				"--process-id", "5",
+				"--timeout", "10m",
+			},
+			expArgs: []string{
+				"--process-id", "5",
+				"--timeout", "600",
 			},
 		},
 	}
@@ -57,16 +85,16 @@ func Test_DumpFlagSet(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewDumpFlagSet()
-			flagSet.AddFlagSet(gc.Parse())
+			gc := NewDotnetGCDump()
+			flagSet.AddFlagSet(gc.GetFlags())
 
 			require.NoError(t, flagSet.Parse(tc.args))
-			require.Equal(t, tc.expArgs, gc.Args())
+			require.Equal(t, tc.expArgs, gc.FormatArgs())
 		})
 	}
 }
 
-func Test_DumpFlagSet_Errors(t *testing.T) {
+func Test_GCDumpFlagSet_Errors(t *testing.T) {
 	testCases := []struct {
 		name string
 		args []string
@@ -84,9 +112,21 @@ func Test_DumpFlagSet_Errors(t *testing.T) {
 			},
 		},
 		{
-			name: "Bad Type",
+			name: "Bad timeout",
 			args: []string{
-				"--type", "invalid",
+				"--timeout", "abc",
+			},
+		},
+		{
+			name: "Low timeout",
+			args: []string{
+				"--timeout", "5ms",
+			},
+		},
+		{
+			name: "Empty timeout",
+			args: []string{
+				"--timeout", "",
 			},
 		},
 	}
@@ -94,8 +134,8 @@ func Test_DumpFlagSet_Errors(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewDumpFlagSet()
-			flagSet.AddFlagSet(gc.Parse())
+			gc := NewDotnetGCDump()
+			flagSet.AddFlagSet(gc.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))
 		})

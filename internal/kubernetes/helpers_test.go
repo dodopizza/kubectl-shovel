@@ -158,7 +158,7 @@ func Test_GetContainerInfo_Error(t *testing.T) {
 	}
 }
 
-func Test_NewJobVolume(t *testing.T) {
+func Test_GetContainerJobVolume(t *testing.T) {
 	testCases := []struct {
 		runtime    string
 		volumeName string
@@ -178,9 +178,8 @@ func Test_NewJobVolume(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		volume := NewJobVolume(&ContainerInfo{
-			Runtime: tc.runtime,
-		})
+		container := &ContainerInfo{Runtime: tc.runtime}
+		volume := container.GetJobVolume()
 		require.Equal(t, tc.volumeName, volume.Name)
 	}
 }
