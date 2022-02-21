@@ -51,6 +51,11 @@ func Test_GCDumpSubcommand(t *testing.T) {
 			pod: multiContainerPod(),
 		},
 		{
+			name: "MultiContainer pod with default-container annotation",
+			args: []string{},
+			pod:  multiContainerPodWithDefaultContainer(),
+		},
+		{
 			name: "MultiContainer pod with shared mount",
 			args: []string{
 				"--container",

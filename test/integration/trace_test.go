@@ -51,12 +51,17 @@ func Test_TraceSubcommand(t *testing.T) {
 			pod: singleContainerPod(),
 		},
 		{
-			name: "Multicontainer pod",
+			name: "MultiContainer pod",
 			args: []string{
 				"--container",
 				targetContainerName,
 			},
 			pod: multiContainerPod(),
+		},
+		{
+			name: "MultiContainer pod with default-container annotation",
+			args: []string{},
+			pod:  multiContainerPodWithDefaultContainer(),
 		},
 		{
 			name: "MultiContainer pod with shared mount",
