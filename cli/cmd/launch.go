@@ -33,7 +33,7 @@ func (cb *CommandBuilder) launch() error {
 
 	targetContainerName := cb.CommonOptions.Container
 	if targetContainerName == "" {
-		targetContainerName, _ = targetPod.Annotations["kubectl.kubernetes.io/default-container"]
+		targetContainerName = targetPod.Annotations["kubectl.kubernetes.io/default-container"]
 	}
 
 	targetContainer, err := targetPod.FindContainerInfo(targetContainerName)
