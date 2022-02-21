@@ -11,13 +11,15 @@ import (
 func Test_GetContainerInfo(t *testing.T) {
 	testCases := []struct {
 		name          string
+		containers    []core.Container
 		podStatus     core.PodStatus
 		containerName string
 		expRuntime    string
 		expID         string
 	}{
 		{
-			name: "Docker container",
+			name:       "Docker container",
+			containers: []core.Container{{Name: "target"}},
 			podStatus: core.PodStatus{
 				ContainerStatuses: []core.ContainerStatus{
 					{
@@ -30,7 +32,8 @@ func Test_GetContainerInfo(t *testing.T) {
 			expID:      "fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
 		},
 		{
-			name: "Containerd container",
+			name:       "Containerd container",
+			containers: []core.Container{{Name: "target"}},
 			podStatus: core.PodStatus{
 				ContainerStatuses: []core.ContainerStatus{
 					{
@@ -43,7 +46,8 @@ func Test_GetContainerInfo(t *testing.T) {
 			expID:      "2202fc17c16fb85a3bba5395278b8b5478154f023981be57edb82d931472f4ac",
 		},
 		{
-			name: "Specified container name",
+			name:       "Specified container name",
+			containers: []core.Container{{Name: "target"}},
 			podStatus: core.PodStatus{
 				ContainerStatuses: []core.ContainerStatus{
 					{
@@ -57,7 +61,8 @@ func Test_GetContainerInfo(t *testing.T) {
 			expID:         "2202fc17c16fb85a3bba5395278b8b5478154f023981be57edb82d931472f4ac",
 		},
 		{
-			name: "Multicontainer pod",
+			name:       "MultiContainer pod",
+			containers: []core.Container{{Name: "target"}, {Name: "wrong"}},
 			podStatus: core.PodStatus{
 				ContainerStatuses: []core.ContainerStatus{
 					{
@@ -75,7 +80,8 @@ func Test_GetContainerInfo(t *testing.T) {
 			expID:         "fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
 		},
 		{
-			name: "Multicontainer pod",
+			name:       "MultiContainer pod",
+			containers: []core.Container{{Name: "wrong"}, {Name: "target"}},
 			podStatus: core.PodStatus{
 				ContainerStatuses: []core.ContainerStatus{
 					{
@@ -98,6 +104,9 @@ func Test_GetContainerInfo(t *testing.T) {
 			podInfo := NewPodInfo(&core.Pod{
 				ObjectMeta: meta.ObjectMeta{
 					Name: tc.name,
+				},
+				Spec: core.PodSpec{
+					Containers: tc.containers,
 				},
 				Status: tc.podStatus,
 			})

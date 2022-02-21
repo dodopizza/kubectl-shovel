@@ -86,15 +86,15 @@ func (p *PodInfo) findContainerInfo(name string) (container *core.Container, sta
 		return
 	}
 
-	for _, c := range p.containers {
-		if c.Name == name {
-			container = &c
+	for i := range p.containers {
+		if p.containers[i].Name == name {
+			container = &p.containers[i]
 		}
 	}
 
-	for _, cs := range p.containerStatuses {
-		if cs.Name == name {
-			status = &cs
+	for i := range p.containerStatuses {
+		if p.containerStatuses[i].Name == name {
+			status = &p.containerStatuses[i]
 		}
 	}
 
