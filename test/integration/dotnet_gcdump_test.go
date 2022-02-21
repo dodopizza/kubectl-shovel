@@ -15,7 +15,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
 
-func Test_DumpSubcommand(t *testing.T) {
+func Test_GCDumpSubcommand(t *testing.T) {
 	testCases := []struct {
 		name string
 		args []string
@@ -27,9 +27,18 @@ func Test_DumpSubcommand(t *testing.T) {
 			pod:  singleContainerPod(),
 		},
 		{
-			name: "Custom type",
+			name: "Custom timeout",
 			args: []string{
-				"--type", "Heap",
+				"--timeout",
+				"60",
+			},
+			pod: singleContainerPod(),
+		},
+		{
+			name: "Custom timeout with unit",
+			args: []string{
+				"--timeout",
+				"1m",
 			},
 			pod: singleContainerPod(),
 		},
@@ -40,6 +49,11 @@ func Test_DumpSubcommand(t *testing.T) {
 				targetContainerName,
 			},
 			pod: multiContainerPod(),
+		},
+		{
+			name: "MultiContainer pod with default-container annotation",
+			args: []string{},
+			pod:  multiContainerPodWithDefaultContainer(),
 		},
 		{
 			name: "MultiContainer pod with shared mount",
@@ -58,9 +72,9 @@ func Test_DumpSubcommand(t *testing.T) {
 			defer teardown()
 			dir, _ := ioutil.TempDir("", tempDirPattern)
 			defer os.RemoveAll(dir)
-			outputFilename := filepath.Join(dir, "dump-test")
+			outputFilename := filepath.Join(dir, "gcdump-test")
 			args := append([]string{
-				"dump",
+				"gcdump",
 				"--pod-name",
 				tc.pod.Name,
 				"--output",

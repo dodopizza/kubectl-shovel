@@ -31,7 +31,12 @@ func (cb *CommandBuilder) launch() error {
 		return errors.Wrap(err, "Failed to get info about target pod")
 	}
 
-	targetContainer, err := targetPod.FindContainerInfo(cb.CommonOptions.Container)
+	targetContainerName := cb.CommonOptions.Container
+	if targetContainerName == "" {
+		targetContainerName = targetPod.Annotations["kubectl.kubernetes.io/default-container"]
+	}
+
+	targetContainer, err := targetPod.FindContainerInfo(targetContainerName)
 	if err != nil {
 		return errors.Wrap(err, "Failed to get info about target container")
 	}
@@ -40,7 +45,7 @@ func (cb *CommandBuilder) launch() error {
 		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod).
 		WithContainerFSVolume(targetContainer)
 
-	if targetPod.ContainsMountedTmp(cb.CommonOptions.Container) {
+	if targetPod.ContainsMountedTmp(targetContainerName) {
 		jobSpec.WithContainerMountsVolume(targetContainer)
 	}
 

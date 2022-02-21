@@ -15,7 +15,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
 
-func Test_TraceSubcommand(t *testing.T) {
+func Test_DumpSubcommand(t *testing.T) {
 	testCases := []struct {
 		name string
 		args []string
@@ -27,36 +27,24 @@ func Test_TraceSubcommand(t *testing.T) {
 			pod:  singleContainerPod(),
 		},
 		{
-			name: "Custom duration",
+			name: "Custom type",
 			args: []string{
-				"--duration",
-				"00:00:00:30",
+				"--type", "Heap",
 			},
 			pod: singleContainerPod(),
 		},
 		{
-			name: "Custom duration with units",
-			args: []string{
-				"--duration",
-				"1m",
-			},
-			pod: singleContainerPod(),
-		},
-		{
-			name: "Custom format",
-			args: []string{
-				"--format",
-				"Speedscope",
-			},
-			pod: singleContainerPod(),
-		},
-		{
-			name: "Multicontainer pod",
+			name: "MultiContainer pod",
 			args: []string{
 				"--container",
 				targetContainerName,
 			},
 			pod: multiContainerPod(),
+		},
+		{
+			name: "MultiContainer pod with default-container annotation",
+			args: []string{},
+			pod:  multiContainerPodWithDefaultContainer(),
 		},
 		{
 			name: "MultiContainer pod with shared mount",
@@ -75,9 +63,9 @@ func Test_TraceSubcommand(t *testing.T) {
 			defer teardown()
 			dir, _ := ioutil.TempDir("", tempDirPattern)
 			defer os.RemoveAll(dir)
-			outputFilename := filepath.Join(dir, "trace-test")
+			outputFilename := filepath.Join(dir, "dump-test")
 			args := append([]string{
-				"trace",
+				"dump",
 				"--pod-name",
 				tc.pod.Name,
 				"--output",

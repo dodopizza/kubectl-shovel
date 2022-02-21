@@ -118,6 +118,28 @@ func multiContainerPod() *core.Pod {
 	}
 }
 
+func multiContainerPodWithDefaultContainer() *core.Pod {
+	objectMeta := generateRandomPodMeta()
+	objectMeta.Annotations = map[string]string{
+		"kubectl.kubernetes.io/default-container": targetContainerName,
+	}
+	return &core.Pod{
+		ObjectMeta: objectMeta,
+		Spec: core.PodSpec{
+			Containers: []core.Container{
+				{
+					Name:  targetContainerName,
+					Image: sampleAppImage,
+				},
+				{
+					Name:  "sidecar",
+					Image: "gcr.io/google_containers/pause-amd64:3.1",
+				},
+			},
+		},
+	}
+}
+
 func multiContainerPodWithSharedMount() *core.Pod {
 	return &core.Pod{
 		ObjectMeta: generateRandomPodMeta(),

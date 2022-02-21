@@ -11,8 +11,8 @@ import (
 
 // ContainerInfo is information about container struct
 type ContainerInfo struct {
-	Runtime string
 	ID      string
+	Runtime string
 }
 
 type containerConfig struct {
@@ -30,8 +30,8 @@ func NewContainerInfo(cs *core.ContainerStatus) *ContainerInfo {
 	containerInfo := strings.Split(cs.ContainerID, "://")
 
 	return &ContainerInfo{
-		Runtime: containerInfo[0],
 		ID:      containerInfo[1],
+		Runtime: containerInfo[0],
 	}
 }
 
