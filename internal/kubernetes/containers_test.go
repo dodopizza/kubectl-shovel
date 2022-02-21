@@ -70,7 +70,7 @@ func Test_GetContainerFSVolume(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			container := &ContainerInfo{Runtime: tc.runtime}
+			container := NewContainerInfoRaw(tc.runtime, "")
 
 			volume := container.GetContainerFSVolume()
 
@@ -89,16 +89,28 @@ func Test_GetContainerSharedVolumes(t *testing.T) {
 		expVolumePath string
 	}{
 		{
-			name:          "ContainerdFS used if specified",
+			name:          "Docker mounts used if specified",
+			runtime:       "docker",
+			expVolumeName: "dockervolumes",
+			expVolumePath: "/var/lib/docker",
+		},
+		{
+			name:          "Containerd mounts used if specified",
 			runtime:       "containerd",
 			expVolumeName: "containerdvolumes",
 			expVolumePath: "/var/lib/kubelet/pods",
+		},
+		{
+			name:          "Docker mounts used if specified",
+			runtime:       "docker",
+			expVolumeName: "dockervolumes",
+			expVolumePath: "/var/lib/docker",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			container := &ContainerInfo{Runtime: tc.runtime}
+			container := NewContainerInfoRaw(tc.runtime, "")
 
 			volume := container.GetContainerSharedVolumes()
 

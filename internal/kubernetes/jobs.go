@@ -50,15 +50,27 @@ func NewJobRunSpec(args []string, image string, pod *PodInfo) *JobRunSpec {
 	}
 }
 
-// WithContainerFSVolume add container file system volumes to job spec
+// WithContainerFSVolume add host volume that used to store container file system volumes
 func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec {
-	j.Volumes = append(j.Volumes, container.GetContainerFSVolume())
+	j.appendVolume(container.GetContainerFSVolume())
 	return j
 }
 
+// WithContainerMountsVolume add host volume that used to store container additional volumes
 func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRunSpec {
-	j.Volumes = append(j.Volumes, container.GetContainerSharedVolumes())
+	j.appendVolume(container.GetContainerSharedVolumes())
 	return j
+}
+
+func (j *JobRunSpec) appendVolume(item JobVolume) {
+	// ignore any duplicates by host path
+	for _, volume := range j.Volumes {
+		if volume.HostPath == item.HostPath {
+			return
+		}
+	}
+
+	j.Volumes = append(j.Volumes, item)
 }
 
 func (j *JobRunSpec) volumes() []core.Volume {
