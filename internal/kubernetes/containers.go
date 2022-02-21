@@ -26,15 +26,17 @@ func NewContainerInfo(cs *core.ContainerStatus) *ContainerInfo {
 }
 
 // GetMountPoint returns mount point depending ContainerRuntime
-func (ci *ContainerInfo) GetMountPoint() (string, error) {
-	if ci.Runtime == "docker" {
-		return ci.dockerMountPoint()
+func (c *ContainerInfo) GetMountPoint() (string, error) {
+	if c.Runtime == "docker" {
+		return c.dockerMountPoint()
 	}
-	return ci.containerDMountPoint()
+	return c.containerDMountPoint()
 }
 
-func (ci *ContainerInfo) GetContainerFSVolume() JobVolume {
-	if ci.Runtime == "containerd" {
+// GetContainerFSVolume returns JobVolume (mounted from host) that contains container definitions,
+// depending upon container runtime
+func (c *ContainerInfo) GetContainerFSVolume() JobVolume {
+	if c.Runtime == "containerd" {
 		return JobVolume{
 			Name:      "containerdfs",
 			HostPath:  "/run/containerd",
@@ -49,11 +51,29 @@ func (ci *ContainerInfo) GetContainerFSVolume() JobVolume {
 	}
 }
 
-func (ci *ContainerInfo) dockerMountPoint() (string, error) {
+// GetContainerSharedVolumes returns JobVolume (mounted from host) that contains container additional mounts,
+// depending upon container runtime
+func (c *ContainerInfo) GetContainerSharedVolumes() JobVolume {
+	if c.Runtime == "containerd" {
+		return JobVolume{
+			Name:      "containerdvolumes",
+			HostPath:  "/var/lib/kubelet/pods",
+			MountPath: "/var/lib/kubelet/pods",
+		}
+	}
+
+	return JobVolume{
+		Name:      "dockervolumes",
+		HostPath:  "/",
+		MountPath: "/",
+	}
+}
+
+func (c *ContainerInfo) dockerMountPoint() (string, error) {
 	id, err := ioutil.ReadFile(
 		fmt.Sprintf(
 			"/var/lib/docker/image/overlay2/layerdb/mounts/%s/mount-id",
-			ci.ID,
+			c.ID,
 		),
 	)
 	if err != nil {
@@ -66,11 +86,11 @@ func (ci *ContainerInfo) dockerMountPoint() (string, error) {
 	), nil
 }
 
-func (ci *ContainerInfo) containerDMountPoint() (string, error) {
+func (c *ContainerInfo) containerDMountPoint() (string, error) {
 	file, err := os.Open(
 		fmt.Sprintf(
 			"/run/containerd/runc/k8s.io/%s/state.json",
-			ci.ID,
+			c.ID,
 		),
 	)
 	if err != nil {

@@ -43,24 +43,28 @@ func Test_NewContainerInfo(t *testing.T) {
 
 func Test_GetContainerFSVolume(t *testing.T) {
 	testCases := []struct {
-		name       string
-		runtime    string
-		volumeName string
+		name          string
+		runtime       string
+		expVolumeName string
+		expVolumePath string
 	}{
 		{
-			name:       "DockerFS used if specified",
-			runtime:    "docker",
-			volumeName: "dockerfs",
+			name:          "DockerFS used if specified",
+			runtime:       "docker",
+			expVolumeName: "dockerfs",
+			expVolumePath: "/var/lib/docker",
 		},
 		{
-			name:       "ContainerdFS used if specified",
-			runtime:    "containerd",
-			volumeName: "containerdfs",
+			name:          "ContainerdFS used if specified",
+			runtime:       "containerd",
+			expVolumeName: "containerdfs",
+			expVolumePath: "/run/containerd",
 		},
 		{
-			name:       "DockerFS used in default",
-			runtime:    "",
-			volumeName: "dockerfs",
+			name:          "DockerFS used by default",
+			runtime:       "",
+			expVolumeName: "dockerfs",
+			expVolumePath: "/var/lib/docker",
 		},
 	}
 
@@ -70,7 +74,37 @@ func Test_GetContainerFSVolume(t *testing.T) {
 
 			volume := container.GetContainerFSVolume()
 
-			require.Equal(t, tc.volumeName, volume.Name)
+			require.Equal(t, tc.expVolumeName, volume.Name)
+			require.Equal(t, tc.expVolumePath, volume.HostPath)
+			require.Equal(t, tc.expVolumePath, volume.MountPath)
+		})
+	}
+}
+
+func Test_GetContainerSharedVolumes(t *testing.T) {
+	testCases := []struct {
+		name          string
+		runtime       string
+		expVolumeName string
+		expVolumePath string
+	}{
+		{
+			name:          "ContainerdFS used if specified",
+			runtime:       "containerd",
+			expVolumeName: "containerdvolumes",
+			expVolumePath: "/var/lib/kubelet/pods",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			container := &ContainerInfo{Runtime: tc.runtime}
+
+			volume := container.GetContainerSharedVolumes()
+
+			require.Equal(t, tc.expVolumeName, volume.Name)
+			require.Equal(t, tc.expVolumePath, volume.HostPath)
+			require.Equal(t, tc.expVolumePath, volume.MountPath)
 		})
 	}
 }

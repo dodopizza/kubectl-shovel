@@ -56,6 +56,11 @@ func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec
 	return j
 }
 
+func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRunSpec {
+	j.Volumes = append(j.Volumes, container.GetContainerSharedVolumes())
+	return j
+}
+
 func (j *JobRunSpec) volumes() []core.Volume {
 	volumes := make([]core.Volume, len(j.Volumes))
 	for i, volume := range j.Volumes {

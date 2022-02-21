@@ -40,6 +40,10 @@ func (cb *CommandBuilder) launch() error {
 		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod).
 		WithContainerFSVolume(targetContainer)
 
+	if targetPod.ContainsMountedTmp(cb.CommonOptions.Container) {
+		jobSpec.WithContainerMountsVolume(targetContainer)
+	}
+
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
 	if err := k8s.RunJob(jobSpec); err != nil {
 		return errors.Wrap(err, "Failed to spawn diagnostics job")
