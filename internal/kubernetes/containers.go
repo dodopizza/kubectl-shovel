@@ -178,7 +178,3 @@ func (c *ContainerInfo) containerdConfig() (*containerConfig, error) {
 func (c *ContainerInfo) containerd() bool {
 	return c.Runtime == "containerd"
 }
-
-func (c *ContainerInfo) docker() bool {
-	return c.Runtime == "docker"
-}
