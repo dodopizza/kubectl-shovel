@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package integration_test
@@ -9,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	v1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
@@ -18,12 +19,12 @@ func Test_TraceSubcommand(t *testing.T) {
 	testCases := []struct {
 		name string
 		args []string
-		pod  *v1.Pod
+		pod  *core.Pod
 	}{
 		{
 			name: "Basic test",
 			args: []string{},
-			pod:  sampleAppPod(),
+			pod:  singleContainerPod(),
 		},
 		{
 			name: "Custom duration",
@@ -31,7 +32,7 @@ func Test_TraceSubcommand(t *testing.T) {
 				"--duration",
 				"00:00:00:30",
 			},
-			pod: sampleAppPod(),
+			pod: singleContainerPod(),
 		},
 		{
 			name: "Custom duration with units",
@@ -39,7 +40,7 @@ func Test_TraceSubcommand(t *testing.T) {
 				"--duration",
 				"1m",
 			},
-			pod: sampleAppPod(),
+			pod: singleContainerPod(),
 		},
 		{
 			name: "Custom format",
@@ -47,7 +48,7 @@ func Test_TraceSubcommand(t *testing.T) {
 				"--format",
 				"Speedscope",
 			},
-			pod: sampleAppPod(),
+			pod: singleContainerPod(),
 		},
 		{
 			name: "Multicontainer pod",
@@ -56,6 +57,14 @@ func Test_TraceSubcommand(t *testing.T) {
 				targetContainerName,
 			},
 			pod: multiContainerPod(),
+		},
+		{
+			name: "MultiContainer pod with shared mount",
+			args: []string{
+				"--container",
+				targetContainerName,
+			},
+			pod: multiContainerPodWithSharedMount(),
 		},
 	}
 	for _, tc := range testCases {
@@ -76,9 +85,10 @@ func Test_TraceSubcommand(t *testing.T) {
 				"--image",
 				dumperImage,
 			}, tc.args...)
-			cmd := cmd.NewShovelCommand()
-			cmd.SetArgs(args)
-			require.NoError(t, cmd.Execute())
+
+			c := cmd.NewShovelCommand()
+			c.SetArgs(args)
+			require.NoError(t, c.Execute())
 
 			file, err := os.Stat(outputFilename)
 			require.NoError(t, err)

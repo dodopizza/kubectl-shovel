@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
@@ -17,19 +16,23 @@ import (
 func (cb *CommandBuilder) launch() error {
 	events.NewStatusEvent("Looking for and mapping container fs")
 
-	containerInfo := &kubernetes.ContainerInfo{
-		Runtime: cb.CommonOptions.ContainerRuntime,
-		ID:      cb.CommonOptions.ContainerID,
+	container := kubernetes.NewContainerInfoRaw(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
+	// remove /tmp directory,
+	// because will be mounted either from rootfs or container mounts
+	if err := os.RemoveAll("/tmp"); err != nil {
+		return err
 	}
-	containerFS, err := containerInfo.GetMountPoint()
+
+	tmpSource, err := container.GetTmpSource()
 	if err != nil {
 		events.NewErrorEvent(err, "unable to find mount point for container")
 		return err
 	}
-	if err := os.RemoveAll("/tmp"); err != nil {
-		return err
-	}
-	if err := os.Symlink(filepath.Join(containerFS, "tmp"), "/tmp"); err != nil {
+
+	// for dotnet tools, in /tmp folder must exists sockets to running dotnet apps
+	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#naming-and-location-conventions
+	if err := os.Symlink(tmpSource, "/tmp"); err != nil {
+		events.NewErrorEvent(err, "unable to mount /tmp folder for container")
 		return err
 	}
 

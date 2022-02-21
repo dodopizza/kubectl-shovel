@@ -15,24 +15,27 @@ import (
 )
 
 type PodInfo struct {
-	Name       string
-	Node       string
-	containers []core.ContainerStatus
+	Name              string
+	Node              string
+	containers        []core.Container
+	containerStatuses []core.ContainerStatus
 }
 
+// NewPodInfo returns PodInfo generated from core.Pod spec
 func NewPodInfo(pod *core.Pod) *PodInfo {
 	return &PodInfo{
-		Name:       pod.Name,
-		Node:       pod.Spec.NodeName,
-		containers: pod.Status.ContainerStatuses,
+		Name:              pod.Name,
+		Node:              pod.Spec.NodeName,
+		containers:        pod.Spec.Containers,
+		containerStatuses: pod.Status.ContainerStatuses,
 	}
 }
 
 // GetContainerNames returns container names associated with pod
 func (p *PodInfo) GetContainerNames() []string {
-	names := make([]string, len(p.containers))
+	names := make([]string, len(p.containerStatuses))
 
-	for i, cs := range p.containers {
+	for i, cs := range p.containerStatuses {
 		names[i] = cs.Name
 	}
 
@@ -41,34 +44,66 @@ func (p *PodInfo) GetContainerNames() []string {
 
 // FindContainerInfo returns container info with specified name or error
 func (p *PodInfo) FindContainerInfo(container string) (*ContainerInfo, error) {
-	if container == "" && len(p.containers) > 1 {
-		return nil, fmt.Errorf(
-			"container name must be specified for pod %s, choose one of: [%s]",
-			p.Name,
-			strings.Join(p.GetContainerNames(), " "),
-		)
-	}
-
-	cs, err := p.FindContainerStatus(container)
+	_, cs, err := p.findContainerInfo(container)
 	if err != nil {
 		return nil, err
 	}
 	return NewContainerInfo(cs), nil
 }
 
-// FindContainerStatus returns container status info for specified container
-func (p *PodInfo) FindContainerStatus(container string) (*core.ContainerStatus, error) {
-	if container == "" {
-		return &p.containers[0], nil
+// ContainsMountedTmp returns true if container has /tmp folder mounted from host or shared with other container
+func (p *PodInfo) ContainsMountedTmp(container string) bool {
+	c, _, err := p.findContainerInfo(container)
+	if err != nil {
+		return false
 	}
 
-	for _, cs := range p.containers {
-		if cs.Name == container {
-			return &cs, nil
+	for _, mount := range c.VolumeMounts {
+		if mount.MountPath == "/tmp" {
+			return true
 		}
 	}
 
-	return nil, fmt.Errorf("container %s is not valid for pod %s", container, p.Name)
+	return false
+}
+
+func (p *PodInfo) findContainerInfo(name string) (container *core.Container, status *core.ContainerStatus, err error) {
+	count := len(p.containerStatuses)
+
+	// check against multiple containers
+	if count > 1 && name == "" {
+		err = fmt.Errorf(
+			"container name must be specified for pod %s, choose one of: [%s]",
+			p.Name,
+			strings.Join(p.GetContainerNames(), " "),
+		)
+		return
+	}
+
+	if count == 1 && name == "" {
+		container = &p.containers[0]
+		status = &p.containerStatuses[0]
+		return
+	}
+
+	for i := range p.containers {
+		if p.containers[i].Name == name {
+			container = &p.containers[i]
+		}
+	}
+
+	for i := range p.containerStatuses {
+		if p.containerStatuses[i].Name == name {
+			status = &p.containerStatuses[i]
+		}
+	}
+
+	// not found
+	if container == nil || status == nil {
+		err = fmt.Errorf("container %s is not valid for pod %s", container, p.Name)
+	}
+
+	return
 }
 
 // GetPodInfo get info about pod by name

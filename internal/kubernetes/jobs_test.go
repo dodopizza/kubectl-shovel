@@ -44,3 +44,39 @@ func Test_NewRunJobSpec(t *testing.T) {
 		})
 	}
 }
+
+func Test_JobWithVolume(t *testing.T) {
+	testCases := []struct {
+		name      string
+		container ContainerInfo
+		expCount  int
+	}{
+		{
+			name:      "ContainerD volumes added volume mounts per each volume",
+			container: *NewContainerInfoRaw("containerd", ""),
+			expCount:  2,
+		},
+		{
+			name:      "Docker volumes added only one",
+			container: *NewContainerInfoRaw("docker", ""),
+			expCount:  1,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			pod := NewPodInfo(&core.Pod{
+				Spec: core.PodSpec{
+					NodeName: "node",
+				},
+			})
+
+			jobSpec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
+				WithContainerFSVolume(&tc.container).
+				WithContainerMountsVolume(&tc.container)
+
+			require.Equal(t, tc.expCount, len(jobSpec.volumes()))
+			require.Equal(t, tc.expCount, len(jobSpec.mounts()))
+		})
+	}
+}
