@@ -12,7 +12,11 @@ if [ "${current_context}" != "${kind_context}" ]; then
   exit 1
 fi
 
-arch=${1:-amd64}
+arch=${1}
+if [ "$arch" == "x86_64" ]; then
+  arch="amd64"
+fi
+
 if [ "$arch" != "amd64" ] && [ "$arch" != "arm64" ]; then
   echo "Unsupported arch, choose from: amd64 or arm64"
   exit 1

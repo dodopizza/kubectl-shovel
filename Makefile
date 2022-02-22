@@ -3,9 +3,6 @@ YELLOW := $(shell tput -Txterm setaf 3)
 WHITE  := $(shell tput -Txterm setaf 7)
 RESET  := $(shell tput -Txterm sgr0)
 ARCH := $(shell uname -m)
-ifeq ($(ARCH), "x86_64")
-ARCH := "amd64"
-endif
 
 .PHONY: all
 all: help
