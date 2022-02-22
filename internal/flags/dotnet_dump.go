@@ -1,8 +1,9 @@
 package flags
 
 import (
-	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 	"github.com/spf13/pflag"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 )
 
 type DotnetDump struct {
@@ -41,13 +42,12 @@ func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (d *DotnetDump) FormatArgs() []string {
-	args := d.DotnetToolProperties.FormatArgs()
+func (d *DotnetDump) FormatArgs(args *Args) {
+	args.AppendFrom(d.DotnetToolProperties)
 	if d.flagSet.Changed("diag") {
-		args = append(args, "--diag")
+		args.AppendKey("diag")
 	}
-	args = append(args, "--type", d.Type.String())
-	return args
+	args.Append("type", d.Type.String())
 }
 
 func (d *DotnetDump) BinaryName() string {

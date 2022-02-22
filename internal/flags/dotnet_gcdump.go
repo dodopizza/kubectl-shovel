@@ -1,8 +1,9 @@
 package flags
 
 import (
-	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 	"github.com/spf13/pflag"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 )
 
 type DotnetGCDump struct {
@@ -33,15 +34,11 @@ func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (gc *DotnetGCDump) FormatArgs() []string {
-	args := gc.DotnetToolProperties.FormatArgs()
+func (gc *DotnetGCDump) FormatArgs(args *Args) {
+	args.AppendFrom(gc.DotnetToolProperties)
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
-		args = append(
-			args,
-			FlagToArg(&gc.Timeout)...,
-		)
+		args.AppendFlag(&gc.Timeout)
 	}
-	return args
 }
 
 func (gc *DotnetGCDump) BinaryName() string {

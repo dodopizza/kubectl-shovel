@@ -9,6 +9,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
+// NewWatcher returns operator, that will perform check that ping file exists, each CheckInterval seconds
 func NewWatcher() *Operator {
 	return NewOperator(
 		func() bool {
@@ -24,6 +25,7 @@ func NewWatcher() *Operator {
 	)
 }
 
+// NewPinger returns operator that will create ping file on pod, each PingInterval seconds, until Deadline
 func NewPinger(k8s *kubernetes.Client, pod string) *Operator {
 	return NewOperator(
 		func() bool {

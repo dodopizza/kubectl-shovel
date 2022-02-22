@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/utils"
@@ -45,16 +46,18 @@ func (cb *CommandBuilder) launch() error {
 	cb.tool.
 		SetAction("collect").
 		SetOutput(output)
+	args := flags.
+		NewArgs().
+		AppendFrom(cb.tool)
 
 	events.NewStatusEvent(
 		fmt.Sprintf("Running command: %s %s",
 			cb.tool.BinaryName(),
-			strings.Join(cb.tool.FormatArgs(), " "),
+			strings.Join(args.Get(), " "),
 		),
 	)
 
-	args := cb.tool.FormatArgs()
-	if err := utils.ExecCommand(cb.tool.BinaryName(), args...); err != nil {
+	if err := utils.ExecCommand(cb.tool.BinaryName(), args.Get()...); err != nil {
 		events.NewErrorEvent(err, "failed to execute tool command")
 		return err
 	}

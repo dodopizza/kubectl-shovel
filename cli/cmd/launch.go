@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
@@ -24,18 +25,21 @@ func (cb *CommandBuilder) newKubeClient() error {
 }
 
 func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.ContainerInfo) []string {
-	args := []string{"--container-id", container.ID, "--container-runtime", container.Runtime}
+	args := flags.NewArgs().
+		Append("container-id", container.ID).
+		Append("container-runtime", container.Runtime)
 
 	if cb.CommonOptions.StoreOutputOnHost {
-		args = append(args, "--store-output-on-host")
+		args.AppendKey("store-output-on-host")
 	}
 
-	args = append(args, "--container-name", container.Name)
-	args = append(args, "--pod-name", pod.Name)
-	args = append(args, "--pod-namespace", pod.Namespace)
-	args = append(args, cb.tool.ToolName())
-	args = append(args, cb.tool.FormatArgs()...)
-	return args
+	return args.
+		Append("container-name", container.Name).
+		Append("pod-name", pod.Name).
+		Append("pod-namespace", pod.Namespace).
+		AppendCommand(cb.tool.ToolName()).
+		AppendFrom(cb.tool).
+		Get()
 }
 
 func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) error {

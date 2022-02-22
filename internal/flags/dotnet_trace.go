@@ -1,8 +1,9 @@
 package flags
 
 import (
-	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 	"strconv"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 
 	"github.com/spf13/pflag"
 )
@@ -79,59 +80,34 @@ func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (t *DotnetTrace) FormatArgs() []string {
-	args := t.DotnetToolProperties.FormatArgs()
+func (t *DotnetTrace) FormatArgs(args *Args) {
+	args.AppendFrom(t.DotnetToolProperties)
 
 	if t.flagSet.Changed("buffersize") {
-		args = append(
-			args,
-			[]string{
-				"--buffersize", strconv.Itoa(t.BufferSize),
-			}...,
-		)
+		args.Append("buffersize", strconv.Itoa(t.BufferSize))
 	}
 
 	if t.flagSet.Changed(t.CLREventLevel.Type()) {
-		args = append(
-			args,
-			FlagToArg(&t.CLREventLevel)...,
-		)
+		args.AppendFlag(&t.CLREventLevel)
 	}
 
 	if t.flagSet.Changed(t.CLREvents.Type()) {
-		args = append(
-			args,
-			FlagToArg(&t.CLREvents)...,
-		)
+		args.AppendFlag(&t.CLREvents)
 	}
 
-	args = append(
-		args,
-		FlagToArg(&t.Duration)...,
-	)
+	args.AppendFlag(&t.Duration)
 
 	if t.flagSet.Changed(t.Format.Type()) {
-		args = append(
-			args,
-			FlagToArg(&t.Format)...,
-		)
+		args.AppendFlag(&t.Format)
 	}
 
 	if t.flagSet.Changed(t.Profile.Type()) {
-		args = append(
-			args,
-			FlagToArg(&t.Profile)...,
-		)
+		args.AppendFlag(&t.Profile)
 	}
 
 	if t.flagSet.Changed(t.Providers.Type()) {
-		args = append(
-			args,
-			FlagToArg(&t.Providers)...,
-		)
+		args.AppendFlag(&t.Providers)
 	}
-
-	return args
 }
 
 func (t *DotnetTrace) BinaryName() string {
