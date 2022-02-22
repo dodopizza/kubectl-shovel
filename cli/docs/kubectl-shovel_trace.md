@@ -4,7 +4,7 @@ Get dotnet-trace results
 
 ### Synopsis
 
-This subcommand will capture runtime events with dotnet-trace tool for running in k8s appplication.
+This subcommand will capture runtime events with dotnet-trace tool for running in k8s application.
 Result will be saved locally in nettrace format so you'll be able to convert it and analyze with appropriate tools.
 You can find more info about dotnet-trace tool by the following links:
 

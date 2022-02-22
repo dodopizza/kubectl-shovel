@@ -4,7 +4,7 @@ Get dotnet-gcdump results
 
 ### Synopsis
 
-This subcommand will run dotnet-gcdump tool for running in k8s appplication.
+This subcommand will run dotnet-gcdump tool for running in k8s application.
 Result will be saved locally so you'll be able to analyze it with appropriate tools.
 You can find more info about dotnet-gcdump tool by the following links:
 
