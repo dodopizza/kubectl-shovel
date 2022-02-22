@@ -53,7 +53,7 @@ func NewContainerInfoRaw(runtime, id string) *ContainerInfo {
 func (c *ContainerInfo) GetTmpSource() (string, error) {
 	config, err := c.config()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	for _, mount := range config.Mounts {

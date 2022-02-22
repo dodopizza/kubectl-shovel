@@ -52,16 +52,16 @@ func (options *CommonOptions) GetFlags() *pflag.FlagSet {
 	)
 
 	fs.StringVar(
-		&options.ContainerRuntime,
+		&options.PodName,
 		"pod-name",
 		options.PodName,
 		"Pod name to run tool for",
 	)
 
 	fs.StringVar(
-		&options.ContainerRuntime,
+		&options.PodNamespace,
 		"pod-namespace",
-		options.PodName,
+		options.PodNamespace,
 		"Pod namespace to run tool for",
 	)
 
