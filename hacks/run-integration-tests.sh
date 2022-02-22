@@ -1,8 +1,15 @@
 #!/bin/bash
-set -o errexit
+set -ox errexit
+
+ci=${CI:-""}
+flags=""
+
+if [ -z "$ci" ]; then
+  flags="-parallel 1"
+fi
 
 echo "Running tests..."
-go test -v \
+go test -v $flags \
   --tags=integration \
   -timeout 300s \
   ./test/integration/... |
