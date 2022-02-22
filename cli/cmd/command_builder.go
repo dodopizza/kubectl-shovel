@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/flags"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
-	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
 // CommonOptions contains shared arguments for cli commands

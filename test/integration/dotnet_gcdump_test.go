@@ -7,8 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 	"github.com/stretchr/testify/require"
+
+	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
 
 func Test_GCDumpSubcommand(t *testing.T) {

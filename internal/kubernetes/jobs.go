@@ -3,9 +3,11 @@ package kubernetes
 import (
 	"context"
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
-	"github.com/google/uuid"
 	"strings"
+
+	"github.com/google/uuid"
+
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 
 	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"

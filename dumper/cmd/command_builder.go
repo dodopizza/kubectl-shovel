@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/flags"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 )
 
 // CommonOptions represents container info

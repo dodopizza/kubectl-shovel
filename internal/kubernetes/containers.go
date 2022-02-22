@@ -3,11 +3,13 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"io/ioutil"
-	core "k8s.io/api/core/v1"
 	"os"
 	"strings"
+
+	core "k8s.io/api/core/v1"
+
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
 // ContainerInfo is information about container struct

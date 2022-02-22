@@ -3,9 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
-	"strings"
 
 	"github.com/pkg/errors"
 

@@ -1,11 +1,12 @@
 package watchdog
 
 import (
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
-	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"io/ioutil"
 	"os"
 	"time"
+
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
 func NewWatcher() *Operator {

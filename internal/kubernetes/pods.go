@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 
 	core "k8s.io/api/core/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"

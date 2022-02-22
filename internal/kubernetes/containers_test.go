@@ -1,10 +1,12 @@
 package kubernetes
 
 import (
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	core "k8s.io/api/core/v1"
-	"testing"
+
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
 func Test_NewContainerInfo(t *testing.T) {
