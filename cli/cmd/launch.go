@@ -88,11 +88,12 @@ func (cb *CommandBuilder) launch() error {
 		return errors.Wrap(err, "Failed to wait diagnostics job execution")
 	}
 
-	op := watchdog.NewOperator(k8s, jobPod.Name)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	pinger := watchdog.NewPinger(k8s, jobPod.Name)
 	go func() {
-		if err := op.Run(ctx); err != nil {
+		if err := pinger.Run(ctx); err != nil {
 			fmt.Println(err)
 		}
 	}()

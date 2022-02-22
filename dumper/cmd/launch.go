@@ -69,7 +69,9 @@ func (cb *CommandBuilder) launch() error {
 	// wait until output file to be copied from
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	if err := watchdog.Watch(ctx); err != nil {
+
+	watcher := watchdog.NewWatcher()
+	if err := watcher.Run(ctx); err != nil {
 		events.NewErrorEvent(err, "failed to watch copy progress")
 		return err
 	}
