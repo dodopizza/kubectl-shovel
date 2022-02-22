@@ -2,6 +2,10 @@ GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 WHITE  := $(shell tput -Txterm setaf 7)
 RESET  := $(shell tput -Txterm sgr0)
+ARCH := $(shell uname -m)
+ifeq ($(ARCH), "x86_64")
+ARCH := "amd64"
+endif
 
 .PHONY: all
 all: help
@@ -43,11 +47,7 @@ test-unit:
 
 .PHONY: test-integration
 test-integration:
-	./hacks/run-integration-tests.sh amd64
-
-.PHONY: test-integration-arm64
-test-integration-arm64:
-	./hacks/run-integration-tests.sh arm64
+	./hacks/run-integration-tests.sh "$(ARCH)"
 
 .PHONY: prepare
 prepare: tidy lint doc build-cli build-dumper test
