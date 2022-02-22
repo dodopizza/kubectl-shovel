@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"context"
+	"fmt"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/google/uuid"
 	"strings"
@@ -59,6 +60,15 @@ func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec
 // WithContainerMountsVolume add host volume that used to store container additional volumes
 func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRunSpec {
 	j.appendVolume(container.GetContainerSharedVolumes())
+	return j
+}
+
+func (j *JobRunSpec) WithHostTmpVolume() *JobRunSpec {
+	j.appendVolume(JobVolume{
+		Name:      "hosttmp",
+		HostPath:  fmt.Sprintf("/tmp/%s", globals.PluginName),
+		MountPath: "/host-tmp",
+	})
 	return j
 }
 

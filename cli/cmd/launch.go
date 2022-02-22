@@ -15,6 +15,11 @@ import (
 
 func (cb *CommandBuilder) args(info *kubernetes.ContainerInfo) []string {
 	args := []string{"--container-id", info.ID, "--container-runtime", info.Runtime}
+
+	if cb.CommonOptions.StoreOutputOnHost {
+		args = append(args, "store-output-on-host")
+	}
+
 	args = append(args, cb.tool.ToolName())
 	args = append(args, cb.tool.FormatArgs()...)
 	return args
@@ -49,6 +54,10 @@ func (cb *CommandBuilder) launch() error {
 		jobSpec.WithContainerMountsVolume(targetContainer)
 	}
 
+	if cb.CommonOptions.StoreOutputOnHost {
+		jobSpec.WithHostTmpVolume()
+	}
+
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
 	if err := k8s.RunJob(jobSpec); err != nil {
 		return errors.Wrap(err, "Failed to spawn diagnostics job")
@@ -81,12 +90,18 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 
-	fmt.Println("Retrieve output from diagnostics job")
-	if err := k8s.CopyFromPod(jobPod.Name, output, cb.CommonOptions.Output); err != nil {
-		return errors.Wrap(err, "Error while retrieving diagnostics job output")
+	if cb.CommonOptions.StoreOutputOnHost {
+		fmt.Printf("Output located on host at path: %s\n", output)
+		return nil
+	} else {
+		fmt.Println("Retrieve output from diagnostics job")
+		if err := k8s.CopyFromPod(jobPod.Name, output, cb.CommonOptions.Output); err != nil {
+			return errors.Wrap(err, "Error while retrieving diagnostics job output")
+		}
+		fmt.Printf("Result successfully written to %s\n", cb.CommonOptions.Output)
 	}
 
-	fmt.Printf("Result successfully written to %s\nCleanup diagnostics job", cb.CommonOptions.Output)
+	fmt.Println("Cleanup diagnostics job")
 	if err := k8s.DeleteJob(jobSpec.Name); err != nil {
 		return errors.Wrap(err, "Error while deleting job")
 	}

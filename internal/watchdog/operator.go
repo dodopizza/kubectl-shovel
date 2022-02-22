@@ -36,7 +36,7 @@ func (o *Operator) Run(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case <-time.After(deadAfterDuration):
-			return errors.New("There were some issues to send ping to pod for a long time")
+			return errors.New("there were some issues to send ping to pod for a long time")
 		}
 	}
 }
