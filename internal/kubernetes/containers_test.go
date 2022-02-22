@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/stretchr/testify/require"
 	core "k8s.io/api/core/v1"
 	"testing"
@@ -52,19 +53,19 @@ func Test_GetContainerFSVolume(t *testing.T) {
 			name:          "DockerFS used if specified",
 			runtime:       "docker",
 			expVolumeName: "dockerfs",
-			expVolumePath: "/var/lib/docker",
+			expVolumePath: globals.PathDockerFS,
 		},
 		{
 			name:          "ContainerdFS used if specified",
 			runtime:       "containerd",
 			expVolumeName: "containerdfs",
-			expVolumePath: "/run/containerd",
+			expVolumePath: globals.PathContainerDFS,
 		},
 		{
 			name:          "DockerFS used by default",
 			runtime:       "",
 			expVolumeName: "dockerfs",
-			expVolumePath: "/var/lib/docker",
+			expVolumePath: globals.PathDockerFS,
 		},
 	}
 
@@ -92,19 +93,19 @@ func Test_GetContainerSharedVolumes(t *testing.T) {
 			name:          "Docker mounts used if specified",
 			runtime:       "docker",
 			expVolumeName: "dockervolumes",
-			expVolumePath: "/var/lib/docker",
+			expVolumePath: globals.PathDockerVolumes,
 		},
 		{
 			name:          "Containerd mounts used if specified",
 			runtime:       "containerd",
 			expVolumeName: "containerdvolumes",
-			expVolumePath: "/var/lib/kubelet/pods",
+			expVolumePath: globals.PathContainerDVolumes,
 		},
 		{
 			name:          "Docker mounts used if specified",
 			runtime:       "docker",
 			expVolumeName: "dockervolumes",
-			expVolumePath: "/var/lib/docker",
+			expVolumePath: globals.PathDockerVolumes,
 		},
 	}
 
