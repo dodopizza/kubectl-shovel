@@ -77,6 +77,7 @@ func newTestKubeClient() *kubernetes.Client {
 }
 
 func setup(t *testing.T, tc *TestCase, prefix string) func() {
+	t.Parallel()
 	t.Helper()
 	k := newTestKubeClient()
 
