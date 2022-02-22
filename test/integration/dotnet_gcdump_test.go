@@ -17,14 +17,21 @@ import (
 
 func Test_GCDumpSubcommand(t *testing.T) {
 	testCases := []struct {
-		name string
-		args []string
-		pod  *core.Pod
+		name       string
+		args       []string
+		pod        *core.Pod
+		hostOutput bool
 	}{
 		{
 			name: "Basic test",
 			args: []string{},
 			pod:  singleContainerPod(),
+		},
+		{
+			name:       "Store output on host",
+			args:       []string{"store-output-on-host"},
+			pod:        singleContainerPod(),
+			hostOutput: true,
 		},
 		{
 			name: "Custom timeout",
@@ -87,9 +94,11 @@ func Test_GCDumpSubcommand(t *testing.T) {
 			c.SetArgs(args)
 			require.NoError(t, c.Execute())
 
-			file, err := os.Stat(outputFilename)
-			require.NoError(t, err)
-			require.NotEmpty(t, file.Size())
+			if !tc.hostOutput {
+				file, err := os.Stat(outputFilename)
+				require.NoError(t, err)
+				require.NotEmpty(t, file.Size())
+			}
 		})
 	}
 }

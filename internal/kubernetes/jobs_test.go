@@ -80,3 +80,33 @@ func Test_JobWithVolume(t *testing.T) {
 		})
 	}
 }
+
+func Test_JobWithHostTmpVolume(t *testing.T) {
+	testCases := []struct {
+		name      string
+		container ContainerInfo
+	}{
+		{
+			name:      "Host tmp volumes added",
+			container: *NewContainerInfoRaw("containerd", ""),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			pod := NewPodInfo(&core.Pod{
+				Spec: core.PodSpec{
+					NodeName: "node",
+				},
+			})
+
+			jobSpec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
+				WithHostTmpVolume()
+
+			volume := jobSpec.Volumes[0]
+			require.Equal(t, "hosttmp", volume.Name)
+			require.Equal(t, globals.PathTmpFolder, volume.HostPath)
+			require.Equal(t, globals.PathHostTmpFolder, volume.MountPath)
+		})
+	}
+}
