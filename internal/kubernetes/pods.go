@@ -18,6 +18,7 @@ import (
 type PodInfo struct {
 	Annotations       map[string]string
 	Name              string
+	Namespace         string
 	Node              string
 	containers        []core.Container
 	containerStatuses []core.ContainerStatus
@@ -28,6 +29,7 @@ func NewPodInfo(pod *core.Pod) *PodInfo {
 	return &PodInfo{
 		Annotations:       pod.Annotations,
 		Name:              pod.Name,
+		Namespace:         pod.Namespace,
 		Node:              pod.Spec.NodeName,
 		containers:        pod.Spec.Containers,
 		containerStatuses: pod.Status.ContainerStatuses,

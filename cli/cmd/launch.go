@@ -13,13 +13,16 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
-func (cb *CommandBuilder) args(info *kubernetes.ContainerInfo) []string {
-	args := []string{"--container-id", info.ID, "--container-runtime", info.Runtime}
+func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.ContainerInfo) []string {
+	args := []string{"--container-id", container.ID, "--container-runtime", container.Runtime}
 
 	if cb.CommonOptions.StoreOutputOnHost {
 		args = append(args, "store-output-on-host")
 	}
 
+	args = append(args, "--container-name", container.Name)
+	args = append(args, "--pod-name", pod.Name)
+	args = append(args, "--pod-namespace", pod.Namespace)
 	args = append(args, cb.tool.ToolName())
 	args = append(args, cb.tool.FormatArgs()...)
 	return args
@@ -35,12 +38,7 @@ func (cb *CommandBuilder) copyOutputFromJob(k8s *kubernetes.Client, pod *kuberne
 }
 
 func (cb *CommandBuilder) storeOutputOnHost(_ *kubernetes.Client, pod *kubernetes.PodInfo, output string) error {
-	fmt.Printf("Output located on host: %s, at path: %s/%s/%s\n",
-		pod.Node,
-		globals.PathTmpFolder,
-		globals.PluginName,
-		output,
-	)
+	fmt.Printf("Output located on host: %s, at path: %s\n", pod.Node, output)
 	return nil
 }
 
@@ -66,7 +64,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	jobSpec := kubernetes.
-		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod).
+		NewJobRunSpec(cb.args(targetPod, targetContainer), cb.CommonOptions.Image, targetPod).
 		WithContainerFSVolume(targetContainer)
 
 	if targetPod.ContainsMountedTmp(targetContainerName) {

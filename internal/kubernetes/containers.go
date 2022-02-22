@@ -13,6 +13,7 @@ import (
 // ContainerInfo is information about container struct
 type ContainerInfo struct {
 	ID      string
+	Name    string
 	Runtime string
 }
 
@@ -32,6 +33,7 @@ func NewContainerInfo(cs *core.ContainerStatus) *ContainerInfo {
 
 	return &ContainerInfo{
 		ID:      containerInfo[1],
+		Name:    cs.Name,
 		Runtime: containerInfo[0],
 	}
 }
