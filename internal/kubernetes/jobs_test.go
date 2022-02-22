@@ -105,7 +105,7 @@ func Test_JobWithHostTmpVolume(t *testing.T) {
 
 			volume := jobSpec.Volumes[0]
 			require.Equal(t, "hosttmp", volume.Name)
-			require.Equal(t, globals.PathTmpFolder, volume.HostPath)
+			require.Equal(t, fmt.Sprintf("%s/%s", globals.PathTmpFolder, globals.PluginName), volume.HostPath)
 			require.Equal(t, globals.PathHostTmpFolder, volume.MountPath)
 		})
 	}
