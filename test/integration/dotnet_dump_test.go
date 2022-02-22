@@ -9,59 +9,21 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-	core "k8s.io/api/core/v1"
-
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_DumpSubcommand(t *testing.T) {
-	testCases := []struct {
-		name       string
-		args       []string
-		pod        *core.Pod
-		hostOutput bool
-	}{
-		{
-			name: "Basic test",
-			args: []string{},
-			pod:  singleContainerPod(),
-		},
-		{
-			name:       "Store output on host",
-			args:       []string{"store-output-on-host"},
-			pod:        singleContainerPod(),
-			hostOutput: true,
-		},
-		{
+	testCases := cases(
+		TestCase{
 			name: "Custom type",
 			args: []string{
 				"--type", "Heap",
 			},
 			pod: singleContainerPod(),
 		},
-		{
-			name: "MultiContainer pod",
-			args: []string{
-				"--container",
-				targetContainerName,
-			},
-			pod: multiContainerPod(),
-		},
-		{
-			name: "MultiContainer pod with default-container annotation",
-			args: []string{},
-			pod:  multiContainerPodWithDefaultContainer(),
-		},
-		{
-			name: "MultiContainer pod with shared mount",
-			args: []string{
-				"--container",
-				targetContainerName,
-			},
-			pod: multiContainerPodWithSharedMount(),
-		},
-	}
+	)
+
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {

@@ -33,6 +33,13 @@ var (
 	tempDirPattern      = "*-kubectl-shovel"
 )
 
+type TestCase struct {
+	name       string
+	args       []string
+	pod        *core.Pod
+	hostOutput bool
+}
+
 func newTestKubeClient() *kubernetes.Client {
 	kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -171,4 +178,43 @@ func multiContainerPodWithSharedMount() *core.Pod {
 			},
 		},
 	}
+}
+
+func cases(additional ...TestCase) []TestCase {
+	basic := []TestCase{
+		{
+			name: "Basic test",
+			args: []string{},
+			pod:  singleContainerPod(),
+		},
+		{
+			name:       "Store output on host",
+			args:       []string{"store-output-on-host"},
+			pod:        singleContainerPod(),
+			hostOutput: true,
+		},
+		{
+			name: "MultiContainer pod",
+			args: []string{
+				"--container",
+				targetContainerName,
+			},
+			pod: multiContainerPod(),
+		},
+		{
+			name: "MultiContainer pod with default-container annotation",
+			args: []string{},
+			pod:  multiContainerPodWithDefaultContainer(),
+		},
+		{
+			name: "MultiContainer pod with shared mount",
+			args: []string{
+				"--container",
+				targetContainerName,
+			},
+			pod: multiContainerPodWithSharedMount(),
+		},
+	}
+
+	return append(basic, additional...)
 }
