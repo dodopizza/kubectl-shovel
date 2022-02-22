@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Operator represents operator state
 type Operator struct {
 	ping     chan struct{}
 	check    func() bool
@@ -13,6 +14,7 @@ type Operator struct {
 	interval time.Duration
 }
 
+// NewOperator returns new operator with specified check function, deadline and interval durations
 func NewOperator(check func() bool, deadline, interval time.Duration) *Operator {
 	return &Operator{
 		check:    check,
@@ -21,6 +23,7 @@ func NewOperator(check func() bool, deadline, interval time.Duration) *Operator 
 	}
 }
 
+// Run starts operator
 func (p *Operator) Run(ctx context.Context) error {
 	p.ping = make(chan struct{}, 1)
 

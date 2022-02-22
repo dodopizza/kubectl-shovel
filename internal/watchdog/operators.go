@@ -17,10 +17,10 @@ func NewWatcher() *Operator {
 				return false
 			}
 
-			return !time.Now().After(file.ModTime().Add(pingInterval))
+			return !time.Now().After(file.ModTime().Add(PingInterval))
 		},
-		deadline,
-		checkInterval,
+		Deadline,
+		CheckInterval,
 	)
 }
 
@@ -36,7 +36,7 @@ func NewPinger(k8s *kubernetes.Client, pod string) *Operator {
 			err = k8s.CopyToPod(file.Name(), pod, pingFile)
 			return err != nil
 		},
-		deadline,
-		pingInterval,
+		Deadline,
+		PingInterval,
 	)
 }

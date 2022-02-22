@@ -86,7 +86,7 @@ func (cb *CommandBuilder) launch() error {
 
 	events.NewCompletedEvent(output)
 
-	// otherwise, wait until output file to be copied from
+	// wait until output file to be copied from
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

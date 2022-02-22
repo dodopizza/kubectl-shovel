@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dodopizza/kubectl-shovel/internal/events"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
-
 	"github.com/pkg/errors"
 
+	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
@@ -39,7 +38,17 @@ func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.Co
 	return args
 }
 
-func (cb *CommandBuilder) copyOutputFromJob(pod *kubernetes.PodInfo, output string) error {
+func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	pinger := watchdog.NewPinger(cb.kube, pod.Name)
+	go func() {
+		if err := pinger.Run(ctx); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	fmt.Println("Retrieve output from diagnostics job")
 	if err := cb.kube.CopyFromPod(pod.Name, output, cb.CommonOptions.Output); err != nil {
 		return errors.Wrap(err, "Error while retrieving diagnostics job output")
@@ -96,16 +105,6 @@ func (cb *CommandBuilder) launch() error {
 		return errors.Wrap(err, "Failed to wait diagnostics job execution")
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	pinger := watchdog.NewPinger(cb.kube, jobPod.Name)
-	go func() {
-		if err := pinger.Run(ctx); err != nil {
-			fmt.Println(err)
-		}
-	}()
-
 	jobPodLogs, err := cb.kube.ReadPodLogs(jobPod.Name, globals.PluginName)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read logs from diagnostics job targetPod")
@@ -119,7 +118,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	// dealing with output
-	outputHandler := cb.copyOutputFromJob
+	outputHandler := cb.copyOutput
 	if cb.CommonOptions.StoreOutputOnHost {
 		outputHandler = cb.storeOutputOnHost
 	}

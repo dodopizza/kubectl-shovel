@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	deadline      = 1 * time.Minute
-	pingInterval  = 10 * time.Second
-	checkInterval = 5 * time.Second
+	Deadline      = 1 * time.Minute
+	PingInterval  = 10 * time.Second
+	CheckInterval = 5 * time.Second
 
 	pingFile = "/ping.tmp"
 )
