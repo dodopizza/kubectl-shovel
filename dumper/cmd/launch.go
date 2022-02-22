@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
@@ -64,9 +65,28 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 
+	if cb.CommonOptions.StoreOutputOnHost {
+		outputHost := fmt.Sprintf("%s/%s.%s.%s.%s",
+			globals.PathHostTmpFolder,
+			cb.CommonOptions.PodNamespace,
+			cb.CommonOptions.PodName,
+			cb.CommonOptions.ContainerName,
+			output,
+			time.Now().UTC().Format("2006-04-02-15-04-05"),
+		)
+
+		if err := utils.MoveFile(output, outputHost); err != nil {
+			events.NewErrorEvent(err, "failed to copy output on host")
+			return err
+		}
+
+		events.NewCompletedEvent(outputHost)
+		return nil
+	}
+
 	events.NewCompletedEvent(output)
 
-	// wait until output file to be copied from
+	// otherwise, wait until output file to be copied from
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

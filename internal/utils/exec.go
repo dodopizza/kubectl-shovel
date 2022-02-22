@@ -2,6 +2,9 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
+	"io"
+	"os"
 	"os/exec"
 
 	"github.com/pkg/errors"
@@ -22,5 +25,25 @@ func ExecCommand(executable string, args ...string) error {
 		return errors.Wrap(err, stdout.String())
 	}
 
+	return nil
+}
+
+// MoveFile physically moves file from source path to destination path
+// If dest already exists, MoveFile replaces it
+func MoveFile(source, dest string) error {
+	output, _ := os.Create(dest)
+	defer output.Close()
+
+	input, _ := os.Open(source)
+	_, err := io.Copy(output, input)
+	_ = input.Close()
+	if err != nil {
+		return fmt.Errorf("move failed: %s", err)
+	}
+
+	err = os.Remove(source)
+	if err != nil {
+		return fmt.Errorf("move failed: %s", err)
+	}
 	return nil
 }
