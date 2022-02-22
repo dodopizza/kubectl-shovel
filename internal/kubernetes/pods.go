@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
+
 	core "k8s.io/api/core/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -17,6 +19,7 @@ import (
 type PodInfo struct {
 	Annotations       map[string]string
 	Name              string
+	Namespace         string
 	Node              string
 	containers        []core.Container
 	containerStatuses []core.ContainerStatus
@@ -27,6 +30,7 @@ func NewPodInfo(pod *core.Pod) *PodInfo {
 	return &PodInfo{
 		Annotations:       pod.Annotations,
 		Name:              pod.Name,
+		Namespace:         pod.Namespace,
 		Node:              pod.Spec.NodeName,
 		containers:        pod.Spec.Containers,
 		containerStatuses: pod.Status.ContainerStatuses,
@@ -61,7 +65,7 @@ func (p *PodInfo) ContainsMountedTmp(container string) bool {
 	}
 
 	for _, mount := range c.VolumeMounts {
-		if mount.MountPath == "/tmp" {
+		if mount.MountPath == globals.PathTmpFolder {
 			return true
 		}
 	}

@@ -4,7 +4,7 @@ Get dotnet-gcdump results
 
 ### Synopsis
 
-This subcommand will run dotnet-gcdump tool for running in k8s appplication.
+This subcommand will run dotnet-gcdump tool for running in k8s application.
 Result will be saved locally so you'll be able to analyze it with appropriate tools.
 You can find more info about dotnet-gcdump tool by the following links:
 
@@ -54,6 +54,7 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
   -p, --process-id int                 The process ID to collect the trace from (default 1)
       --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
   -s, --server string                  The address and port of the Kubernetes API server
+  -t, --store-output-on-host           Flag, indicating that output should be stored on host /tmp folder
       --timeout timeout                Give up on collecting the GC dump if it takes longer than this many seconds.
                                        Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
                                        Will be rounded to seconds. If no unit provided defaults to seconds.

@@ -1,16 +1,16 @@
 package flags
 
 import (
-	"fmt"
-	"github.com/spf13/pflag"
 	"strconv"
+
+	"github.com/spf13/pflag"
 )
 
 type DotnetToolFactory func() DotnetTool
 
 type DotnetToolFlags interface {
+	Formatter
 	GetFlags() *pflag.FlagSet
-	FormatArgs() []string
 	SetAction(action string) DotnetToolFlags
 	SetOutput(output string) DotnetToolFlags
 	SetProcessID(id int) DotnetToolFlags
@@ -54,20 +54,16 @@ func (dt *DotnetToolProperties) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dt *DotnetToolProperties) FormatArgs() []string {
-	args := make([]string, 0)
-
+func (dt *DotnetToolProperties) FormatArgs(args *Args) {
 	if dt.Action != "" {
-		args = append(args, dt.Action)
+		args.AppendCommand(dt.Action)
 	}
 
-	args = append(args, "--process-id", strconv.Itoa(dt.ProcessID))
+	args.Append("process-id", strconv.Itoa(dt.ProcessID))
 
 	if dt.Output != "" {
-		args = append(args, "--output", dt.Output)
+		args.Append("output", dt.Output)
 	}
-
-	return args
 }
 
 func (dt *DotnetToolProperties) SetAction(action string) DotnetToolFlags {
@@ -83,11 +79,4 @@ func (dt *DotnetToolProperties) SetOutput(output string) DotnetToolFlags {
 func (dt *DotnetToolProperties) SetProcessID(id int) DotnetToolFlags {
 	dt.ProcessID = id
 	return dt
-}
-
-func FlagToArg(flag pflag.Value) []string {
-	return []string{
-		fmt.Sprintf("--%s", flag.Type()),
-		flag.String(),
-	}
 }

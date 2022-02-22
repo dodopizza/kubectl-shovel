@@ -4,7 +4,7 @@ Get dotnet-trace results
 
 ### Synopsis
 
-This subcommand will capture runtime events with dotnet-trace tool for running in k8s appplication.
+This subcommand will capture runtime events with dotnet-trace tool for running in k8s application.
 Result will be saved locally in nettrace format so you'll be able to convert it and analyze with appropriate tools.
 You can find more info about dotnet-trace tool by the following links:
 
@@ -92,6 +92,7 @@ Or convert any other format to speedscope format with:
                                        https://docs.microsoft.com/en-us/dotnet/core/diagnostics/well-known-event-providers
       --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
   -s, --server string                  The address and port of the Kubernetes API server
+  -t, --store-output-on-host           Flag, indicating that output should be stored on host /tmp folder
       --tls-server-name string         Server name to use for server certificate validation. If it is not provided, the hostname used to contact the server is used
       --token string                   Bearer token for authentication to the API server
       --user string                    The name of the kubeconfig user to use

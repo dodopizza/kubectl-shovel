@@ -3,69 +3,56 @@ package watchdog
 import (
 	"context"
 	"errors"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
-	"io/ioutil"
-	"os"
 	"time"
-
-	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
+// Operator represents operator state
 type Operator struct {
-	k8s      *kubernetes.Client
-	podName  string
+	check    func() bool
+	deadline time.Duration
 	interval time.Duration
+	signal   chan struct{}
 }
 
-func NewOperator(k8s *kubernetes.Client, podName string) *Operator {
+// NewOperator returns new operator with specified check function, deadline and interval durations
+func NewOperator(check func() bool, deadline, interval time.Duration) *Operator {
 	return &Operator{
-		k8s:      k8s,
-		podName:  podName,
-		interval: pingInterval,
+		check:    check,
+		deadline: deadline,
+		interval: interval,
 	}
 }
 
-func (o *Operator) Run(ctx context.Context) error {
-	successCh := make(chan struct{}, 1)
+// Run starts operator
+func (p *Operator) Run(ctx context.Context) error {
+	p.signal = make(chan struct{}, 1)
 
-	go o.run(ctx, successCh)
+	go p.awaiter(ctx)
 
 	for {
 		select {
-		case <-successCh:
+		case <-p.signal:
 		case <-ctx.Done():
 			return nil
-		case <-time.After(deadAfterDuration):
-			return errors.New("There were some issues to send ping to pod for a long time")
+		case <-time.After(p.deadline):
+			return errors.New("there were no signals from operator for a long time")
 		}
 	}
 }
 
-func (o *Operator) run(ctx context.Context, successCh chan<- struct{}) {
-	ticker := time.NewTicker(o.interval)
+func (p *Operator) awaiter(ctx context.Context) {
+	ticker := time.NewTicker(p.interval)
 	defer ticker.Stop()
-	defer close(successCh)
+	defer close(p.signal)
 
 	for {
 		select {
 		case <-ticker.C:
-			if err := o.ping(); err != nil {
-				continue
+			if p.check() {
+				p.signal <- struct{}{}
 			}
-			successCh <- struct{}{}
 		case <-ctx.Done():
 			return
 		}
 	}
-}
-
-// ping leave mark that operator is alive. Periodically update file at pod
-func (o *Operator) ping() error {
-	file, err := ioutil.TempFile("", globals.PluginName)
-	if err != nil {
-		return err
-	}
-	defer os.Remove(file.Name())
-
-	return o.k8s.CopyToPod(file.Name(), o.podName, pingFile)
 }

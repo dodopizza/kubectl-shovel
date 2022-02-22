@@ -3,30 +3,75 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/events"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"strings"
 
 	"github.com/pkg/errors"
 
+	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
-func (cb *CommandBuilder) args(info *kubernetes.ContainerInfo) []string {
-	args := []string{"--container-id", info.ID, "--container-runtime", info.Runtime}
-	args = append(args, cb.tool.ToolName())
-	args = append(args, cb.tool.FormatArgs()...)
-	return args
+func (cb *CommandBuilder) newKubeClient() error {
+	kube, err := kubernetes.NewClient(cb.CommonOptions.kubeConfig)
+	if err != nil {
+		return err
+	}
+
+	cb.kube = kube
+	return nil
+}
+
+func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.ContainerInfo) []string {
+	args := flags.NewArgs().
+		Append("container-id", container.ID).
+		Append("container-runtime", container.Runtime)
+
+	if cb.CommonOptions.StoreOutputOnHost {
+		args.AppendKey("store-output-on-host")
+	}
+
+	return args.
+		Append("container-name", container.Name).
+		Append("pod-name", pod.Name).
+		Append("pod-namespace", pod.Namespace).
+		AppendCommand(cb.tool.ToolName()).
+		AppendFrom(cb.tool).
+		Get()
+}
+
+func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	pinger := watchdog.NewPinger(cb.kube, pod.Name)
+	go func() {
+		if err := pinger.Run(ctx); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	fmt.Println("Retrieve output from diagnostics job")
+	if err := cb.kube.CopyFromPod(pod.Name, output, cb.CommonOptions.Output); err != nil {
+		return errors.Wrap(err, "Error while retrieving diagnostics job output")
+	}
+	fmt.Printf("Result successfully written to %s\n", cb.CommonOptions.Output)
+	return nil
+}
+
+func (cb *CommandBuilder) storeOutputOnHost(pod *kubernetes.PodInfo, output string) error {
+	fmt.Printf("Output located on host: %s, at path: %s\n", pod.Node, output)
+	return nil
 }
 
 func (cb *CommandBuilder) launch() error {
-	k8s, err := kubernetes.NewClient(cb.CommonOptions.kube)
-	if err != nil {
+	if err := cb.newKubeClient(); err != nil {
 		return errors.Wrap(err, "Failed to init kubernetes client")
 	}
 
-	targetPod, err := k8s.GetPodInfo(cb.CommonOptions.Pod)
+	targetPod, err := cb.kube.GetPodInfo(cb.CommonOptions.Pod)
 	if err != nil {
 		return errors.Wrap(err, "Failed to get info about target pod")
 	}
@@ -42,34 +87,29 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	jobSpec := kubernetes.
-		NewJobRunSpec(cb.args(targetContainer), cb.CommonOptions.Image, targetPod).
+		NewJobRunSpec(cb.args(targetPod, targetContainer), cb.CommonOptions.Image, targetPod).
 		WithContainerFSVolume(targetContainer)
 
 	if targetPod.ContainsMountedTmp(targetContainerName) {
 		jobSpec.WithContainerMountsVolume(targetContainer)
 	}
 
+	if cb.CommonOptions.StoreOutputOnHost {
+		jobSpec.WithHostTmpVolume()
+	}
+
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
-	if err := k8s.RunJob(jobSpec); err != nil {
+	if err := cb.kube.RunJob(jobSpec); err != nil {
 		return errors.Wrap(err, "Failed to spawn diagnostics job")
 	}
 
 	fmt.Println("Waiting for a diagnostics job to start")
-	jobPod, err := k8s.WaitPod(jobSpec.Selectors)
+	jobPod, err := cb.kube.WaitPod(jobSpec.Selectors)
 	if err != nil {
 		return errors.Wrap(err, "Failed to wait diagnostics job execution")
 	}
 
-	op := watchdog.NewOperator(k8s, jobPod.Name)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go func() {
-		if err := op.Run(ctx); err != nil {
-			fmt.Println(err)
-		}
-	}()
-
-	jobPodLogs, err := k8s.ReadPodLogs(jobPod.Name, globals.PluginName)
+	jobPodLogs, err := cb.kube.ReadPodLogs(jobPod.Name, globals.PluginName)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read logs from diagnostics job targetPod")
 	}
@@ -81,13 +121,17 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 
-	fmt.Println("Retrieve output from diagnostics job")
-	if err := k8s.CopyFromPod(jobPod.Name, output, cb.CommonOptions.Output); err != nil {
-		return errors.Wrap(err, "Error while retrieving diagnostics job output")
+	// dealing with output
+	outputHandler := cb.copyOutput
+	if cb.CommonOptions.StoreOutputOnHost {
+		outputHandler = cb.storeOutputOnHost
+	}
+	if err := outputHandler(jobPod, output); err != nil {
+		return err
 	}
 
-	fmt.Printf("Result successfully written to %s\nCleanup diagnostics job", cb.CommonOptions.Output)
-	if err := k8s.DeleteJob(jobSpec.Name); err != nil {
+	fmt.Println("Cleanup diagnostics job")
+	if err := cb.kube.DeleteJob(jobSpec.Name); err != nil {
 		return errors.Wrap(err, "Error while deleting job")
 	}
 

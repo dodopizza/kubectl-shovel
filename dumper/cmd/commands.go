@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/spf13/cobra"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 )
 
 // NewGCDumpCommand return command that perform dotnet-gcdump on target process

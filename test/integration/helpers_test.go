@@ -6,6 +6,8 @@ package integration_test
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -19,6 +21,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
@@ -31,6 +34,29 @@ var (
 	dumperImage         = "kubectl-shovel/dumper-integration-tests"
 	tempDirPattern      = "*-kubectl-shovel"
 )
+
+type TestCase struct {
+	name       string
+	args       []string
+	pod        *core.Pod
+	output     string
+	hostOutput bool
+}
+
+func (tc *TestCase) FormatArgs(command string) []string {
+	result := []string{command}
+
+	result = append(result, "--pod-name", tc.pod.Name)
+	result = append(result, "--image", dumperImage)
+
+	if tc.hostOutput {
+		result = append(result, "--store-output-on-host")
+	} else {
+		result = append(result, "--output", tc.output)
+	}
+
+	return append(result, tc.args...)
+}
 
 func newTestKubeClient() *kubernetes.Client {
 	kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
@@ -50,28 +76,42 @@ func newTestKubeClient() *kubernetes.Client {
 	}
 }
 
-func setup(t *testing.T, pod *core.Pod) func() {
+func setup(t *testing.T, tc *TestCase, prefix string) func() {
+	t.Parallel()
 	t.Helper()
 	k := newTestKubeClient()
 
-	fmt.Println("Deploying target pod to cluster...")
+	t.Log("Deploying target pod to cluster...")
 	_, err := k.CoreV1().Pods(namespace).Create(
 		context.Background(),
-		pod,
+		tc.pod,
 		meta.CreateOptions{},
 	)
 	require.NoError(t, err)
 
-	fmt.Println("Waiting app to start...")
-	_, err = k.WaitPod(pod.ObjectMeta.Labels)
+	t.Log("Waiting target pod to start...")
+	_, err = k.WaitPod(tc.pod.ObjectMeta.Labels)
 	require.NoError(t, err)
 
+	if !tc.hostOutput {
+		dir, _ := ioutil.TempDir("", tempDirPattern)
+		tc.output = filepath.Join(dir, prefix)
+		t.Logf("Output for test case will be stored at: %s\n", tc.output)
+	}
+
 	return func() {
+		t.Logf("Delete test pod: %s\n", tc.pod.Name)
 		_ = k.CoreV1().Pods(namespace).Delete(
 			context.TODO(),
-			pod.Name,
+			tc.pod.Name,
 			meta.DeleteOptions{PropagationPolicy: &deletePolicy},
 		)
+
+		if !tc.hostOutput {
+			dir := filepath.Dir(tc.output)
+			t.Logf("Cleanup test case output dir: %s\n", dir)
+			_ = os.Remove(dir)
+		}
 	}
 }
 
@@ -149,14 +189,14 @@ func multiContainerPodWithSharedMount() *core.Pod {
 					Name:  targetContainerName,
 					Image: sampleAppImage,
 					VolumeMounts: []core.VolumeMount{
-						{Name: "shared-path-to-tmp", MountPath: "/tmp"},
+						{Name: "shared-path-to-tmp", MountPath: globals.PathTmpFolder},
 					},
 				},
 				{
 					Name:  "sidecar",
 					Image: "gcr.io/google_containers/pause-amd64:3.1",
 					VolumeMounts: []core.VolumeMount{
-						{Name: "shared-path-to-tmp", MountPath: "/tmp"},
+						{Name: "shared-path-to-tmp", MountPath: globals.PathTmpFolder},
 					},
 				},
 			},
@@ -170,4 +210,43 @@ func multiContainerPodWithSharedMount() *core.Pod {
 			},
 		},
 	}
+}
+
+func cases(additional ...TestCase) []TestCase {
+	basic := []TestCase{
+		{
+			name: "Basic test",
+			args: []string{},
+			pod:  singleContainerPod(),
+		},
+		{
+			name:       "Store output on host",
+			args:       []string{"store-output-on-host"},
+			pod:        singleContainerPod(),
+			hostOutput: true,
+		},
+		{
+			name: "MultiContainer pod",
+			args: []string{
+				"--container",
+				targetContainerName,
+			},
+			pod: multiContainerPod(),
+		},
+		{
+			name: "MultiContainer pod with default-container annotation",
+			args: []string{},
+			pod:  multiContainerPodWithDefaultContainer(),
+		},
+		{
+			name: "MultiContainer pod with shared mount",
+			args: []string{
+				"--container",
+				targetContainerName,
+			},
+			pod: multiContainerPodWithSharedMount(),
+		},
+	}
+
+	return append(basic, additional...)
 }

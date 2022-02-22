@@ -2,27 +2,33 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/flags"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
+	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
-// CommonOptions contains generic arguments for cli
+// CommonOptions contains shared arguments for cli commands
 type CommonOptions struct {
-	Container string
-	Image     string
-	Pod       string
-	Output    string
+	Container         string
+	Image             string
+	Pod               string
+	Output            string
+	StoreOutputOnHost bool
 
-	kube *genericclioptions.ConfigFlags
+	kubeConfig *genericclioptions.ConfigFlags
 }
 
 // CommandBuilder represents logic for building and running tools
 type CommandBuilder struct {
 	CommonOptions *CommonOptions
 	tool          flags.DotnetTool
+	kube          *kubernetes.Client
 }
 
 // GetFlags return FlagSet that describes generic options
@@ -55,9 +61,15 @@ func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 		fmt.Sprintf("./output.%s", tool),
 		"Output file",
 	)
+	fs.BoolVarP(
+		&options.StoreOutputOnHost,
+		"store-output-on-host",
+		"t",
+		options.StoreOutputOnHost,
+		"Flag, indicating that output should be stored on host /tmp folder")
 
-	options.kube = genericclioptions.NewConfigFlags(false)
-	options.kube.AddFlags(fs)
+	options.kubeConfig = genericclioptions.NewConfigFlags(false)
+	options.kubeConfig.AddFlags(fs)
 
 	return fs
 }

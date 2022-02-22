@@ -210,7 +210,7 @@ func Test_TestFlagSet(t *testing.T) {
 			flagSet.AddFlagSet(trace.GetFlags())
 
 			require.NoError(t, flagSet.Parse(tc.args))
-			require.Equal(t, tc.expArgs, trace.FormatArgs())
+			require.Equal(t, tc.expArgs, NewArgs().AppendFrom(trace).Get())
 		})
 	}
 }

@@ -2,9 +2,12 @@ package kubernetes
 
 import (
 	"context"
-	"github.com/dodopizza/kubectl-shovel/internal/globals"
-	"github.com/google/uuid"
+	"fmt"
 	"strings"
+
+	"github.com/google/uuid"
+
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 
 	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"
@@ -59,6 +62,15 @@ func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec
 // WithContainerMountsVolume add host volume that used to store container additional volumes
 func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRunSpec {
 	j.appendVolume(container.GetContainerSharedVolumes())
+	return j
+}
+
+func (j *JobRunSpec) WithHostTmpVolume() *JobRunSpec {
+	j.appendVolume(JobVolume{
+		Name:      "hosttmp",
+		HostPath:  fmt.Sprintf("%s/%s", globals.PathTmpFolder, globals.PluginName),
+		MountPath: globals.PathHostTmpFolder,
+	})
 	return j
 }
 

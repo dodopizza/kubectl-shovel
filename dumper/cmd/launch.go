@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/utils"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
@@ -19,7 +23,7 @@ func (cb *CommandBuilder) launch() error {
 	container := kubernetes.NewContainerInfoRaw(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
 	// remove /tmp directory,
 	// because will be mounted either from rootfs or container mounts
-	if err := os.RemoveAll("/tmp"); err != nil {
+	if err := os.RemoveAll(globals.PathTmpFolder); err != nil {
 		return err
 	}
 
@@ -31,27 +35,29 @@ func (cb *CommandBuilder) launch() error {
 
 	// for dotnet tools, in /tmp folder must exists sockets to running dotnet apps
 	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#naming-and-location-conventions
-	if err := os.Symlink(tmpSource, "/tmp"); err != nil {
-		events.NewErrorEvent(err, "unable to mount /tmp folder for container")
+	if err := os.Symlink(tmpSource, globals.PathTmpFolder); err != nil {
+		events.NewErrorEvent(err, "unable to mount tmp folder for container")
 		return err
 	}
 
 	// if we do not set proper file extension dotnet tools will do it anyway
 	// write output file to /tmp, because it's available in target and worker pods
-	output := fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName())
+	output := fmt.Sprintf("%s/output.%s", globals.PathTmpFolder, cb.tool.ToolName())
 	cb.tool.
 		SetAction("collect").
-		SetOutput(fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName()))
+		SetOutput(output)
+	args := flags.
+		NewArgs().
+		AppendFrom(cb.tool)
 
 	events.NewStatusEvent(
 		fmt.Sprintf("Running command: %s %s",
 			cb.tool.BinaryName(),
-			strings.Join(cb.tool.FormatArgs(), " "),
+			strings.Join(args.Get(), " "),
 		),
 	)
 
-	args := cb.tool.FormatArgs()
-	if err := utils.ExecCommand(cb.tool.BinaryName(), args...); err != nil {
+	if err := utils.ExecCommand(cb.tool.BinaryName(), args.Get()...); err != nil {
 		events.NewErrorEvent(err, "failed to execute tool command")
 		return err
 	}
@@ -63,12 +69,33 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 
+	if cb.CommonOptions.StoreOutputOnHost {
+		outputHost := fmt.Sprintf("%s/%s.%s.%s.%s.%s",
+			globals.PathHostTmpFolder,
+			cb.CommonOptions.PodNamespace,
+			cb.CommonOptions.PodName,
+			cb.CommonOptions.ContainerName,
+			filepath.Base(output),
+			time.Now().UTC().Format("2006-04-02-15-04-05"),
+		)
+
+		if err := utils.MoveFile(output, outputHost); err != nil {
+			events.NewErrorEvent(err, "failed to copy output on host")
+			return err
+		}
+
+		events.NewCompletedEvent(outputHost)
+		return nil
+	}
+
 	events.NewCompletedEvent(output)
 
 	// wait until output file to be copied from
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	if err := watchdog.Watch(ctx); err != nil {
+
+	watcher := watchdog.NewWatcher()
+	if err := watcher.Run(ctx); err != nil {
 		events.NewErrorEvent(err, "failed to watch copy progress")
 		return err
 	}

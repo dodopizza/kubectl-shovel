@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/dodopizza/kubectl-shovel/internal/flags"
+
 	"github.com/spf13/cobra"
+
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 )
 
 var (
@@ -20,7 +22,7 @@ func NewGCDumpCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetGCDump)
 	return builder.Build(
 		"Get dotnet-gcdump results",
-		"This subcommand will run dotnet-gcdump tool for running in k8s appplication.\n"+
+		"This subcommand will run dotnet-gcdump tool for running in k8s application.\n"+
 			"Result will be saved locally so you'll be able to analyze it with appropriate tools.\n"+
 			"You can find more info about dotnet-gcdump tool by the following links:\n\n"+
 			"\t* https://devblogs.microsoft.com/dotnet/collecting-and-analyzing-memory-dumps/\n"+
@@ -34,7 +36,7 @@ func NewTraceCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetTrace)
 	return builder.Build(
 		"Get dotnet-trace results",
-		"This subcommand will capture runtime events with dotnet-trace tool for running in k8s appplication.\n"+
+		"This subcommand will capture runtime events with dotnet-trace tool for running in k8s application.\n"+
 			"Result will be saved locally in nettrace format so you'll be able to convert it and analyze with appropriate tools.\n"+
 			"You can find more info about dotnet-trace tool by the following links:\n\n"+
 			"\t* https://github.com/dotnet/diagnostics/blob/master/documentation/dotnet-trace-instructions.md\n"+
