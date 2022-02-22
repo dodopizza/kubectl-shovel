@@ -6,6 +6,8 @@ package integration_test
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -37,7 +39,23 @@ type TestCase struct {
 	name       string
 	args       []string
 	pod        *core.Pod
+	output     string
 	hostOutput bool
+}
+
+func (tc *TestCase) FormatArgs(command string) []string {
+	result := []string{command}
+
+	result = append(result, "--pod-name", tc.pod.Name)
+	result = append(result, "--image", dumperImage)
+
+	if tc.hostOutput {
+		result = append(result, "store-output-on-host")
+	} else {
+		result = append(result, "--output", tc.output)
+	}
+
+	return append(result, tc.args...)
 }
 
 func newTestKubeClient() *kubernetes.Client {
@@ -58,28 +76,41 @@ func newTestKubeClient() *kubernetes.Client {
 	}
 }
 
-func setup(t *testing.T, pod *core.Pod) func() {
+func setup(t *testing.T, tc TestCase, prefix string) func() {
 	t.Helper()
 	k := newTestKubeClient()
 
 	fmt.Println("Deploying target pod to cluster...")
 	_, err := k.CoreV1().Pods(namespace).Create(
 		context.Background(),
-		pod,
+		tc.pod,
 		meta.CreateOptions{},
 	)
 	require.NoError(t, err)
 
-	fmt.Println("Waiting app to start...")
-	_, err = k.WaitPod(pod.ObjectMeta.Labels)
+	fmt.Println("Waiting target pod to start...")
+	_, err = k.WaitPod(tc.pod.ObjectMeta.Labels)
 	require.NoError(t, err)
 
+	if !tc.hostOutput {
+		dir, _ := ioutil.TempDir("", tempDirPattern)
+		tc.output = filepath.Join(dir, prefix)
+		fmt.Printf("Output for test case will be stored at: %s\n", tc.output)
+	}
+
 	return func() {
+		fmt.Printf("Delete test pod: %s\n", tc.pod.Name)
 		_ = k.CoreV1().Pods(namespace).Delete(
 			context.TODO(),
-			pod.Name,
+			tc.pod.Name,
 			meta.DeleteOptions{PropagationPolicy: &deletePolicy},
 		)
+
+		if !tc.hostOutput {
+			dir := filepath.Dir(tc.output)
+			fmt.Printf("Cleanup test case output dir: %s\n", dir)
+			_ = os.Remove(dir)
+		}
 	}
 }
 

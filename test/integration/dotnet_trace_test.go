@@ -4,9 +4,7 @@
 package integration_test
 
 import (
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
@@ -45,27 +43,15 @@ func Test_TraceSubcommand(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			teardown := setup(t, tc.pod)
+			teardown := setup(t, tc, "trace-test")
 			defer teardown()
-			dir, _ := ioutil.TempDir("", tempDirPattern)
-			defer os.RemoveAll(dir)
-			outputFilename := filepath.Join(dir, "trace-test")
-			args := append([]string{
-				"trace",
-				"--pod-name",
-				tc.pod.Name,
-				"--output",
-				outputFilename,
-				"--image",
-				dumperImage,
-			}, tc.args...)
 
 			c := cmd.NewShovelCommand()
-			c.SetArgs(args)
+			c.SetArgs(tc.FormatArgs("trace"))
 			require.NoError(t, c.Execute())
 
 			if !tc.hostOutput {
-				file, err := os.Stat(outputFilename)
+				file, err := os.Stat(tc.output)
 				require.NoError(t, err)
 				require.NotEmpty(t, file.Size())
 			}

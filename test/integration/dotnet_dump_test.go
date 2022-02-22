@@ -4,9 +4,7 @@
 package integration_test
 
 import (
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
@@ -28,27 +26,15 @@ func Test_DumpSubcommand(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			teardown := setup(t, tc.pod)
+			teardown := setup(t, tc, "dump-test")
 			defer teardown()
-			dir, _ := ioutil.TempDir("", tempDirPattern)
-			defer os.RemoveAll(dir)
-			outputFilename := filepath.Join(dir, "dump-test")
-			args := append([]string{
-				"dump",
-				"--pod-name",
-				tc.pod.Name,
-				"--output",
-				outputFilename,
-				"--image",
-				dumperImage,
-			}, tc.args...)
 
 			c := cmd.NewShovelCommand()
-			c.SetArgs(args)
+			c.SetArgs(tc.FormatArgs("dump"))
 			require.NoError(t, c.Execute())
 
 			if !tc.hostOutput {
-				file, err := os.Stat(outputFilename)
+				file, err := os.Stat(tc.output)
 				require.NoError(t, err)
 				require.NotEmpty(t, file.Size())
 			}
