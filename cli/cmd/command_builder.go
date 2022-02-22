@@ -61,7 +61,7 @@ func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 	fs.BoolVarP(
 		&options.StoreOutputOnHost,
 		"store-output-on-host",
-		"s",
+		"t",
 		options.StoreOutputOnHost,
 		"Flag, indicating that output should be stored on host /tmp folder")
 
