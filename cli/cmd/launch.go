@@ -25,6 +25,24 @@ func (cb *CommandBuilder) args(info *kubernetes.ContainerInfo) []string {
 	return args
 }
 
+func (cb *CommandBuilder) copyOutputFromJob(k8s *kubernetes.Client, pod *kubernetes.PodInfo, output string) error {
+	fmt.Println("Retrieve output from diagnostics job")
+	if err := k8s.CopyFromPod(pod.Name, output, cb.CommonOptions.Output); err != nil {
+		return errors.Wrap(err, "Error while retrieving diagnostics job output")
+	}
+	fmt.Printf("Result successfully written to %s\n", cb.CommonOptions.Output)
+	return nil
+}
+
+func (cb *CommandBuilder) storeOutputOnHost(_ *kubernetes.Client, pod *kubernetes.PodInfo, output string) error {
+	// todo: path location relative to host
+	fmt.Printf("Output located on host: %s, at path: %s\n",
+		pod.Node,
+		output,
+	)
+	return nil
+}
+
 func (cb *CommandBuilder) launch() error {
 	k8s, err := kubernetes.NewClient(cb.CommonOptions.kube)
 	if err != nil {
@@ -90,15 +108,13 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 
+	// dealing with output
+	outputHandler := cb.copyOutputFromJob
 	if cb.CommonOptions.StoreOutputOnHost {
-		fmt.Printf("Output located on host at path: %s\n", output)
-		return nil
-	} else {
-		fmt.Println("Retrieve output from diagnostics job")
-		if err := k8s.CopyFromPod(jobPod.Name, output, cb.CommonOptions.Output); err != nil {
-			return errors.Wrap(err, "Error while retrieving diagnostics job output")
-		}
-		fmt.Printf("Result successfully written to %s\n", cb.CommonOptions.Output)
+		outputHandler = cb.storeOutputOnHost
+	}
+	if err := outputHandler(k8s, jobPod, output); err != nil {
+		return err
 	}
 
 	fmt.Println("Cleanup diagnostics job")
