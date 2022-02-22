@@ -8,10 +8,10 @@ import (
 
 // Operator represents operator state
 type Operator struct {
-	ping     chan struct{}
 	check    func() bool
 	deadline time.Duration
 	interval time.Duration
+	signal   chan struct{}
 }
 
 // NewOperator returns new operator with specified check function, deadline and interval durations
@@ -25,13 +25,13 @@ func NewOperator(check func() bool, deadline, interval time.Duration) *Operator 
 
 // Run starts operator
 func (p *Operator) Run(ctx context.Context) error {
-	p.ping = make(chan struct{}, 1)
+	p.signal = make(chan struct{}, 1)
 
 	go p.awaiter(ctx)
 
 	for {
 		select {
-		case <-p.ping:
+		case <-p.signal:
 		case <-ctx.Done():
 			return nil
 		case <-time.After(p.deadline):
@@ -43,13 +43,13 @@ func (p *Operator) Run(ctx context.Context) error {
 func (p *Operator) awaiter(ctx context.Context) {
 	ticker := time.NewTicker(p.interval)
 	defer ticker.Stop()
-	defer close(p.ping)
+	defer close(p.signal)
 
 	for {
 		select {
 		case <-ticker.C:
 			if p.check() {
-				p.ping <- struct{}{}
+				p.signal <- struct{}{}
 			}
 		case <-ctx.Done():
 			return

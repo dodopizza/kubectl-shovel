@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -71,7 +72,7 @@ func (cb *CommandBuilder) launch() error {
 			cb.CommonOptions.PodNamespace,
 			cb.CommonOptions.PodName,
 			cb.CommonOptions.ContainerName,
-			output,
+			filepath.Base(output),
 			time.Now().UTC().Format("2006-04-02-15-04-05"),
 		)
 

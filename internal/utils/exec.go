@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -38,12 +37,12 @@ func MoveFile(source, dest string) error {
 	_, err := io.Copy(output, input)
 	_ = input.Close()
 	if err != nil {
-		return fmt.Errorf("move failed: %s", err)
+		return errors.Wrapf(err, "failed to move from: %s to: %s", source, dest)
 	}
 
 	err = os.Remove(source)
 	if err != nil {
-		return fmt.Errorf("move failed: %s", err)
+		return err
 	}
 	return nil
 }
