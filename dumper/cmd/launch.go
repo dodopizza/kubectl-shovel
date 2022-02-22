@@ -66,7 +66,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	if cb.CommonOptions.StoreOutputOnHost {
-		outputHost := fmt.Sprintf("%s/%s.%s.%s.%s",
+		outputHost := fmt.Sprintf("%s/%s.%s.%s.%s.%s",
 			globals.PathHostTmpFolder,
 			cb.CommonOptions.PodNamespace,
 			cb.CommonOptions.PodName,
