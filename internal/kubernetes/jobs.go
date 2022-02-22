@@ -67,7 +67,7 @@ func (j *JobRunSpec) WithHostTmpVolume() *JobRunSpec {
 	j.appendVolume(JobVolume{
 		Name:      "hosttmp",
 		HostPath:  fmt.Sprintf("%s/%s", globals.PathTmpFolder, globals.PluginName),
-		MountPath: "/host-tmp",
+		MountPath: globals.PathHostTmpFolder,
 	})
 	return j
 }

@@ -35,9 +35,10 @@ func (cb *CommandBuilder) copyOutputFromJob(k8s *kubernetes.Client, pod *kuberne
 }
 
 func (cb *CommandBuilder) storeOutputOnHost(_ *kubernetes.Client, pod *kubernetes.PodInfo, output string) error {
-	// todo: path location relative to host
-	fmt.Printf("Output located on host: %s, at path: %s\n",
+	fmt.Printf("Output located on host: %s, at path: %s/%s/%s\n",
 		pod.Node,
+		globals.PathTmpFolder,
+		globals.PluginName,
 		output,
 	)
 	return nil
