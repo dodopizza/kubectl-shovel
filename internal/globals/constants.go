@@ -7,6 +7,7 @@ import (
 const (
 	PluginName      = "kubectl-shovel"
 	DumperImageName = "dodopizza/kubectl-shovel-dumper"
+	PathTmpFolder   = "/tmp"
 )
 
 func GetDumperImage() string {

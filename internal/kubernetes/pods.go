@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"io"
 	"strings"
 	"time"
@@ -61,7 +62,7 @@ func (p *PodInfo) ContainsMountedTmp(container string) bool {
 	}
 
 	for _, mount := range c.VolumeMounts {
-		if mount.MountPath == "/tmp" {
+		if mount.MountPath == globals.PathTmpFolder {
 			return true
 		}
 	}

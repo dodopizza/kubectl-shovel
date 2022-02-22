@@ -19,6 +19,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
 
@@ -149,14 +150,14 @@ func multiContainerPodWithSharedMount() *core.Pod {
 					Name:  targetContainerName,
 					Image: sampleAppImage,
 					VolumeMounts: []core.VolumeMount{
-						{Name: "shared-path-to-tmp", MountPath: "/tmp"},
+						{Name: "shared-path-to-tmp", MountPath: globals.PathTmpFolder},
 					},
 				},
 				{
 					Name:  "sidecar",
 					Image: "gcr.io/google_containers/pause-amd64:3.1",
 					VolumeMounts: []core.VolumeMount{
-						{Name: "shared-path-to-tmp", MountPath: "/tmp"},
+						{Name: "shared-path-to-tmp", MountPath: globals.PathTmpFolder},
 					},
 				},
 			},

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dodopizza/kubectl-shovel/internal/events"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 	"github.com/dodopizza/kubectl-shovel/internal/utils"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
@@ -19,7 +20,7 @@ func (cb *CommandBuilder) launch() error {
 	container := kubernetes.NewContainerInfoRaw(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
 	// remove /tmp directory,
 	// because will be mounted either from rootfs or container mounts
-	if err := os.RemoveAll("/tmp"); err != nil {
+	if err := os.RemoveAll(globals.PathTmpFolder); err != nil {
 		return err
 	}
 
@@ -31,17 +32,17 @@ func (cb *CommandBuilder) launch() error {
 
 	// for dotnet tools, in /tmp folder must exists sockets to running dotnet apps
 	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#naming-and-location-conventions
-	if err := os.Symlink(tmpSource, "/tmp"); err != nil {
+	if err := os.Symlink(tmpSource, globals.PathTmpFolder); err != nil {
 		events.NewErrorEvent(err, "unable to mount /tmp folder for container")
 		return err
 	}
 
 	// if we do not set proper file extension dotnet tools will do it anyway
 	// write output file to /tmp, because it's available in target and worker pods
-	output := fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName())
+	output := fmt.Sprintf("%s/output.%s", globals.PathTmpFolder, cb.tool.ToolName())
 	cb.tool.
 		SetAction("collect").
-		SetOutput(fmt.Sprintf("/tmp/output.%s", cb.tool.ToolName()))
+		SetOutput(output)
 
 	events.NewStatusEvent(
 		fmt.Sprintf("Running command: %s %s",

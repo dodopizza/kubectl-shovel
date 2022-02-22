@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"io/ioutil"
 	core "k8s.io/api/core/v1"
 	"os"
@@ -52,12 +53,12 @@ func (c *ContainerInfo) GetTmpSource() (string, error) {
 	}
 
 	for _, mount := range config.Mounts {
-		if mount.Destination == "/tmp" {
+		if mount.Destination == globals.PathTmpFolder {
 			return mount.Source, nil
 		}
 	}
 
-	return fmt.Sprintf("%s/tmp", config.RootFS), nil
+	return fmt.Sprintf("%s%s", config.RootFS, globals.PathTmpFolder), nil
 }
 
 // GetContainerFSVolume returns JobVolume (mounted from host) that contains container definitions,

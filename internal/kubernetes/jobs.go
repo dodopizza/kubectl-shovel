@@ -66,7 +66,7 @@ func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRun
 func (j *JobRunSpec) WithHostTmpVolume() *JobRunSpec {
 	j.appendVolume(JobVolume{
 		Name:      "hosttmp",
-		HostPath:  fmt.Sprintf("/tmp/%s", globals.PluginName),
+		HostPath:  fmt.Sprintf("%s/%s", globals.PathTmpFolder, globals.PluginName),
 		MountPath: "/host-tmp",
 	})
 	return j
