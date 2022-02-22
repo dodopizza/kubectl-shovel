@@ -44,13 +44,16 @@ func Test_TraceSubcommand(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			teardown := setup(t, tc, "trace-test")
+			teardown := setup(t, &tc, "trace-test")
 			defer teardown()
+			args := tc.FormatArgs("trace")
+			shovel := cmd.NewShovelCommand()
+			shovel.SetArgs(args)
 
-			c := cmd.NewShovelCommand()
-			c.SetArgs(tc.FormatArgs("trace"))
-			require.NoError(t, c.Execute())
+			t.Logf("Execute shovel command with args: %s", args)
+			err := shovel.Execute()
 
+			require.NoError(t, err)
 			if !tc.hostOutput {
 				file, err := os.Stat(tc.output)
 				require.NoError(t, err)

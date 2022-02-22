@@ -76,11 +76,11 @@ func newTestKubeClient() *kubernetes.Client {
 	}
 }
 
-func setup(t *testing.T, tc TestCase, prefix string) func() {
+func setup(t *testing.T, tc *TestCase, prefix string) func() {
 	t.Helper()
 	k := newTestKubeClient()
 
-	fmt.Println("Deploying target pod to cluster...")
+	t.Log("Deploying target pod to cluster...")
 	_, err := k.CoreV1().Pods(namespace).Create(
 		context.Background(),
 		tc.pod,
@@ -88,18 +88,18 @@ func setup(t *testing.T, tc TestCase, prefix string) func() {
 	)
 	require.NoError(t, err)
 
-	fmt.Println("Waiting target pod to start...")
+	t.Log("Waiting target pod to start...")
 	_, err = k.WaitPod(tc.pod.ObjectMeta.Labels)
 	require.NoError(t, err)
 
 	if !tc.hostOutput {
 		dir, _ := ioutil.TempDir("", tempDirPattern)
 		tc.output = filepath.Join(dir, prefix)
-		fmt.Printf("Output for test case will be stored at: %s\n", tc.output)
+		t.Logf("Output for test case will be stored at: %s\n", tc.output)
 	}
 
 	return func() {
-		fmt.Printf("Delete test pod: %s\n", tc.pod.Name)
+		t.Logf("Delete test pod: %s\n", tc.pod.Name)
 		_ = k.CoreV1().Pods(namespace).Delete(
 			context.TODO(),
 			tc.pod.Name,
@@ -108,7 +108,7 @@ func setup(t *testing.T, tc TestCase, prefix string) func() {
 
 		if !tc.hostOutput {
 			dir := filepath.Dir(tc.output)
-			fmt.Printf("Cleanup test case output dir: %s\n", dir)
+			t.Logf("Cleanup test case output dir: %s\n", dir)
 			_ = os.Remove(dir)
 		}
 	}
