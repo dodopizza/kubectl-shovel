@@ -50,7 +50,7 @@ func (tc *TestCase) FormatArgs(command string) []string {
 	result = append(result, "--image", dumperImage)
 
 	if tc.hostOutput {
-		result = append(result, "store-output-on-host")
+		result = append(result, "--store-output-on-host")
 	} else {
 		result = append(result, "--output", tc.output)
 	}

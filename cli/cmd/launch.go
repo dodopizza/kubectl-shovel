@@ -27,7 +27,7 @@ func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.Co
 	args := []string{"--container-id", container.ID, "--container-runtime", container.Runtime}
 
 	if cb.CommonOptions.StoreOutputOnHost {
-		args = append(args, "store-output-on-host")
+		args = append(args, "--store-output-on-host")
 	}
 
 	args = append(args, "--container-name", container.Name)
