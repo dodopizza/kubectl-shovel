@@ -45,11 +45,11 @@ func (t *Timeout) checkDuration() error {
 	return nil
 }
 
-func (t *Timeout) Type() string {
+func (*Timeout) Type() string {
 	return "timeout"
 }
 
-func (t *Timeout) Description() string {
+func (*Timeout) Description() string {
 	return "Give up on collecting the GC dump if it takes longer than this many seconds.\n" +
 		"Valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".\n" +
 		"Will be rounded to seconds. If no unit provided defaults to seconds.\n" +

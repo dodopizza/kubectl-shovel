@@ -50,11 +50,11 @@ func (d *DotnetDump) FormatArgs(args *Args) {
 	args.Append("type", d.Type.String())
 }
 
-func (d *DotnetDump) BinaryName() string {
+func (*DotnetDump) BinaryName() string {
 	return "dotnet-dump"
 }
 
-func (d *DotnetDump) ToolName() string {
+func (*DotnetDump) ToolName() string {
 	return "dump"
 }
 

@@ -41,11 +41,11 @@ func (gc *DotnetGCDump) FormatArgs(args *Args) {
 	}
 }
 
-func (gc *DotnetGCDump) BinaryName() string {
+func (*DotnetGCDump) BinaryName() string {
 	return "dotnet-gcdump"
 }
 
-func (gc *DotnetGCDump) ToolName() string {
+func (*DotnetGCDump) ToolName() string {
 	return "gcdump"
 }
 

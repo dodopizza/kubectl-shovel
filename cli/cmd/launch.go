@@ -61,7 +61,7 @@ func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) err
 	return nil
 }
 
-func (cb *CommandBuilder) storeOutputOnHost(pod *kubernetes.PodInfo, output string) error {
+func (*CommandBuilder) storeOutputOnHost(pod *kubernetes.PodInfo, output string) error {
 	hostOutput := fmt.Sprintf("%s/%s/%s", globals.PathTmpFolder, globals.PluginName, output)
 	fmt.Printf("Output located on host: %s, at path: %s\n", pod.Node, hostOutput)
 	return nil

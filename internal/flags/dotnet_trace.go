@@ -110,11 +110,11 @@ func (t *DotnetTrace) FormatArgs(args *Args) {
 	}
 }
 
-func (t *DotnetTrace) BinaryName() string {
+func (*DotnetTrace) BinaryName() string {
 	return "dotnet-trace"
 }
 
-func (t *DotnetTrace) ToolName() string {
+func (*DotnetTrace) ToolName() string {
 	return "trace"
 }
 

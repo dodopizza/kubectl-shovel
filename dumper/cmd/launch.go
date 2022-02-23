@@ -34,7 +34,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	// for dotnet tools, in /tmp folder must exists sockets to running dotnet apps
-	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#naming-and-location-conventions
+	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#diagnostic-ipc-protocol
 	if err := os.Symlink(tmpSource, globals.PathTmpFolder); err != nil {
 		events.NewErrorEvent(err, "unable to mount tmp folder for container")
 		return err

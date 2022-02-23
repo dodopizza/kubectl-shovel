@@ -33,17 +33,17 @@ func (dt *DumpType) Set(str string) error {
 	if !ContainsItemString(supportedDumpTypes, str) {
 		return fmt.Errorf("unsupported Dump Type \"%s\", must be one of: [%s]",
 			str, strings.Join(supportedCLREventLevels, ", "))
-
 	}
 	*dt = DumpType(str)
 	return nil
 }
 
-func (dt *DumpType) Type() string {
+func (*DumpType) Type() string {
 	return "type"
 }
 
-func (dt *DumpType) Description() string {
+// revive:disable:line-length-limit This is an extended description
+func (*DumpType) Description() string {
 	return "The kinds of information that are collected from process. Supported types:\n" +
 		strings.Join(supportedDumpTypes, ", ") + "\n" +
 		"Full - The largest dump containing all memory including the module images\n" +
@@ -51,3 +51,5 @@ func (dt *DumpType) Description() string {
 		"Mini - A small dump containing module lists, thread lists, exception information and all stacks\n" +
 		"Triage - A small dump containing minimal information"
 }
+
+// revive:enable:line-length-limit
