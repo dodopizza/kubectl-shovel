@@ -84,7 +84,7 @@ func (cb *CommandBuilder) launch() error {
 			return err
 		}
 
-		events.NewCompletedEvent(outputHost)
+		events.NewCompletedEvent(filepath.Base(outputHost))
 		return nil
 	}
 
