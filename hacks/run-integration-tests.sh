@@ -6,6 +6,8 @@ flags=""
 
 if [ -z "$ci" ]; then
   flags="-parallel 1"
+else
+  flags="-parallel 4"
 fi
 
 echo "Running tests..."
