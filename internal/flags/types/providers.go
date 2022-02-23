@@ -24,7 +24,7 @@ func (p *Providers) Set(str string) error {
 	return nil
 }
 
-func (p *Providers) Description() string {
+func (*Providers) Description() string {
 	return "A comma-separated list of EventPipe providers to be enabled.\n" +
 		"These providers supplement any providers implied by --profile <profile-name>.\n" +
 		"If there's any inconsistency for a particular provider,\n" +
@@ -37,6 +37,6 @@ func (p *Providers) Description() string {
 		"https://docs.microsoft.com/en-us/dotnet/core/diagnostics/well-known-event-providers"
 }
 
-func (p *Providers) Type() string {
+func (*Providers) Type() string {
 	return "providers"
 }

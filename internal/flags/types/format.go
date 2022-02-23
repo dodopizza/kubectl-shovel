@@ -33,11 +33,11 @@ func (f *Format) Set(str string) error {
 	return nil
 }
 
-func (f *Format) Type() string {
+func (*Format) Type() string {
 	return "format"
 }
 
-func (f *Format) Description() string {
+func (*Format) Description() string {
 	return "Sets the output format for the trace file conversion. Supported formats:\n" +
 		strings.Join(supportedFormats, ", ") +
 		fmt.Sprintf(" (default \"%s\")", defaultFormat)

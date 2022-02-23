@@ -32,6 +32,7 @@ func NewGCDumpCommand() *cobra.Command {
 }
 
 // NewTraceCommand return command that start dumper with dotnet-trace tool
+// revive:disable:line-length-limit, This is an extended description
 func NewTraceCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetTrace)
 	return builder.Build(
@@ -51,6 +52,8 @@ func NewTraceCommand() *cobra.Command {
 			"\tdotnet trace convert myapp.trace --format Speedscope",
 	)
 }
+
+// revive:enable:line-length-limit
 
 // NewDumpCommand return command that start dumper with dotnet-dump tool
 func NewDumpCommand() *cobra.Command {

@@ -32,11 +32,11 @@ func (p *Profile) Set(str string) error {
 	return nil
 }
 
-func (p *Profile) Type() string {
+func (*Profile) Type() string {
 	return "profile"
 }
 
-func (p *Profile) Description() string {
+func (*Profile) Description() string {
 	return "A named pre-defined set of provider configurations that allows" +
 		"common tracing scenarios to be specified succinctly.\n" +
 		"The following profiles are available:\n" +

@@ -24,11 +24,12 @@ func (c *CLREvents) Set(str string) error {
 	return nil
 }
 
-func (c *CLREvents) Type() string {
+func (*CLREvents) Type() string {
 	return "clrevents"
 }
 
-func (c *CLREvents) Description() string {
+// revive:disable:line-length-limit This is extended description
+func (*CLREvents) Description() string {
 	return fmt.Sprintf(
 		"A list of CLR runtime provider keywords to enable separated by \"%s\" signs.\n"+
 			"This is a simple mapping that lets you specify event keywords via string aliases rather than their hex values.\n"+
@@ -36,3 +37,5 @@ func (c *CLREvents) Description() string {
 		CLREventsDelimiter,
 	)
 }
+
+// revive:enable:line-length-limit

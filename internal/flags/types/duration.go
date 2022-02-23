@@ -73,11 +73,11 @@ func (d *Duration) checkDuration() error {
 	return nil
 }
 
-func (d *Duration) Type() string {
+func (*Duration) Type() string {
 	return "duration"
 }
 
-func (d *Duration) Description() string {
+func (*Duration) Description() string {
 	return "Trace for the given timespan and then automatically stop the trace." +
 		fmt.Sprintf(
 			"Provided in the form of dd:hh:mm:ss or "+
