@@ -1,0 +1,72 @@
+# Ignores files with "GENERATED" header, similar to golint
+ignoreGeneratedHeader = false
+
+# Sets the default severity to "warning"
+severity = "error"
+
+# Sets the default failure confidence. This means that linting errors
+# with less than 0.8 confidence will be ignored.
+confidence = 0.8
+
+# Sets the error code for failures with severity "error"
+errorCode = 1
+
+# Sets the error code for failures with severity "warning"
+warningCode = 1
+
+[directive.specify-disable-reason]
+
+[rule.atomic]
+[rule.argument-limit]
+arguments = [5]
+[rule.blank-imports]
+[rule.bool-literal-in-expr]
+[rule.cognitive-complexity]
+arguments = [25]
+[rule.confusing-results]
+[rule.context-as-argument]
+[rule.context-keys-type]
+[rule.constant-logical-expr]
+[rule.cyclomatic]
+arguments = [50]
+[rule.deep-exit]
+[rule.dot-imports]
+[rule.duplicated-imports]
+[rule.empty-lines]
+[rule.empty-block]
+[rule.errorf]
+[rule.error-return]
+[rule.error-strings]
+[rule.error-naming]
+[rule.function-result-limit]
+arguments = [4]
+[rule.if-return]
+[rule.imports-blacklist]
+[rule.increment-decrement]
+[rule.indent-error-flow]
+[rule.line-length-limit]
+arguments = [120]
+[rule.max-public-structs]
+arguments = [4]
+[rule.modifies-parameter]
+[rule.modifies-value-receiver]
+[rule.package-comments]
+[rule.range]
+[rule.range-val-address]
+[rule.range-val-in-closure]
+[rule.receiver-naming]
+[rule.redefines-builtin-id]
+[rule.string-of-int]
+[rule.struct-tag]
+[rule.superfluous-else]
+[rule.time-naming]
+[rule.unexported-return]
+[rule.unnecessary-stmt]
+[rule.unreachable-code]
+[rule.unused-receiver]
+[rule.unused-parameter]
+[rule.var-declaration]
+[rule.var-naming]
+arguments = [ ["ID"] ]
+[rule.waitgroup-by-value]
+
