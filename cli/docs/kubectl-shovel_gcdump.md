@@ -50,11 +50,12 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
       --kubeconfig string              Path to the kubeconfig file to use for CLI requests.
   -n, --namespace string               If present, the namespace scope for this CLI request
   -o, --output string                  Output file (default "./output.gcdump")
+      --output-host-path string        Host folder, where will be stored artifact (default "/tmp/kubectl-shovel")
       --pod-name string                Target pod
   -p, --process-id int                 The process ID to collect the trace from (default 1)
       --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
   -s, --server string                  The address and port of the Kubernetes API server
-  -t, --store-output-on-host           Flag, indicating that output should be stored on host /tmp folder
+  -t, --store-output-on-host           Store output on node instead of downloading it locally
       --timeout timeout                Give up on collecting the GC dump if it takes longer than this many seconds.
                                        Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
                                        Will be rounded to seconds. If no unit provided defaults to seconds.

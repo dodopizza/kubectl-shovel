@@ -73,7 +73,7 @@ func (options *CommonOptions) GetFlags() *pflag.FlagSet {
 		"store-output-on-host",
 		"t",
 		options.StoreOutputOnHost,
-		"Flag, indicating that output should be stored on host instead download it locally")
+		"Store output on node instead of downloading it locally")
 
 	options.kubeConfig = genericclioptions.NewConfigFlags(false)
 	options.kubeConfig.AddFlags(fs)
