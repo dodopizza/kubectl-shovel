@@ -103,12 +103,12 @@ func Test_JobWithHostTmpVolume(t *testing.T) {
 			})
 
 			jobSpec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
-				WithHostTmpVolume()
+				WithHostTmpVolume("/tmp/testing")
 
 			volume := jobSpec.Volumes[0]
-			require.Equal(t, "hosttmp", volume.Name)
-			require.Equal(t, fmt.Sprintf("%s/%s", globals.PathTmpFolder, globals.PluginName), volume.HostPath)
-			require.Equal(t, globals.PathHostTmpFolder, volume.MountPath)
+			require.Equal(t, "hostoutput", volume.Name)
+			require.Equal(t, "/tmp/testing", volume.HostPath)
+			require.Equal(t, globals.PathHostOutputFolder, volume.MountPath)
 		})
 	}
 }
