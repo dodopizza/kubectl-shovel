@@ -61,8 +61,8 @@ func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) err
 	return nil
 }
 
-func (*CommandBuilder) storeOutputOnHost(pod *kubernetes.PodInfo, output string) error {
-	hostOutput := fmt.Sprintf("%s/%s/%s", globals.PathTmpFolder, globals.PluginName, output)
+func (cb *CommandBuilder) storeOutputOnHost(pod *kubernetes.PodInfo, output string) error {
+	hostOutput := fmt.Sprintf("%s/%s", cb.CommonOptions.OutputHostPath, output)
 	fmt.Printf("Output located on host: %s, at path: %s\n", pod.Node, hostOutput)
 	return nil
 }
@@ -96,7 +96,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	if cb.CommonOptions.StoreOutputOnHost {
-		jobSpec.WithHostTmpVolume()
+		jobSpec.WithHostTmpVolume(cb.CommonOptions.OutputHostPath)
 	}
 
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))

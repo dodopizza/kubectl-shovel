@@ -71,7 +71,7 @@ func (cb *CommandBuilder) launch() error {
 
 	if cb.CommonOptions.StoreOutputOnHost {
 		outputHost := fmt.Sprintf("%s/%s.%s.%s.%s.%s",
-			globals.PathHostTmpFolder,
+			globals.PathHostOutputFolder,
 			cb.CommonOptions.PodNamespace,
 			cb.CommonOptions.PodName,
 			cb.CommonOptions.ContainerName,
