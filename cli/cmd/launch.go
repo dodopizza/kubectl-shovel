@@ -11,6 +11,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
+	"github.com/dodopizza/kubectl-shovel/internal/utils"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
@@ -61,8 +62,8 @@ func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) err
 	return nil
 }
 
-func (*CommandBuilder) storeOutputOnHost(pod *kubernetes.PodInfo, output string) error {
-	hostOutput := fmt.Sprintf("%s/%s/%s", globals.PathTmpFolder, globals.PluginName, output)
+func (cb *CommandBuilder) storeOutputOnHost(pod *kubernetes.PodInfo, output string) error {
+	hostOutput := fmt.Sprintf("%s/%s", cb.CommonOptions.OutputHostPath, output)
 	fmt.Printf("Output located on host: %s, at path: %s\n", pod.Node, hostOutput)
 	return nil
 }
@@ -96,7 +97,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	if cb.CommonOptions.StoreOutputOnHost {
-		jobSpec.WithHostTmpVolume()
+		jobSpec.WithHostTmpVolume(cb.CommonOptions.OutputHostPath)
 	}
 
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
@@ -114,7 +115,7 @@ func (cb *CommandBuilder) launch() error {
 	if err != nil {
 		return errors.Wrap(err, "Failed to read logs from diagnostics job targetPod")
 	}
-	defer jobPodLogs.Close()
+	defer utils.Ignore(jobPodLogs.Close)
 
 	awaiter := events.NewEventAwaiter()
 	output, err := awaiter.AwaitCompletedEvent(jobPodLogs)

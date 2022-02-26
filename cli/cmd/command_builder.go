@@ -19,6 +19,7 @@ type CommonOptions struct {
 	Image             string
 	Pod               string
 	Output            string
+	OutputHostPath    string
 	StoreOutputOnHost bool
 
 	kubeConfig *genericclioptions.ConfigFlags
@@ -32,7 +33,7 @@ type CommandBuilder struct {
 }
 
 // GetFlags return FlagSet that describes generic options
-func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
+func (options *CommonOptions) GetFlags() *pflag.FlagSet {
 	fs := pflag.NewFlagSet("common", pflag.ExitOnError)
 	fs.StringVarP(
 		&options.Container,
@@ -44,7 +45,7 @@ func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 	fs.StringVar(
 		&options.Image,
 		"image",
-		globals.GetDumperImage(),
+		options.Image,
 		"Image of dumper to use for job",
 	)
 	fs.StringVar(
@@ -58,15 +59,21 @@ func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 		&options.Output,
 		"output",
 		"o",
-		fmt.Sprintf("./output.%s", tool),
+		options.Output,
 		"Output file",
+	)
+	fs.StringVar(
+		&options.OutputHostPath,
+		"output-host-path",
+		options.OutputHostPath,
+		"Host folder, where will be stored artifact",
 	)
 	fs.BoolVarP(
 		&options.StoreOutputOnHost,
 		"store-output-on-host",
 		"t",
 		options.StoreOutputOnHost,
-		"Flag, indicating that output should be stored on host /tmp folder")
+		"Store output on node instead of downloading it locally")
 
 	options.kubeConfig = genericclioptions.NewConfigFlags(false)
 	options.kubeConfig.AddFlags(fs)
@@ -75,9 +82,15 @@ func (options *CommonOptions) GetFlags(tool string) *pflag.FlagSet {
 }
 
 func NewCommandBuilder(factory flags.DotnetToolFactory) *CommandBuilder {
+	tool := factory()
+
 	return &CommandBuilder{
-		CommonOptions: &CommonOptions{},
-		tool:          factory(),
+		CommonOptions: &CommonOptions{
+			Image:          globals.GetDumperImage(),
+			Output:         fmt.Sprintf("./output.%s", tool.ToolName()),
+			OutputHostPath: fmt.Sprintf("%s/%s", globals.PathTmpFolder, globals.PluginName),
+		},
+		tool: tool,
 	}
 }
 
@@ -104,7 +117,7 @@ func (cb *CommandBuilder) Tool() string {
 
 func (cb *CommandBuilder) parse() *pflag.FlagSet {
 	fs := pflag.NewFlagSet(cb.tool.ToolName(), pflag.ExitOnError)
-	fs.AddFlagSet(cb.CommonOptions.GetFlags(cb.tool.ToolName()))
+	fs.AddFlagSet(cb.CommonOptions.GetFlags())
 	fs.AddFlagSet(cb.tool.GetFlags())
 	return fs
 }

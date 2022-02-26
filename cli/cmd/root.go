@@ -18,7 +18,6 @@ func NewShovelCommand() *cobra.Command {
 
 	cmd.AddCommand(NewDocCommand())
 	cmd.AddCommand(NewVersionCommand())
-
 	cmd.AddCommand(NewGCDumpCommand())
 	cmd.AddCommand(NewTraceCommand())
 	cmd.AddCommand(NewDumpCommand())

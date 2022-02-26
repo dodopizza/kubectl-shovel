@@ -2,7 +2,6 @@ package kubernetes
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -65,11 +64,11 @@ func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRun
 	return j
 }
 
-func (j *JobRunSpec) WithHostTmpVolume() *JobRunSpec {
+func (j *JobRunSpec) WithHostTmpVolume(path string) *JobRunSpec {
 	j.appendVolume(JobVolume{
-		Name:      "hosttmp",
-		HostPath:  fmt.Sprintf("%s/%s", globals.PathTmpFolder, globals.PluginName),
-		MountPath: globals.PathHostTmpFolder,
+		Name:      "hostoutput",
+		HostPath:  path,
+		MountPath: globals.PathHostOutputFolder,
 	})
 	return j
 }
