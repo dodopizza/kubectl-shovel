@@ -76,7 +76,7 @@ func (cb *CommandBuilder) launch() error {
 			cb.CommonOptions.PodName,
 			cb.CommonOptions.ContainerName,
 			filepath.Base(output),
-			time.Now().UTC().Format("2006-04-02-15-04-05"),
+			time.Now().UTC().Format("2006-01-02-15-04-05"),
 		)
 
 		if err := utils.MoveFile(output, outputHost); err != nil {
