@@ -11,6 +11,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
+	"github.com/dodopizza/kubectl-shovel/internal/utils"
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
@@ -114,7 +115,7 @@ func (cb *CommandBuilder) launch() error {
 	if err != nil {
 		return errors.Wrap(err, "Failed to read logs from diagnostics job targetPod")
 	}
-	defer jobPodLogs.Close()
+	defer utils.Ignore(jobPodLogs.Close)
 
 	awaiter := events.NewEventAwaiter()
 	output, err := awaiter.AwaitCompletedEvent(jobPodLogs)
