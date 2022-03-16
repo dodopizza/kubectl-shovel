@@ -14,12 +14,14 @@ const (
 	DumpTypeTriage = "Triage"
 )
 
-var supportedDumpTypes = []string{
-	DumpTypeFull,
-	DumpTypeHeap,
-	DumpTypeMini,
-	DumpTypeTriage,
-}
+var (
+	supportedDumpTypes = []string{
+		DumpTypeFull,
+		DumpTypeHeap,
+		DumpTypeMini,
+		DumpTypeTriage,
+	}
+)
 
 func (dt *DumpType) String() string {
 	return string(*dt)
