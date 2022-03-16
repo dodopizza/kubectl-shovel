@@ -42,7 +42,7 @@ func (cd *CreateDump) GetFlags() *pflag.FlagSet {
 }
 
 func (cd *CreateDump) FormatArgs(args *Args) {
-	args.AppendCommand(strconv.Itoa(cd.ProcessID))
+	args.AppendRaw(strconv.Itoa(cd.ProcessID))
 
 	if cd.Output != "" {
 		args.Append("name", cd.Output)

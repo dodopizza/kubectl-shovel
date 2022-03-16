@@ -46,7 +46,7 @@ type TestCase struct {
 
 func (tc *TestCase) FormatArgs(command string) []string {
 	args := flags.NewArgs().
-		AppendCommand(command).
+		AppendRaw(command).
 		Append("pod-name", tc.pod.Name).
 		Append("image", dumperImage)
 

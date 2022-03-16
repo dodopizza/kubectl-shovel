@@ -27,10 +27,9 @@ func (a *Args) Append(argument, value string) *Args {
 	return a
 }
 
-// AppendCommand adds command to state
-// todo: rename to AppendRaw for ex
-func (a *Args) AppendCommand(command string) *Args {
-	a.items = append(a.items, command)
+// AppendRaw adds string item to state
+func (a *Args) AppendRaw(item string) *Args {
+	a.items = append(a.items, item)
 	return a
 }
 

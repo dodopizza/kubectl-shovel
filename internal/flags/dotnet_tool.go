@@ -57,7 +57,7 @@ func (dt *DotnetToolProperties) GetFlags() *pflag.FlagSet {
 
 func (dt *DotnetToolProperties) FormatArgs(args *Args) {
 	if dt.Action != "" {
-		args.AppendCommand(dt.Action)
+		args.AppendRaw(dt.Action)
 	}
 
 	args.Append("process-id", strconv.Itoa(dt.ProcessID))

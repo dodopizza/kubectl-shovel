@@ -38,7 +38,7 @@ func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.Co
 		Append("container-name", container.Name).
 		Append("pod-name", pod.Name).
 		Append("pod-namespace", pod.Namespace).
-		AppendCommand(cb.tool.ToolName()).
+		AppendRaw(cb.tool.ToolName()).
 		AppendFrom(cb.tool).
 		Get()
 }
