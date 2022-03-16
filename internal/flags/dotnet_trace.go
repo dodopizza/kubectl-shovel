@@ -117,7 +117,3 @@ func (*DotnetTrace) BinaryName() string {
 func (*DotnetTrace) ToolName() string {
 	return "trace"
 }
-
-func (t *DotnetTrace) GetProperties() DotnetToolFlags {
-	return t.DotnetToolProperties
-}

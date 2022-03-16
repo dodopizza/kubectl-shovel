@@ -71,7 +71,3 @@ func (*CreateDump) BinaryName() string {
 func (*CreateDump) ToolName() string {
 	return "full-dump"
 }
-
-func (cd *CreateDump) GetProperties() DotnetToolFlags {
-	return cd
-}

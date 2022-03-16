@@ -22,9 +22,6 @@ type DotnetTool interface {
 	DotnetToolFlags
 	BinaryName() string
 	ToolName() string
-
-	// todo: remove this unused method
-	GetProperties() DotnetToolFlags
 }
 
 type DotnetToolProperties struct {

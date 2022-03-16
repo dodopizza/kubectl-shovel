@@ -48,7 +48,3 @@ func (*DotnetGCDump) BinaryName() string {
 func (*DotnetGCDump) ToolName() string {
 	return "gcdump"
 }
-
-func (gc *DotnetGCDump) GetProperties() DotnetToolFlags {
-	return gc.DotnetToolProperties
-}

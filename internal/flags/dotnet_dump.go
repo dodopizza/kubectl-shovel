@@ -57,7 +57,3 @@ func (*DotnetDump) BinaryName() string {
 func (*DotnetDump) ToolName() string {
 	return "dump"
 }
-
-func (d *DotnetDump) GetProperties() DotnetToolFlags {
-	return d.DotnetToolProperties
-}
