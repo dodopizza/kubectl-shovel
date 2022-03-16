@@ -9,14 +9,16 @@ import (
 
 func Test_CreateDumpFlagSetBinary(t *testing.T) {
 	testCases := []struct {
-		name    string
-		args    []string
-		expArgs []string
+		name          string
+		args          []string
+		expArgsTool   []string
+		expArgsBinary []string
 	}{
 		{
-			name: "Defaults",
-			args: []string{},
-			expArgs: []string{
+			name:        "Defaults",
+			args:        []string{},
+			expArgsTool: []string{"--process-id", "1"},
+			expArgsBinary: []string{
 				"1",
 			},
 		},
@@ -25,7 +27,8 @@ func Test_CreateDumpFlagSetBinary(t *testing.T) {
 			args: []string{
 				"--process-id", "5",
 			},
-			expArgs: []string{
+			expArgsTool: []string{"--process-id", "5"},
+			expArgsBinary: []string{
 				"5",
 			},
 		},
@@ -33,16 +36,23 @@ func Test_CreateDumpFlagSetBinary(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			args := NewArgs()
 			tool := NewCreateDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			flagSet.AddFlagSet(tool.GetFlags())
 
+			// require no error for parsing
 			err := flagSet.Parse(tc.args)
-			tool.FormatArgs(args, FormatArgsTypeBinary)
-
 			require.NoError(t, err)
-			require.Equal(t, tc.expArgs, args.Get())
+
+			// format args for tool
+			args := NewArgs()
+			tool.FormatArgs(args, FormatArgsTypeTool)
+			require.Equal(t, tc.expArgsTool, args.Get())
+
+			// format args for binary
+			args = NewArgs()
+			tool.FormatArgs(args, FormatArgsTypeBinary)
+			require.Equal(t, tc.expArgsBinary, args.Get())
 		})
 	}
 }

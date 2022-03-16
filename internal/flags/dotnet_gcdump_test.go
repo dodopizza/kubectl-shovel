@@ -84,16 +84,23 @@ func Test_GCDumpFlagSet(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			args := NewArgs()
 			tool := NewDotnetGCDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			flagSet.AddFlagSet(tool.GetFlags())
 
+			// require no error for parsing
 			err := flagSet.Parse(tc.args)
-			tool.FormatArgs(args, FormatArgsTypeTool)
-
 			require.NoError(t, err)
+
+			// format args for tool
+			args := NewArgs()
+			tool.FormatArgs(args, FormatArgsTypeTool)
 			require.Equal(t, tc.expArgs, args.Get())
+
+			// format args for binary
+			args = NewArgs()
+			tool.FormatArgs(args, FormatArgsTypeBinary)
+			require.Equal(t, append([]string{"collect"}, tc.expArgs...), args.Get())
 		})
 	}
 }
