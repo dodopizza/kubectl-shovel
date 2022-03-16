@@ -24,7 +24,7 @@ func NewDotnetDump() DotnetTool {
 }
 
 func (d *DotnetDump) GetFlags() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet("dotnet-dump", pflag.ExitOnError)
+	flagSet := pflag.NewFlagSet(d.BinaryName(), pflag.ExitOnError)
 	flagSet.AddFlagSet(d.DotnetToolProperties.GetFlags())
 	flagSet.BoolVar(
 		&d.Diagnostics,

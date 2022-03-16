@@ -18,22 +18,39 @@ type CreateDump struct {
 func NewCreateDump() DotnetTool {
 	return &CreateDump{
 		ProcessID: 1,
-		Output:    "/tmp/coredump.%p",
 	}
 }
 
 func (cd *CreateDump) GetFlags() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet(cd.BinaryName(), pflag.ExitOnError)
+	flagSet.IntVarP(
+		&cd.ProcessID,
+		"process-id",
+		"p",
+		cd.ProcessID,
+		"The process ID to collect the trace from",
+	)
+	flagSet.StringVarP(
+		&cd.Output,
+		"output",
+		"o",
+		cd.Output,
+		"Output file",
+	)
+	cd.flagSet = flagSet
 	return cd.flagSet
 }
 
 func (cd *CreateDump) FormatArgs(args *Args) {
-	args.
-		AppendCommand(strconv.Itoa(cd.ProcessID)).
-		Append("name", cd.Output)
+	args.AppendCommand(strconv.Itoa(cd.ProcessID))
+
+	if cd.Output != "" {
+		args.Append("name", cd.Output)
+	}
 }
 
 func (cd *CreateDump) SetAction(_ string) DotnetToolFlags {
-	// omit action here because of create dump is not a dotnet tool
+	// omit action usage here because of create dump is not a dotnet tool (it's a runtime tool)
 	return cd
 }
 
