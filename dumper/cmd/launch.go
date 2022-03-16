@@ -40,11 +40,21 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 
-	// if we do not set proper file extension dotnet tools will do it anyway
 	// write output file to /tmp, because it's available in target and worker pods
 	output := fmt.Sprintf("%s/output.%s", globals.PathTmpFolder, cb.tool.ToolName())
-	args := flags.NewArgs()
 	cb.tool.SetOutput(output)
+
+	// resolve host process id and set for privileged commands
+	if cb.tool.IsPrivileged() {
+		processID, err := container.GetHostProcessID()
+		if err != nil {
+			events.NewErrorEvent(err, "unable to find process id")
+			return err
+		}
+		cb.tool.SetProcessID(processID)
+	}
+
+	args := flags.NewArgs()
 	cb.tool.FormatArgs(args, flags.FormatArgsTypeBinary)
 
 	events.NewStatusEvent(

@@ -12,7 +12,7 @@ type Args struct {
 // NewArgs returns new instance with empty arguments
 func NewArgs() *Args {
 	return &Args{
-		items: make([]string, 0),
+		items: []string{},
 	}
 }
 

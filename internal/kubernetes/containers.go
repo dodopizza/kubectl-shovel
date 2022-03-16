@@ -20,8 +20,9 @@ type ContainerInfo struct {
 }
 
 type containerConfig struct {
-	RootFS string
-	Mounts []containerMount
+	HostProcessID int
+	RootFS        string
+	Mounts        []containerMount
 }
 
 type containerMount struct {
@@ -63,6 +64,16 @@ func (c *ContainerInfo) GetTmpSource() (string, error) {
 	}
 
 	return fmt.Sprintf("%s%s", config.RootFS, globals.PathTmpFolder), nil
+}
+
+// GetHostProcessID returns container's process id, relative to host
+func (c *ContainerInfo) GetHostProcessID() (int, error) {
+	config, err := c.config()
+	if err != nil {
+		return 0, err
+	}
+
+	return config.HostProcessID, nil
 }
 
 // GetContainerFSVolume returns JobVolume (mounted from host) that contains container definitions,
@@ -121,6 +132,9 @@ func (c *ContainerInfo) dockerConfig() (*containerConfig, error) {
 	}
 
 	state := &struct {
+		State struct {
+			Pid int `json:"Pid"`
+		} `json:"State"`
 		MountPoints map[string]struct {
 			Source      string `json:"Source"`
 			Destination string `json:"Destination"`
@@ -139,8 +153,9 @@ func (c *ContainerInfo) dockerConfig() (*containerConfig, error) {
 	}
 
 	return &containerConfig{
-		RootFS: fmt.Sprintf("%s/overlay2/%s/merged", globals.PathDockerFS, mountId),
-		Mounts: mounts,
+		HostProcessID: state.State.Pid,
+		RootFS:        fmt.Sprintf("%s/overlay2/%s/merged", globals.PathDockerFS, mountId),
+		Mounts:        mounts,
 	}, nil
 }
 
@@ -151,7 +166,8 @@ func (c *ContainerInfo) containerdConfig() (*containerConfig, error) {
 	}
 
 	state := &struct {
-		Config struct {
+		InitProcessPID int `json:"init_process_pid"`
+		Config         struct {
 			RootFS string `json:"rootfs"`
 			Mounts []struct {
 				Source      string `json:"source"`
@@ -173,8 +189,9 @@ func (c *ContainerInfo) containerdConfig() (*containerConfig, error) {
 	}
 
 	return &containerConfig{
-		RootFS: state.Config.RootFS,
-		Mounts: mounts,
+		HostProcessID: state.InitProcessPID,
+		RootFS:        state.Config.RootFS,
+		Mounts:        mounts,
 	}, nil
 }
 
