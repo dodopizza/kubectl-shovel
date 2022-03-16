@@ -34,8 +34,8 @@ func (gc *gcdump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (gc *gcdump) FormatArgs(args *Args) {
-	gc.DotnetToolSharedOptions.FormatArgs(args)
+func (gc *gcdump) FormatArgs(args *Args, t FormatArgsType) {
+	gc.DotnetToolSharedOptions.FormatArgs(args, t)
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args.AppendFlag(&gc.Timeout)
 	}

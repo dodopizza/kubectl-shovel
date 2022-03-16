@@ -29,84 +29,84 @@ func NewDotnetTrace() DotnetTool {
 	}
 }
 
-func (t *trace) GetFlags() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet(t.BinaryName(), pflag.ExitOnError)
-	flagSet.AddFlagSet(t.DotnetToolSharedOptions.GetFlags())
+func (tr *trace) GetFlags() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet(tr.BinaryName(), pflag.ExitOnError)
+	flagSet.AddFlagSet(tr.DotnetToolSharedOptions.GetFlags())
 	flagSet.IntVar(
-		&t.BufferSize,
+		&tr.BufferSize,
 		"buffersize",
-		t.BufferSize,
+		tr.BufferSize,
 		"Sets the size of the in-memory circular buffer, in megabytes",
 	)
 
 	flagSet.Var(
-		&t.CLREventLevel,
-		t.CLREventLevel.Type(),
-		t.CLREventLevel.Description(),
+		&tr.CLREventLevel,
+		tr.CLREventLevel.Type(),
+		tr.CLREventLevel.Description(),
 	)
 
 	flagSet.Var(
-		&t.CLREvents,
-		t.CLREvents.Type(),
-		t.CLREvents.Description(),
+		&tr.CLREvents,
+		tr.CLREvents.Type(),
+		tr.CLREvents.Description(),
 	)
 
-	t.Duration = types.Duration(types.DefaultDuration)
+	tr.Duration = types.Duration(types.DefaultDuration)
 	flagSet.Var(
-		&t.Duration,
-		t.Duration.Type(),
-		t.Duration.Description(),
-	)
-
-	flagSet.Var(
-		&t.Format,
-		t.Format.Type(),
-		t.Format.Description(),
+		&tr.Duration,
+		tr.Duration.Type(),
+		tr.Duration.Description(),
 	)
 
 	flagSet.Var(
-		&t.Profile,
-		t.Profile.Type(),
-		t.Profile.Description(),
+		&tr.Format,
+		tr.Format.Type(),
+		tr.Format.Description(),
 	)
 
 	flagSet.Var(
-		&t.Providers,
-		t.Providers.Type(),
-		t.Providers.Description(),
+		&tr.Profile,
+		tr.Profile.Type(),
+		tr.Profile.Description(),
 	)
 
-	t.flagSet = flagSet
+	flagSet.Var(
+		&tr.Providers,
+		tr.Providers.Type(),
+		tr.Providers.Description(),
+	)
+
+	tr.flagSet = flagSet
 	return flagSet
 }
 
-func (t *trace) FormatArgs(args *Args) {
-	t.DotnetToolSharedOptions.FormatArgs(args)
+func (tr *trace) FormatArgs(args *Args, t FormatArgsType) {
+	tr.DotnetToolSharedOptions.FormatArgs(args, t)
 
-	if t.flagSet.Changed("buffersize") {
-		args.Append("buffersize", strconv.Itoa(t.BufferSize))
+	if tr.flagSet.Changed("buffersize") {
+		args.Append("buffersize", strconv.Itoa(tr.BufferSize))
 	}
 
-	if t.flagSet.Changed(t.CLREventLevel.Type()) {
-		args.AppendFlag(&t.CLREventLevel)
+	if tr.flagSet.Changed(tr.CLREventLevel.Type()) {
+		args.AppendFlag(&tr.CLREventLevel)
 	}
 
-	if t.flagSet.Changed(t.CLREvents.Type()) {
-		args.AppendFlag(&t.CLREvents)
+	if tr.flagSet.Changed(tr.CLREvents.Type()) {
+		args.AppendFlag(&tr.CLREvents)
 	}
 
-	args.AppendFlag(&t.Duration)
+	args.AppendFlag(&tr.Duration)
 
-	if t.flagSet.Changed(t.Format.Type()) {
-		args.AppendFlag(&t.Format)
+	if tr.flagSet.Changed(tr.Format.Type()) {
+		args.AppendFlag(&tr.Format)
 	}
 
-	if t.flagSet.Changed(t.Profile.Type()) {
-		args.AppendFlag(&t.Profile)
+	if tr.flagSet.Changed(tr.Profile.Type()) {
+		args.AppendFlag(&tr.Profile)
 	}
 
-	if t.flagSet.Changed(t.Providers.Type()) {
-		args.AppendFlag(&t.Providers)
+	if tr.flagSet.Changed(tr.Providers.Type()) {
+		args.AppendFlag(&tr.Providers)
 	}
 }
 

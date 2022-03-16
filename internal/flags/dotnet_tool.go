@@ -6,7 +6,13 @@ import (
 	"github.com/spf13/pflag"
 )
 
+const (
+	FormatArgsTypeBinary = FormatArgsType("binary")
+	FormatArgsTypeTool   = FormatArgsType("tool")
+)
+
 type DotnetToolFactory func() DotnetTool
+type FormatArgsType string
 
 type DotnetTool interface {
 	DotnetToolFlagsFormatter
@@ -15,9 +21,8 @@ type DotnetTool interface {
 }
 
 type DotnetToolFlagsFormatter interface {
-	FormatArgs(a *Args)
+	FormatArgs(args *Args, t FormatArgsType)
 	GetFlags() *pflag.FlagSet
-	SetAction(action string)
 	SetOutput(output string)
 	SetProcessID(id int)
 }
@@ -53,9 +58,10 @@ func (dt *DotnetToolSharedOptions) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dt *DotnetToolSharedOptions) FormatArgs(args *Args) {
-	if dt.Action != "" {
-		args.AppendRaw(dt.Action)
+func (dt *DotnetToolSharedOptions) FormatArgs(args *Args, t FormatArgsType) {
+	// append command (collect) for binary execution
+	if t == FormatArgsTypeBinary {
+		args.AppendRaw("collect")
 	}
 
 	args.Append("process-id", strconv.Itoa(dt.ProcessID))
@@ -63,10 +69,6 @@ func (dt *DotnetToolSharedOptions) FormatArgs(args *Args) {
 	if dt.Output != "" {
 		args.Append("output", dt.Output)
 	}
-}
-
-func (dt *DotnetToolSharedOptions) SetAction(action string) {
-	dt.Action = action
 }
 
 func (dt *DotnetToolSharedOptions) SetOutput(output string) {

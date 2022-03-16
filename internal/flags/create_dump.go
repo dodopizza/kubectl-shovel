@@ -21,7 +21,7 @@ func NewCreateDump() DotnetTool {
 	}
 }
 
-func (cd *createdump) FormatArgs(args *Args) {
+func (cd *createdump) FormatArgs(args *Args, _ FormatArgsType) {
 	args.AppendRaw(strconv.Itoa(cd.ProcessID))
 
 	if cd.Output != "" {

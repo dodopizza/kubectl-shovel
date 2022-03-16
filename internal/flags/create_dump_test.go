@@ -39,7 +39,7 @@ func Test_CreateDumpFlagSet(t *testing.T) {
 			flagSet.AddFlagSet(tool.GetFlags())
 
 			err := flagSet.Parse(tc.args)
-			tool.FormatArgs(args)
+			tool.FormatArgs(args, FormatArgsTypeTool)
 
 			require.NoError(t, err)
 			require.Equal(t, tc.expArgs, args.Get())

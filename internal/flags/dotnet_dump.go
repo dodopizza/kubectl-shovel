@@ -42,8 +42,8 @@ func (d *dump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (d *dump) FormatArgs(args *Args) {
-	d.DotnetToolSharedOptions.FormatArgs(args)
+func (d *dump) FormatArgs(args *Args, t FormatArgsType) {
+	d.DotnetToolSharedOptions.FormatArgs(args, t)
 	if d.flagSet.Changed("diag") {
 		args.AppendKey("diag")
 	}
