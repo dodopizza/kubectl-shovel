@@ -14,71 +14,39 @@ func Test_GCDumpFlagSet(t *testing.T) {
 		expArgs []string
 	}{
 		{
-			name: "Defaults",
-			args: []string{},
-			expArgs: []string{
-				"--process-id", "1",
-			},
+			name:    "Defaults",
+			args:    []string{},
+			expArgs: []string{"--process-id", "1"},
 		},
 		{
-			name: "Override process ID",
-			args: []string{
-				"--process-id", "5",
-			},
-			expArgs: []string{
-				"--process-id", "5",
-			},
+			name:    "Override process ID",
+			args:    []string{"--process-id", "5"},
+			expArgs: []string{"--process-id", "5"},
 		},
 		{
-			name: "Override timeout",
-			args: []string{
-				"--timeout", "120",
-			},
-			expArgs: []string{
-				"--process-id", "1",
-				"--timeout", "120",
-			},
+			name:    "Override timeout",
+			args:    []string{"--timeout", "120"},
+			expArgs: []string{"--process-id", "1", "--timeout", "120"},
 		},
 		{
-			name: "Override timeout in seconds",
-			args: []string{
-				"--timeout", "120s",
-			},
-			expArgs: []string{
-				"--process-id", "1",
-				"--timeout", "120",
-			},
+			name:    "Override timeout in seconds",
+			args:    []string{"--timeout", "120s"},
+			expArgs: []string{"--process-id", "1", "--timeout", "120"},
 		},
 		{
-			name: "Override timeout in minutes",
-			args: []string{
-				"--timeout", "2m",
-			},
-			expArgs: []string{
-				"--process-id", "1",
-				"--timeout", "120",
-			},
+			name:    "Override timeout in minutes",
+			args:    []string{"--timeout", "2m"},
+			expArgs: []string{"--process-id", "1", "--timeout", "120"},
 		},
 		{
-			name: "Override timeout with milliseconds",
-			args: []string{
-				"--timeout", "60s50ms",
-			},
-			expArgs: []string{
-				"--process-id", "1",
-				"--timeout", "60",
-			},
+			name:    "Override timeout with milliseconds",
+			args:    []string{"--timeout", "60s50ms"},
+			expArgs: []string{"--process-id", "1", "--timeout", "60"},
 		},
 		{
-			name: "Override timeout and process id",
-			args: []string{
-				"--process-id", "5",
-				"--timeout", "10m",
-			},
-			expArgs: []string{
-				"--process-id", "5",
-				"--timeout", "600",
-			},
+			name:    "Override timeout and process id",
+			args:    []string{"--process-id", "5", "--timeout", "10m"},
+			expArgs: []string{"--process-id", "5", "--timeout", "600"},
 		},
 	}
 
@@ -112,33 +80,23 @@ func Test_GCDumpFlagSet_Errors(t *testing.T) {
 	}{
 		{
 			name: "Bad process ID",
-			args: []string{
-				"--process-id", "a",
-			},
+			args: []string{"--process-id", "a"},
 		},
 		{
 			name: "Empty process ID",
-			args: []string{
-				"--process-id", "",
-			},
+			args: []string{"--process-id", ""},
 		},
 		{
 			name: "Bad timeout",
-			args: []string{
-				"--timeout", "abc",
-			},
+			args: []string{"--timeout", "abc"},
 		},
 		{
 			name: "Low timeout",
-			args: []string{
-				"--timeout", "5ms",
-			},
+			args: []string{"--timeout", "5ms"},
 		},
 		{
 			name: "Empty timeout",
-			args: []string{
-				"--timeout", "",
-			},
+			args: []string{"--timeout", ""},
 		},
 	}
 

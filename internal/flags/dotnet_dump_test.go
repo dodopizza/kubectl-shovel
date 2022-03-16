@@ -14,43 +14,24 @@ func Test_DumpFlagSet(t *testing.T) {
 		expArgs []string
 	}{
 		{
-			name: "Defaults",
-			args: []string{},
-			expArgs: []string{
-				"--process-id", "1",
-				"--type", "Full",
-			},
+			name:    "Defaults",
+			args:    []string{},
+			expArgs: []string{"--process-id", "1", "--type", "Full"},
 		},
 		{
-			name: "Override process ID",
-			args: []string{
-				"--process-id", "5",
-			},
-			expArgs: []string{
-				"--process-id", "5",
-				"--type", "Full",
-			},
+			name:    "Override process ID",
+			args:    []string{"--process-id", "5"},
+			expArgs: []string{"--process-id", "5", "--type", "Full"},
 		},
 		{
-			name: "Override Type",
-			args: []string{
-				"--type", "Heap",
-			},
-			expArgs: []string{
-				"--process-id", "1",
-				"--type", "Heap",
-			},
+			name:    "Override Type",
+			args:    []string{"--type", "Heap"},
+			expArgs: []string{"--process-id", "1", "--type", "Heap"},
 		},
 		{
-			name: "Override Diagnostics",
-			args: []string{
-				"--diag",
-			},
-			expArgs: []string{
-				"--process-id", "1",
-				"--diag",
-				"--type", "Full",
-			},
+			name:    "Override Diagnostics",
+			args:    []string{"--diag"},
+			expArgs: []string{"--process-id", "1", "--diag", "--type", "Full"},
 		},
 	}
 
@@ -84,21 +65,15 @@ func Test_DumpFlagSet_Errors(t *testing.T) {
 	}{
 		{
 			name: "Bad process ID",
-			args: []string{
-				"--process-id", "a",
-			},
+			args: []string{"--process-id", "a"},
 		},
 		{
 			name: "Empty process ID",
-			args: []string{
-				"--process-id", "",
-			},
+			args: []string{"--process-id", ""},
 		},
 		{
 			name: "Bad Type",
-			args: []string{
-				"--type", "invalid",
-			},
+			args: []string{"--type", "invalid"},
 		},
 	}
 

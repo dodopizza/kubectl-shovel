@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_CoreDumpFlagSetBinary(t *testing.T) {
+func Test_CoreDumpFlagSet(t *testing.T) {
 	testCases := []struct {
 		name          string
 		args          []string
@@ -15,22 +15,22 @@ func Test_CoreDumpFlagSetBinary(t *testing.T) {
 		expArgsBinary []string
 	}{
 		{
-			name:        "Defaults",
-			args:        []string{},
-			expArgsTool: []string{"--process-id", "1"},
-			expArgsBinary: []string{
-				"1",
-			},
+			name:          "Defaults",
+			args:          []string{},
+			expArgsTool:   []string{"--process-id", "1", "--type", "Full"},
+			expArgsBinary: []string{"1", "--full"},
 		},
 		{
-			name: "Override process ID",
-			args: []string{
-				"--process-id", "5",
-			},
-			expArgsTool: []string{"--process-id", "5"},
-			expArgsBinary: []string{
-				"5",
-			},
+			name:          "Override process ID",
+			args:          []string{"--process-id", "5"},
+			expArgsTool:   []string{"--process-id", "5", "--type", "Full"},
+			expArgsBinary: []string{"5", "--full"},
+		},
+		{
+			name:          "Override dump type",
+			args:          []string{"--type", "Triage"},
+			expArgsTool:   []string{"--process-id", "1", "--type", "Triage"},
+			expArgsBinary: []string{"1", "--triage"},
 		},
 	}
 
@@ -57,46 +57,6 @@ func Test_CoreDumpFlagSetBinary(t *testing.T) {
 	}
 }
 
-func Test_CoreDumpFlagSetTool(t *testing.T) {
-	testCases := []struct {
-		name    string
-		args    []string
-		expArgs []string
-	}{
-		{
-			name: "Defaults",
-			args: []string{},
-			expArgs: []string{
-				"--process-id", "1",
-			},
-		},
-		{
-			name: "Override process ID",
-			args: []string{
-				"--process-id", "5",
-			},
-			expArgs: []string{
-				"--process-id", "5",
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			args := NewArgs()
-			tool := NewCoreDump()
-			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			flagSet.AddFlagSet(tool.GetFlags())
-
-			err := flagSet.Parse(tc.args)
-			tool.FormatArgs(args, FormatArgsTypeTool)
-
-			require.NoError(t, err)
-			require.Equal(t, tc.expArgs, args.Get())
-		})
-	}
-}
-
 func Test_CoreDumpFlagSet_Errors(t *testing.T) {
 	testCases := []struct {
 		name string
@@ -104,15 +64,15 @@ func Test_CoreDumpFlagSet_Errors(t *testing.T) {
 	}{
 		{
 			name: "Bad process ID",
-			args: []string{
-				"--process-id", "a",
-			},
+			args: []string{"--process-id", "a"},
 		},
 		{
 			name: "Empty process ID",
-			args: []string{
-				"--process-id", "",
-			},
+			args: []string{"--process-id", ""},
+		},
+		{
+			name: "Bad type",
+			args: []string{"--type", "invalid"},
 		},
 	}
 
