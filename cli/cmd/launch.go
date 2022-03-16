@@ -34,13 +34,14 @@ func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.Co
 		args.AppendKey("store-output-on-host")
 	}
 
-	return args.
+	args.
 		Append("container-name", container.Name).
 		Append("pod-name", pod.Name).
 		Append("pod-namespace", pod.Namespace).
-		AppendRaw(cb.tool.ToolName()).
-		AppendFrom(cb.tool).
-		Get()
+		AppendRaw(cb.tool.ToolName())
+	cb.tool.FormatArgs(args)
+
+	return args.Get()
 }
 
 func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) error {

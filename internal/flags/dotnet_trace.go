@@ -81,7 +81,7 @@ func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
 }
 
 func (t *DotnetTrace) FormatArgs(args *Args) {
-	args.AppendFrom(t.DotnetToolProperties)
+	t.DotnetToolProperties.FormatArgs(args)
 
 	if t.flagSet.Changed("buffersize") {
 		args.Append("buffersize", strconv.Itoa(t.BufferSize))

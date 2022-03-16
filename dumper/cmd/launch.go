@@ -43,12 +43,11 @@ func (cb *CommandBuilder) launch() error {
 	// if we do not set proper file extension dotnet tools will do it anyway
 	// write output file to /tmp, because it's available in target and worker pods
 	output := fmt.Sprintf("%s/output.%s", globals.PathTmpFolder, cb.tool.ToolName())
+	args := flags.NewArgs()
 	cb.tool.
 		SetAction("collect").
-		SetOutput(output)
-	args := flags.
-		NewArgs().
-		AppendFrom(cb.tool)
+		SetOutput(output).
+		FormatArgs(args)
 
 	events.NewStatusEvent(
 		fmt.Sprintf("Running command: %s %s",

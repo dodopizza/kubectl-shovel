@@ -35,7 +35,7 @@ func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
 }
 
 func (gc *DotnetGCDump) FormatArgs(args *Args) {
-	args.AppendFrom(gc.DotnetToolProperties)
+	gc.DotnetToolProperties.FormatArgs(args)
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args.AppendFlag(&gc.Timeout)
 	}

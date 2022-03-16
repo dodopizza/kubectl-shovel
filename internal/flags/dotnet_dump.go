@@ -43,7 +43,7 @@ func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 }
 
 func (d *DotnetDump) FormatArgs(args *Args) {
-	args.AppendFrom(d.DotnetToolProperties)
+	d.DotnetToolProperties.FormatArgs(args)
 	if d.flagSet.Changed("diag") {
 		args.AppendKey("diag")
 	}

@@ -56,12 +56,16 @@ func Test_DumpFlagSet(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			args := NewArgs()
+			tool := NewDotnetDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			dump := NewDotnetDump()
-			flagSet.AddFlagSet(dump.GetFlags())
+			flagSet.AddFlagSet(tool.GetFlags())
 
-			require.NoError(t, flagSet.Parse(tc.args))
-			require.Equal(t, tc.expArgs, NewArgs().AppendFrom(dump).Get())
+			err := flagSet.Parse(tc.args)
+			tool.FormatArgs(args)
+
+			require.NoError(t, err)
+			require.Equal(t, tc.expArgs, args.Get())
 		})
 	}
 }

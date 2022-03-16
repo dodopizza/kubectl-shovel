@@ -9,10 +9,8 @@ import (
 type DotnetToolFactory func() DotnetTool
 
 type DotnetToolFlags interface {
-	Formatter
+	FormatArgs(a *Args)
 	GetFlags() *pflag.FlagSet
-
-	// todo: consider to remove action
 	SetAction(action string) DotnetToolFlags
 	SetOutput(output string) DotnetToolFlags
 	SetProcessID(id int) DotnetToolFlags

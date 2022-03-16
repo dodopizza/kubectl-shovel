@@ -84,12 +84,16 @@ func Test_GCDumpFlagSet(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			args := NewArgs()
+			tool := NewDotnetGCDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewDotnetGCDump()
-			flagSet.AddFlagSet(gc.GetFlags())
+			flagSet.AddFlagSet(tool.GetFlags())
 
-			require.NoError(t, flagSet.Parse(tc.args))
-			require.Equal(t, tc.expArgs, NewArgs().AppendFrom(gc).Get())
+			err := flagSet.Parse(tc.args)
+			tool.FormatArgs(args)
+
+			require.NoError(t, err)
+			require.Equal(t, tc.expArgs, args.Get())
 		})
 	}
 }

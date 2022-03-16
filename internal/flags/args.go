@@ -4,11 +4,6 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// Formatter describes interface that support formatting with Args
-type Formatter interface {
-	FormatArgs(a *Args)
-}
-
 // Args contains cli argument state
 type Args struct {
 	items []string
@@ -36,12 +31,6 @@ func (a *Args) AppendRaw(item string) *Args {
 // AppendKey adds argument --argument without value to state
 func (a *Args) AppendKey(argument string) *Args {
 	a.items = append(a.items, "--"+argument)
-	return a
-}
-
-// AppendFrom adds arguments from specified Formatter
-func (a *Args) AppendFrom(f Formatter) *Args {
-	f.FormatArgs(a)
 	return a
 }
 
