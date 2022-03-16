@@ -17,6 +17,8 @@ var (
 		"\tkubectl shovel %[1]s --pod-name my-app-65c4fc589c-gznql -n default"
 )
 
+// revive:disable:line-length-limit, This file contains an extended descriptions for commands
+
 // NewGCDumpCommand return command that start dumper with dotnet-gcdump tool
 func NewGCDumpCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetGCDump)
@@ -32,7 +34,6 @@ func NewGCDumpCommand() *cobra.Command {
 }
 
 // NewTraceCommand return command that start dumper with dotnet-trace tool
-// revive:disable:line-length-limit, This is an extended description
 func NewTraceCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetTrace)
 	return builder.Build(
@@ -53,8 +54,6 @@ func NewTraceCommand() *cobra.Command {
 	)
 }
 
-// revive:enable:line-length-limit
-
 // NewDumpCommand return command that start dumper with dotnet-dump tool
 func NewDumpCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetDump)
@@ -68,3 +67,14 @@ func NewDumpCommand() *cobra.Command {
 		fmt.Sprintf(examplesTemplate, builder.Tool()),
 	)
 }
+
+// NewCreateDumpCommand return command that start full process dump with createdump tool
+func NewCreateDumpCommand() *cobra.Command {
+	builder := NewCommandBuilder(flags.NewCreateDump)
+	return builder.Build(
+		"Get full process dump results",
+		"This subcommand",
+		fmt.Sprintf(examplesTemplate, builder.Tool()))
+}
+
+// revive:enable:line-length-limit
