@@ -23,6 +23,9 @@ lint:
 tidy:
 	go mod tidy -v
 
+.PHONY: build
+build: build-cli build-dumper
+
 .PHONY: build-cli
 build-cli:
 	go build -v -o ./cli/bin/kubectl-shovel ./cli
@@ -65,6 +68,7 @@ help:
 	@echo "  ${YELLOW}doc                       ${RESET} Run doc generation"
 	@echo "  ${YELLOW}lint                      ${RESET} Run linters via golangci-lint"
 	@echo "  ${YELLOW}tidy                      ${RESET} Run tidy for go module to remove unused dependencies"
+	@echo "  ${YELLOW}build                     ${RESET} Build all components"
 	@echo "  ${YELLOW}build-cli                 ${RESET} Build cli component of shovel"
 	@echo "  ${YELLOW}build-dumper              ${RESET} Build dumper component of shovel"
 	@echo "  ${YELLOW}setup                     ${RESET} Setup local environment. Create kind cluster"
