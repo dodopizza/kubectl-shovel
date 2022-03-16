@@ -8,33 +8,37 @@ import (
 
 type DotnetToolFactory func() DotnetTool
 
-type DotnetToolFlags interface {
-	FormatArgs(a *Args)
-	GetFlags() *pflag.FlagSet
-	SetAction(action string) DotnetToolFlags
-	SetOutput(output string) DotnetToolFlags
-	SetProcessID(id int) DotnetToolFlags
-}
-
 type DotnetTool interface {
-	DotnetToolFlags
+	DotnetToolOptions
+	DotnetToolFlagsFormatter
 	BinaryName() string
 	ToolName() string
 }
 
-type DotnetToolProperties struct {
+type DotnetToolFlagsFormatter interface {
+	FormatArgs(a *Args)
+	GetFlags() *pflag.FlagSet
+}
+
+type DotnetToolOptions interface {
+	SetAction(action string)
+	SetOutput(output string)
+	SetProcessID(id int)
+}
+
+type DotnetToolSharedOptions struct {
 	Action    string
 	Output    string
 	ProcessID int
 }
 
-func NewDotnetToolProperties() *DotnetToolProperties {
-	return &DotnetToolProperties{
+func NewDotnetToolProperties() *DotnetToolSharedOptions {
+	return &DotnetToolSharedOptions{
 		ProcessID: 1,
 	}
 }
 
-func (dt *DotnetToolProperties) GetFlags() *pflag.FlagSet {
+func (dt *DotnetToolSharedOptions) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-tools", pflag.ExitOnError)
 	flagSet.IntVarP(
 		&dt.ProcessID,
@@ -53,7 +57,7 @@ func (dt *DotnetToolProperties) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dt *DotnetToolProperties) FormatArgs(args *Args) {
+func (dt *DotnetToolSharedOptions) FormatArgs(args *Args) {
 	if dt.Action != "" {
 		args.AppendRaw(dt.Action)
 	}
@@ -65,17 +69,14 @@ func (dt *DotnetToolProperties) FormatArgs(args *Args) {
 	}
 }
 
-func (dt *DotnetToolProperties) SetAction(action string) DotnetToolFlags {
+func (dt *DotnetToolSharedOptions) SetAction(action string) {
 	dt.Action = action
-	return dt
 }
 
-func (dt *DotnetToolProperties) SetOutput(output string) DotnetToolFlags {
+func (dt *DotnetToolSharedOptions) SetOutput(output string) {
 	dt.Output = output
-	return dt
 }
 
-func (dt *DotnetToolProperties) SetProcessID(id int) DotnetToolFlags {
+func (dt *DotnetToolSharedOptions) SetProcessID(id int) {
 	dt.ProcessID = id
-	return dt
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type DotnetDump struct {
-	*DotnetToolProperties
+	*DotnetToolSharedOptions
 
 	Diagnostics bool
 	Type        types.DumpType
@@ -17,15 +17,15 @@ type DotnetDump struct {
 
 func NewDotnetDump() DotnetTool {
 	return &DotnetDump{
-		DotnetToolProperties: NewDotnetToolProperties(),
-		Diagnostics:          false,
-		Type:                 types.DumpTypeFull,
+		DotnetToolSharedOptions: NewDotnetToolProperties(),
+		Diagnostics:             false,
+		Type:                    types.DumpTypeFull,
 	}
 }
 
 func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(d.BinaryName(), pflag.ExitOnError)
-	flagSet.AddFlagSet(d.DotnetToolProperties.GetFlags())
+	flagSet.AddFlagSet(d.DotnetToolSharedOptions.GetFlags())
 	flagSet.BoolVar(
 		&d.Diagnostics,
 		"diag",
@@ -43,7 +43,7 @@ func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 }
 
 func (d *DotnetDump) FormatArgs(args *Args) {
-	d.DotnetToolProperties.FormatArgs(args)
+	d.DotnetToolSharedOptions.FormatArgs(args)
 	if d.flagSet.Changed("diag") {
 		args.AppendKey("diag")
 	}

@@ -12,7 +12,8 @@ import (
 type CreateDump struct {
 	ProcessID int
 	Output    string
-	flagSet   *pflag.FlagSet
+
+	flagSet *pflag.FlagSet
 }
 
 func NewCreateDump() DotnetTool {
@@ -49,19 +50,16 @@ func (cd *CreateDump) FormatArgs(args *Args) {
 	}
 }
 
-func (cd *CreateDump) SetAction(_ string) DotnetToolFlags {
+func (*CreateDump) SetAction(_ string) {
 	// omit action usage here because of create dump is not a dotnet tool (it's a runtime tool)
-	return cd
 }
 
-func (cd *CreateDump) SetOutput(output string) DotnetToolFlags {
+func (cd *CreateDump) SetOutput(output string) {
 	cd.Output = output
-	return cd
 }
 
-func (cd *CreateDump) SetProcessID(processID int) DotnetToolFlags {
+func (cd *CreateDump) SetProcessID(processID int) {
 	cd.ProcessID = processID
-	return cd
 }
 
 func (*CreateDump) BinaryName() string {

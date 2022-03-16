@@ -9,7 +9,7 @@ import (
 )
 
 type DotnetTrace struct {
-	*DotnetToolProperties
+	*DotnetToolSharedOptions
 
 	BufferSize    int
 	CLREventLevel types.CLREventLevel
@@ -24,14 +24,14 @@ type DotnetTrace struct {
 
 func NewDotnetTrace() DotnetTool {
 	return &DotnetTrace{
-		DotnetToolProperties: NewDotnetToolProperties(),
-		BufferSize:           256,
+		DotnetToolSharedOptions: NewDotnetToolProperties(),
+		BufferSize:              256,
 	}
 }
 
 func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(t.BinaryName(), pflag.ExitOnError)
-	flagSet.AddFlagSet(t.DotnetToolProperties.GetFlags())
+	flagSet.AddFlagSet(t.DotnetToolSharedOptions.GetFlags())
 	flagSet.IntVar(
 		&t.BufferSize,
 		"buffersize",
@@ -81,7 +81,7 @@ func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
 }
 
 func (t *DotnetTrace) FormatArgs(args *Args) {
-	t.DotnetToolProperties.FormatArgs(args)
+	t.DotnetToolSharedOptions.FormatArgs(args)
 
 	if t.flagSet.Changed("buffersize") {
 		args.Append("buffersize", strconv.Itoa(t.BufferSize))

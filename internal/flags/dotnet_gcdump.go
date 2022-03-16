@@ -7,7 +7,7 @@ import (
 )
 
 type DotnetGCDump struct {
-	*DotnetToolProperties
+	*DotnetToolSharedOptions
 
 	Timeout types.Timeout
 
@@ -16,14 +16,14 @@ type DotnetGCDump struct {
 
 func NewDotnetGCDump() DotnetTool {
 	return &DotnetGCDump{
-		DotnetToolProperties: NewDotnetToolProperties(),
-		Timeout:              30,
+		DotnetToolSharedOptions: NewDotnetToolProperties(),
+		Timeout:                 30,
 	}
 }
 
 func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(gc.BinaryName(), pflag.ExitOnError)
-	flagSet.AddFlagSet(gc.DotnetToolProperties.GetFlags())
+	flagSet.AddFlagSet(gc.DotnetToolSharedOptions.GetFlags())
 	flagSet.Var(
 		&gc.Timeout,
 		gc.Timeout.Type(),
@@ -35,7 +35,7 @@ func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
 }
 
 func (gc *DotnetGCDump) FormatArgs(args *Args) {
-	gc.DotnetToolProperties.FormatArgs(args)
+	gc.DotnetToolSharedOptions.FormatArgs(args)
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args.AppendFlag(&gc.Timeout)
 	}
