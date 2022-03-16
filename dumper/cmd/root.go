@@ -13,12 +13,12 @@ func NewDumperCommand() *cobra.Command {
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
 	}
-	cmd.
-		PersistentFlags().
+	cmd.PersistentFlags().
 		AddFlagSet(options.GetFlags())
 	cmd.AddCommand(NewGCDumpCommand(options))
 	cmd.AddCommand(NewTraceCommand(options))
 	cmd.AddCommand(NewDumpCommand(options))
+	cmd.AddCommand(NewCreateDumpCommand(options))
 
 	return cmd
 }
