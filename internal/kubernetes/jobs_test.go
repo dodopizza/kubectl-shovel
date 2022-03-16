@@ -5,16 +5,32 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"
 
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
+var (
+	jobName      = fmt.Sprintf("%s-suffix", globals.PluginName)
+	jobNamespace = "shovel-namespace"
+)
+
+func requireJobSpecMatches(t *testing.T, spec *JobRunSpec, job *batch.Job) {
+	require.Equal(t, jobName, job.Name)
+	require.Equal(t, jobNamespace, job.Namespace)
+	require.Equal(t, spec.Selectors, job.Labels)
+	require.Equal(t, spec.Node, job.Spec.Template.Spec.NodeName)
+	require.Equal(t, 1, len(job.Spec.Template.Spec.Containers))
+	require.Equal(t, globals.PluginName, job.Spec.Template.Spec.Containers[0].Name)
+	require.Equal(t, spec.Args, job.Spec.Template.Spec.Containers[0].Args)
+	require.Equal(t, spec.Image, job.Spec.Template.Spec.Containers[0].Image)
+}
+
 func Test_NewRunJobSpec(t *testing.T) {
 	generator = func() string {
 		return "suffix"
 	}
-	expJobName := fmt.Sprintf("%s-suffix", globals.PluginName)
 	testCases := []struct {
 		args      []string
 		image     string
@@ -36,18 +52,16 @@ func Test_NewRunJobSpec(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			jobSpec := NewJobRunSpec(tc.args, tc.image, tc.pod)
+			spec := NewJobRunSpec(tc.args, tc.image, tc.pod)
 
-			require.Equal(t, expJobName, jobSpec.Name)
-			require.Equal(t, tc.args, jobSpec.Args)
-			require.Equal(t, tc.image, jobSpec.Image)
-			require.Equal(t, tc.pod.Node, jobSpec.Node)
-			require.Equal(t, map[string]string{"job-name": expJobName}, jobSpec.Selectors)
+			job := spec.Build(jobNamespace)
+
+			requireJobSpecMatches(t, spec, job)
 		})
 	}
 }
 
-func Test_JobWithVolume(t *testing.T) {
+func Test_JobRunSpecWithContainerFSVolumes(t *testing.T) {
 	testCases := []struct {
 		name      string
 		container ContainerInfo
@@ -73,42 +87,59 @@ func Test_JobWithVolume(t *testing.T) {
 				},
 			})
 
-			jobSpec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
+			spec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
 				WithContainerFSVolume(&tc.container).
 				WithContainerMountsVolume(&tc.container)
+			job := spec.Build(jobNamespace)
 
-			require.Equal(t, tc.expCount, len(jobSpec.volumes()))
-			require.Equal(t, tc.expCount, len(jobSpec.mounts()))
+			requireJobSpecMatches(t, spec, job)
+			require.Equal(t, tc.expCount, len(job.Spec.Template.Spec.Volumes))
+			require.Equal(t, tc.expCount, len(job.Spec.Template.Spec.Containers[0].VolumeMounts))
 		})
 	}
 }
 
-func Test_JobWithHostTmpVolume(t *testing.T) {
-	testCases := []struct {
-		name      string
-		container ContainerInfo
-	}{
-		{
-			name:      "Host tmp volumes added",
-			container: *NewContainerInfoRaw("containerd", ""),
+func Test_JobRunSpecWithHostTmpVolume(t *testing.T) {
+	pod := NewPodInfo(&core.Pod{
+		Spec: core.PodSpec{
+			NodeName: "node",
 		},
-	}
+	})
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			pod := NewPodInfo(&core.Pod{
-				Spec: core.PodSpec{
-					NodeName: "node",
-				},
-			})
+	spec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
+		WithHostTmpVolume("/tmp/testing")
+	job := spec.Build(jobNamespace)
 
-			jobSpec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
-				WithHostTmpVolume("/tmp/testing")
+	requireJobSpecMatches(t, spec, job)
+	require.Equal(t, 1, len(job.Spec.Template.Spec.Volumes))
+	require.Equal(t, 1, len(job.Spec.Template.Spec.Containers[0].VolumeMounts))
+	require.Equal(t, "hostoutput", job.Spec.Template.Spec.Volumes[0].Name)
+	require.Equal(t, "/tmp/testing", job.Spec.Template.Spec.Volumes[0].HostPath.Path)
+	require.Equal(t, globals.PathHostOutputFolder, job.Spec.Template.Spec.Containers[0].VolumeMounts[0].MountPath)
+}
 
-			volume := jobSpec.Volumes[0]
-			require.Equal(t, "hostoutput", volume.Name)
-			require.Equal(t, "/tmp/testing", volume.HostPath)
-			require.Equal(t, globals.PathHostOutputFolder, volume.MountPath)
-		})
-	}
+func Test_JobRunSpecWithPrivileged(t *testing.T) {
+	pod := NewPodInfo(&core.Pod{
+		Spec: core.PodSpec{
+			NodeName: "node",
+		},
+	})
+
+	spec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
+		WithHostProcVolume().
+		WithPrivilegedOptions()
+	job := spec.Build(jobNamespace)
+
+	requireJobSpecMatches(t, spec, job)
+	require.Equal(t, 1, len(job.Spec.Template.Spec.Volumes))
+	require.Equal(t, 1, len(job.Spec.Template.Spec.Containers[0].VolumeMounts))
+	require.Equal(t, "hostproc", job.Spec.Template.Spec.Volumes[0].Name)
+	require.Equal(t, globals.PathHostProcFolder, job.Spec.Template.Spec.Volumes[0].HostPath.Path)
+	require.Equal(t, globals.PathHostProcFolder, job.Spec.Template.Spec.Containers[0].VolumeMounts[0].MountPath)
+	require.NotEqual(t, nil, job.Spec.Template.Spec.Containers[0].SecurityContext)
+	require.Equal(t, true, *job.Spec.Template.Spec.Containers[0].SecurityContext.Privileged)
+	require.Equal(t,
+		[]core.Capability{"SYS_PTRACE"},
+		job.Spec.Template.Spec.Containers[0].SecurityContext.Capabilities.Add)
+	require.Equal(t, true, job.Spec.Template.Spec.HostPID)
 }

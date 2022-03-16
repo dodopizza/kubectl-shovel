@@ -91,6 +91,52 @@ func (j *JobRunSpec) WithHostTmpVolume(path string) *JobRunSpec {
 	return j
 }
 
+// Build returns resulted batch.Job spec from JobRunSpec options
+func (j *JobRunSpec) Build(namespace string) *batch.Job {
+	metaSpec := meta.ObjectMeta{
+		Name:      j.Name,
+		Namespace: namespace,
+		Labels:    j.Selectors,
+	}
+
+	return &batch.Job{
+		TypeMeta: meta.TypeMeta{
+			Kind:       "Job",
+			APIVersion: "batch/v1",
+		},
+		ObjectMeta: metaSpec,
+		Spec: batch.JobSpec{
+			Parallelism:             int32Ptr(1),
+			Completions:             int32Ptr(1),
+			TTLSecondsAfterFinished: int32Ptr(5),
+			BackoffLimit:            int32Ptr(0),
+			Template: core.PodTemplateSpec{
+				ObjectMeta: metaSpec,
+				Spec: core.PodSpec{
+					Volumes:        j.volumes(),
+					InitContainers: nil,
+					Containers: []core.Container{
+						{
+							ImagePullPolicy:          core.PullIfNotPresent,
+							Name:                     globals.PluginName,
+							Image:                    j.Image,
+							TTY:                      true,
+							Stdin:                    true,
+							Args:                     j.Args,
+							VolumeMounts:             j.mounts(),
+							TerminationMessagePolicy: core.TerminationMessageFallbackToLogsOnError,
+							SecurityContext:          j.securityContext(),
+						},
+					},
+					HostPID:       j.Privileged,
+					RestartPolicy: "Never",
+					NodeName:      j.Node,
+				},
+			},
+		},
+	}
+}
+
 func (j *JobRunSpec) appendVolume(item JobVolume) {
 	// ignore any duplicates by host path
 	for _, volume := range j.Volumes {
@@ -143,48 +189,7 @@ func (j *JobRunSpec) securityContext() *core.SecurityContext {
 
 // RunJob will run job with specified parameters
 func (k8s *Client) RunJob(spec *JobRunSpec) error {
-	commonMeta := meta.ObjectMeta{
-		Name:      spec.Name,
-		Namespace: k8s.Namespace,
-		Labels:    spec.Selectors,
-	}
-
-	job := &batch.Job{
-		TypeMeta: meta.TypeMeta{
-			Kind:       "Job",
-			APIVersion: "batch/v1",
-		},
-		ObjectMeta: commonMeta,
-		Spec: batch.JobSpec{
-			Parallelism:             int32Ptr(1),
-			Completions:             int32Ptr(1),
-			TTLSecondsAfterFinished: int32Ptr(5),
-			BackoffLimit:            int32Ptr(0),
-			Template: core.PodTemplateSpec{
-				ObjectMeta: commonMeta,
-				Spec: core.PodSpec{
-					Volumes:        spec.volumes(),
-					InitContainers: nil,
-					Containers: []core.Container{
-						{
-							ImagePullPolicy:          core.PullIfNotPresent,
-							Name:                     globals.PluginName,
-							Image:                    spec.Image,
-							TTY:                      true,
-							Stdin:                    true,
-							Args:                     spec.Args,
-							VolumeMounts:             spec.mounts(),
-							TerminationMessagePolicy: core.TerminationMessageFallbackToLogsOnError,
-							SecurityContext:          spec.securityContext(),
-						},
-					},
-					HostPID:       spec.Privileged,
-					RestartPolicy: "Never",
-					NodeName:      spec.Node,
-				},
-			},
-		},
-	}
+	job := spec.Build(k8s.Namespace)
 
 	_, err := k8s.
 		BatchV1().
