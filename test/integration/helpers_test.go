@@ -21,6 +21,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
@@ -44,18 +45,18 @@ type TestCase struct {
 }
 
 func (tc *TestCase) FormatArgs(command string) []string {
-	result := []string{command}
-
-	result = append(result, "--pod-name", tc.pod.Name)
-	result = append(result, "--image", dumperImage)
+	args := flags.NewArgs().
+		AppendCommand(command).
+		Append("pod-name", tc.pod.Name).
+		Append("image", dumperImage)
 
 	if tc.hostOutput {
-		result = append(result, "--store-output-on-host")
+		args.AppendKey("store-output-on-host")
 	} else {
-		result = append(result, "--output", tc.output)
+		args.Append("output", tc.output)
 	}
 
-	return append(result, tc.args...)
+	return args.Get()
 }
 
 func newTestKubeClient() *kubernetes.Client {
