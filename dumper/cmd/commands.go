@@ -21,7 +21,7 @@ func NewDumpCommand(commonOptions *CommonOptions) *cobra.Command {
 	return NewCommandBuilder(commonOptions, flags.NewDotnetDump).Build()
 }
 
-// NewCreateDumpCommand return command that perform createdump on target process
-func NewCreateDumpCommand(commonOptions *CommonOptions) *cobra.Command {
-	return NewCommandBuilder(commonOptions, flags.NewCreateDump).Build()
+// NewCoreDumpCommand return command that perform createdump on target process
+func NewCoreDumpCommand(commonOptions *CommonOptions) *cobra.Command {
+	return NewCommandBuilder(commonOptions, flags.NewCoreDump).Build()
 }

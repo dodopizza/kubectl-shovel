@@ -144,9 +144,9 @@ func Test_GCDumpFlagSet_Errors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			tool := NewDotnetGCDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			gc := NewDotnetGCDump()
-			flagSet.AddFlagSet(gc.GetFlags())
+			flagSet.AddFlagSet(tool.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))
 		})

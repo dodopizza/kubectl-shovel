@@ -12,15 +12,15 @@ import (
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
 
-func Test_CreateDumpSubcommand(t *testing.T) {
+func Test_CoreDumpSubcommand(t *testing.T) {
 	testCases := cases()
 
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			teardown := setup(t, &tc, "full-dump-test")
+			teardown := setup(t, &tc, "coredump-test")
 			defer teardown()
-			args := tc.FormatArgs("full-dump")
+			args := tc.FormatArgs("coredump")
 			shovel := cmd.NewShovelCommand()
 			shovel.SetArgs(args)
 

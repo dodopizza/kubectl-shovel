@@ -325,9 +325,9 @@ func Test_TraceFlagSet_Errors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			tool := NewDotnetTrace()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			trace := NewDotnetTrace()
-			flagSet.AddFlagSet(trace.GetFlags())
+			flagSet.AddFlagSet(tool.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))
 		})

@@ -62,9 +62,9 @@ func NewDumpCommand() *cobra.Command {
 	)
 }
 
-// NewCreateDumpCommand return command that start full process dump with createdump tool
-func NewCreateDumpCommand() *cobra.Command {
-	builder := NewCommandBuilder(flags.NewCreateDump)
+// NewCoreDumpCommand return command that start full process dump with createdump tool
+func NewCoreDumpCommand() *cobra.Command {
+	builder := NewCommandBuilder(flags.NewCoreDump)
 	return builder.Build(
 		"Get full process dump results",
 		fmt.Sprintf(descriptionTemplate,

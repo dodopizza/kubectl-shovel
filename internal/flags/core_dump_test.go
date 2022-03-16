@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_CreateDumpFlagSetBinary(t *testing.T) {
+func Test_CoreDumpFlagSetBinary(t *testing.T) {
 	testCases := []struct {
 		name          string
 		args          []string
@@ -36,7 +36,7 @@ func Test_CreateDumpFlagSetBinary(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			tool := NewCreateDump()
+			tool := NewCoreDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			flagSet.AddFlagSet(tool.GetFlags())
 
@@ -57,7 +57,7 @@ func Test_CreateDumpFlagSetBinary(t *testing.T) {
 	}
 }
 
-func Test_CreateDumpFlagSetTool(t *testing.T) {
+func Test_CoreDumpFlagSetTool(t *testing.T) {
 	testCases := []struct {
 		name    string
 		args    []string
@@ -84,7 +84,7 @@ func Test_CreateDumpFlagSetTool(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			args := NewArgs()
-			tool := NewCreateDump()
+			tool := NewCoreDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
 			flagSet.AddFlagSet(tool.GetFlags())
 
@@ -97,7 +97,7 @@ func Test_CreateDumpFlagSetTool(t *testing.T) {
 	}
 }
 
-func Test_CreateDumpFlagSet_Errors(t *testing.T) {
+func Test_CoreDumpFlagSet_Errors(t *testing.T) {
 	testCases := []struct {
 		name string
 		args []string
@@ -118,9 +118,9 @@ func Test_CreateDumpFlagSet_Errors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			tool := NewCoreDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			createdump := NewCreateDump()
-			flagSet.AddFlagSet(createdump.GetFlags())
+			flagSet.AddFlagSet(tool.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))
 		})

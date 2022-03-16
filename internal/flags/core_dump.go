@@ -7,21 +7,19 @@ import (
 // todo: add optional flags support:
 // https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/botr/xplat-minidump-generation.md
 
-// todo: rename to coredump
-
-type createdump struct {
+type coredump struct {
 	*DotnetToolSharedOptions
 }
 
-func NewCreateDump() DotnetTool {
-	return &createdump{
+func NewCoreDump() DotnetTool {
+	return &coredump{
 		DotnetToolSharedOptions: NewDotnetToolSharedOptions(),
 	}
 }
 
-func (cd *createdump) FormatArgs(args *Args, t FormatArgsType) {
-	// preserve same args for all available commands
-	// but format correct args for binary execution
+func (cd *coredump) FormatArgs(args *Args, t FormatArgsType) {
+	// preserve same args interface for all available commands
+	// but format correct args for binary
 
 	if t == FormatArgsTypeTool {
 		cd.DotnetToolSharedOptions.FormatArgs(args, t)
@@ -35,14 +33,14 @@ func (cd *createdump) FormatArgs(args *Args, t FormatArgsType) {
 	}
 }
 
-func (*createdump) BinaryName() string {
+func (*coredump) BinaryName() string {
 	return "createdump"
 }
 
-func (*createdump) ToolName() string {
-	return "full-dump"
+func (*coredump) ToolName() string {
+	return "coredump"
 }
 
-func (*createdump) IsPrivileged() bool {
+func (*coredump) IsPrivileged() bool {
 	return true
 }

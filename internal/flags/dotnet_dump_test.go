@@ -104,9 +104,9 @@ func Test_DumpFlagSet_Errors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			tool := NewDotnetDump()
 			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
-			dump := NewDotnetDump()
-			flagSet.AddFlagSet(dump.GetFlags())
+			flagSet.AddFlagSet(tool.GetFlags())
 
 			require.Error(t, flagSet.Parse(tc.args))
 		})

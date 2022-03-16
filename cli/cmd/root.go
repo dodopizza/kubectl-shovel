@@ -21,7 +21,7 @@ func NewShovelCommand() *cobra.Command {
 	cmd.AddCommand(NewGCDumpCommand())
 	cmd.AddCommand(NewTraceCommand())
 	cmd.AddCommand(NewDumpCommand())
-	cmd.AddCommand(NewCreateDumpCommand())
+	cmd.AddCommand(NewCoreDumpCommand())
 
 	return cmd
 }

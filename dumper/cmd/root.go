@@ -18,7 +18,7 @@ func NewDumperCommand() *cobra.Command {
 	cmd.AddCommand(NewGCDumpCommand(options))
 	cmd.AddCommand(NewTraceCommand(options))
 	cmd.AddCommand(NewDumpCommand(options))
-	cmd.AddCommand(NewCreateDumpCommand(options))
+	cmd.AddCommand(NewCoreDumpCommand(options))
 
 	return cmd
 }
