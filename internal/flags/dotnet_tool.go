@@ -9,7 +9,6 @@ import (
 type DotnetToolFactory func() DotnetTool
 
 type DotnetTool interface {
-	DotnetToolOptions
 	DotnetToolFlagsFormatter
 	BinaryName() string
 	ToolName() string
@@ -18,9 +17,6 @@ type DotnetTool interface {
 type DotnetToolFlagsFormatter interface {
 	FormatArgs(a *Args)
 	GetFlags() *pflag.FlagSet
-}
-
-type DotnetToolOptions interface {
 	SetAction(action string)
 	SetOutput(output string)
 	SetProcessID(id int)
@@ -32,7 +28,7 @@ type DotnetToolSharedOptions struct {
 	ProcessID int
 }
 
-func NewDotnetToolProperties() *DotnetToolSharedOptions {
+func NewDotnetToolSharedOptions() *DotnetToolSharedOptions {
 	return &DotnetToolSharedOptions{
 		ProcessID: 1,
 	}

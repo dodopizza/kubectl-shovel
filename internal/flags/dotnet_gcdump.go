@@ -16,7 +16,7 @@ type gcdump struct {
 
 func NewDotnetGCDump() DotnetTool {
 	return &gcdump{
-		DotnetToolSharedOptions: NewDotnetToolProperties(),
+		DotnetToolSharedOptions: NewDotnetToolSharedOptions(),
 		Timeout:                 30,
 	}
 }

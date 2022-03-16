@@ -24,7 +24,7 @@ type trace struct {
 
 func NewDotnetTrace() DotnetTool {
 	return &trace{
-		DotnetToolSharedOptions: NewDotnetToolProperties(),
+		DotnetToolSharedOptions: NewDotnetToolSharedOptions(),
 		BufferSize:              256,
 	}
 }

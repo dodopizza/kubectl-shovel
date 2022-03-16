@@ -17,7 +17,7 @@ type dump struct {
 
 func NewDotnetDump() DotnetTool {
 	return &dump{
-		DotnetToolSharedOptions: NewDotnetToolProperties(),
+		DotnetToolSharedOptions: NewDotnetToolSharedOptions(),
 		Diagnostics:             false,
 		Type:                    types.DumpTypeFull,
 	}
