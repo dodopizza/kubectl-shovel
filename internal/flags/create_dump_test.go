@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_CreateDumpFlagSet(t *testing.T) {
+func Test_CreateDumpFlagSetBinary(t *testing.T) {
 	testCases := []struct {
 		name    string
 		args    []string
@@ -27,6 +27,46 @@ func Test_CreateDumpFlagSet(t *testing.T) {
 			},
 			expArgs: []string{
 				"5",
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			args := NewArgs()
+			tool := NewCreateDump()
+			flagSet := pflag.NewFlagSet("test", pflag.ContinueOnError)
+			flagSet.AddFlagSet(tool.GetFlags())
+
+			err := flagSet.Parse(tc.args)
+			tool.FormatArgs(args, FormatArgsTypeBinary)
+
+			require.NoError(t, err)
+			require.Equal(t, tc.expArgs, args.Get())
+		})
+	}
+}
+
+func Test_CreateDumpFlagSetTool(t *testing.T) {
+	testCases := []struct {
+		name    string
+		args    []string
+		expArgs []string
+	}{
+		{
+			name: "Defaults",
+			args: []string{},
+			expArgs: []string{
+				"--process-id", "1",
+			},
+		},
+		{
+			name: "Override process ID",
+			args: []string{
+				"--process-id", "5",
+			},
+			expArgs: []string{
+				"--process-id", "5",
 			},
 		},
 	}

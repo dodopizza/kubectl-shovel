@@ -2,8 +2,6 @@ package flags
 
 import (
 	"strconv"
-
-	"github.com/spf13/pflag"
 )
 
 // todo: add optional flags support:
@@ -11,8 +9,6 @@ import (
 
 type createdump struct {
 	*DotnetToolSharedOptions
-
-	flagSet *pflag.FlagSet
 }
 
 func NewCreateDump() DotnetTool {
@@ -21,7 +17,15 @@ func NewCreateDump() DotnetTool {
 	}
 }
 
-func (cd *createdump) FormatArgs(args *Args, _ FormatArgsType) {
+func (cd *createdump) FormatArgs(args *Args, t FormatArgsType) {
+	// preserve same args for all available commands
+	// but format correct args for binary execution
+
+	if t == FormatArgsTypeTool {
+		cd.DotnetToolSharedOptions.FormatArgs(args, t)
+		return
+	}
+
 	args.AppendRaw(strconv.Itoa(cd.ProcessID))
 
 	if cd.Output != "" {
