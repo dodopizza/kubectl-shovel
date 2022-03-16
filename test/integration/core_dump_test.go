@@ -13,7 +13,15 @@ import (
 )
 
 func Test_CoreDumpSubcommand(t *testing.T) {
-	testCases := cases()
+	testCases := cases(
+		TestCase{
+			name: "Custom type",
+			args: map[string]string{
+				"type": "Heap",
+			},
+			pod: singleContainerPod(),
+		},
+	)
 
 	for _, tc := range testCases {
 		tc := tc
