@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type DotnetTrace struct {
+type trace struct {
 	*DotnetToolSharedOptions
 
 	BufferSize    int
@@ -23,13 +23,13 @@ type DotnetTrace struct {
 }
 
 func NewDotnetTrace() DotnetTool {
-	return &DotnetTrace{
+	return &trace{
 		DotnetToolSharedOptions: NewDotnetToolProperties(),
 		BufferSize:              256,
 	}
 }
 
-func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
+func (t *trace) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(t.BinaryName(), pflag.ExitOnError)
 	flagSet.AddFlagSet(t.DotnetToolSharedOptions.GetFlags())
 	flagSet.IntVar(
@@ -80,7 +80,7 @@ func (t *DotnetTrace) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (t *DotnetTrace) FormatArgs(args *Args) {
+func (t *trace) FormatArgs(args *Args) {
 	t.DotnetToolSharedOptions.FormatArgs(args)
 
 	if t.flagSet.Changed("buffersize") {
@@ -110,10 +110,10 @@ func (t *DotnetTrace) FormatArgs(args *Args) {
 	}
 }
 
-func (*DotnetTrace) BinaryName() string {
+func (*trace) BinaryName() string {
 	return "dotnet-trace"
 }
 
-func (*DotnetTrace) ToolName() string {
+func (*trace) ToolName() string {
 	return "trace"
 }

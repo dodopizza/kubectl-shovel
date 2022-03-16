@@ -6,7 +6,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 )
 
-type DotnetGCDump struct {
+type gcdump struct {
 	*DotnetToolSharedOptions
 
 	Timeout types.Timeout
@@ -15,13 +15,13 @@ type DotnetGCDump struct {
 }
 
 func NewDotnetGCDump() DotnetTool {
-	return &DotnetGCDump{
+	return &gcdump{
 		DotnetToolSharedOptions: NewDotnetToolProperties(),
 		Timeout:                 30,
 	}
 }
 
-func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
+func (gc *gcdump) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(gc.BinaryName(), pflag.ExitOnError)
 	flagSet.AddFlagSet(gc.DotnetToolSharedOptions.GetFlags())
 	flagSet.Var(
@@ -34,17 +34,17 @@ func (gc *DotnetGCDump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (gc *DotnetGCDump) FormatArgs(args *Args) {
+func (gc *gcdump) FormatArgs(args *Args) {
 	gc.DotnetToolSharedOptions.FormatArgs(args)
 	if gc.flagSet.Changed(gc.Timeout.Type()) {
 		args.AppendFlag(&gc.Timeout)
 	}
 }
 
-func (*DotnetGCDump) BinaryName() string {
+func (*gcdump) BinaryName() string {
 	return "dotnet-gcdump"
 }
 
-func (*DotnetGCDump) ToolName() string {
+func (*gcdump) ToolName() string {
 	return "gcdump"
 }

@@ -9,7 +9,7 @@ import (
 // todo: add optional flags support:
 // https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/botr/xplat-minidump-generation.md
 
-type CreateDump struct {
+type createdump struct {
 	ProcessID int
 	Output    string
 
@@ -17,12 +17,12 @@ type CreateDump struct {
 }
 
 func NewCreateDump() DotnetTool {
-	return &CreateDump{
+	return &createdump{
 		ProcessID: 1,
 	}
 }
 
-func (cd *CreateDump) GetFlags() *pflag.FlagSet {
+func (cd *createdump) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet(cd.BinaryName(), pflag.ExitOnError)
 	flagSet.IntVarP(
 		&cd.ProcessID,
@@ -42,7 +42,7 @@ func (cd *CreateDump) GetFlags() *pflag.FlagSet {
 	return cd.flagSet
 }
 
-func (cd *CreateDump) FormatArgs(args *Args) {
+func (cd *createdump) FormatArgs(args *Args) {
 	args.AppendRaw(strconv.Itoa(cd.ProcessID))
 
 	if cd.Output != "" {
@@ -50,22 +50,22 @@ func (cd *CreateDump) FormatArgs(args *Args) {
 	}
 }
 
-func (*CreateDump) SetAction(_ string) {
+func (*createdump) SetAction(_ string) {
 	// omit action usage here because of create dump is not a dotnet tool (it's a runtime tool)
 }
 
-func (cd *CreateDump) SetOutput(output string) {
+func (cd *createdump) SetOutput(output string) {
 	cd.Output = output
 }
 
-func (cd *CreateDump) SetProcessID(processID int) {
+func (cd *createdump) SetProcessID(processID int) {
 	cd.ProcessID = processID
 }
 
-func (*CreateDump) BinaryName() string {
+func (*createdump) BinaryName() string {
 	return "createdump"
 }
 
-func (*CreateDump) ToolName() string {
+func (*createdump) ToolName() string {
 	return "full-dump"
 }
