@@ -16,6 +16,7 @@ type DotnetTool interface {
 	DotnetToolFlagsFormatter
 	BinaryName() string
 	ToolName() string
+	IsPrivileged() bool
 }
 
 type DotnetToolFlagsFormatter interface {

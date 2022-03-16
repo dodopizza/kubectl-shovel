@@ -57,3 +57,7 @@ func (dt *DotnetToolSharedOptions) SetOutput(output string) {
 func (dt *DotnetToolSharedOptions) SetProcessID(id int) {
 	dt.ProcessID = id
 }
+
+func (*DotnetToolSharedOptions) IsPrivileged() bool {
+	return false
+}
