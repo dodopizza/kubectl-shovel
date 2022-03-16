@@ -101,6 +101,13 @@ func (cb *CommandBuilder) launch() error {
 		jobSpec.WithHostTmpVolume(cb.CommonOptions.OutputHostPath)
 	}
 
+	// additional spec for privileged tool command
+	if cb.tool.IsPrivileged() {
+		jobSpec.
+			WithPrivilegedOptions().
+			WithHostProcVolume()
+	}
+
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
 	if err := cb.kube.RunJob(jobSpec); err != nil {
 		return errors.Wrap(err, "Failed to spawn diagnostics job")

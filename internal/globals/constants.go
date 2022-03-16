@@ -5,14 +5,18 @@ import (
 )
 
 const (
-	PluginName            = "kubectl-shovel"
-	DumperImageName       = "dodopizza/kubectl-shovel-dumper"
-	PathTmpFolder         = "/tmp"
-	PathHostOutputFolder  = "/host-output"
+	PluginName      = "kubectl-shovel"
+	DumperImageName = "dodopizza/kubectl-shovel-dumper"
+
+	PathTmpFolder        = "/tmp"
+	PathHostOutputFolder = "/host-output"
+	PathHostProcFolder   = "/proc"
+
 	PathContainerDFS      = "/run/containerd"
 	PathContainerDVolumes = "/var/lib/kubelet/pods"
-	PathDockerFS          = "/var/lib/docker"
-	PathDockerVolumes     = PathDockerFS
+
+	PathDockerFS      = "/var/lib/docker"
+	PathDockerVolumes = PathDockerFS
 )
 
 func GetDumperImage() string {

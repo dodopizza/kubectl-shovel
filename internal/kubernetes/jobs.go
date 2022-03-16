@@ -20,12 +20,13 @@ var (
 
 // JobRunSpec is helper struct to describe job spec customization
 type JobRunSpec struct {
-	Args      []string
-	Image     string
-	Name      string
-	Node      string
-	Selectors map[string]string
-	Volumes   []JobVolume
+	Args       []string
+	Image      string
+	Name       string
+	Node       string
+	Privileged bool
+	Selectors  map[string]string
+	Volumes    []JobVolume
 }
 
 // JobVolume is helper struct to describe job volume customization
@@ -52,6 +53,12 @@ func NewJobRunSpec(args []string, image string, pod *PodInfo) *JobRunSpec {
 	}
 }
 
+// WithPrivilegedOptions adds core.SecurityContext to with SYS_PTRACE capability to core.JobSpec
+func (j *JobRunSpec) WithPrivilegedOptions() *JobRunSpec {
+	j.Privileged = true
+	return j
+}
+
 // WithContainerFSVolume add host volume that used to store container file system volumes
 func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec {
 	j.appendVolume(container.GetContainerFSVolume())
@@ -64,6 +71,17 @@ func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRun
 	return j
 }
 
+// WithHostProcVolume adds host volume that used to locate target process memory sections
+func (j *JobRunSpec) WithHostProcVolume() *JobRunSpec {
+	j.appendVolume(JobVolume{
+		Name:      "hostproc",
+		HostPath:  globals.PathHostProcFolder,
+		MountPath: globals.PathHostProcFolder,
+	})
+	return j
+}
+
+// WithHostTmpVolume add host /tmp volume that used to store output
 func (j *JobRunSpec) WithHostTmpVolume(path string) *JobRunSpec {
 	j.appendVolume(JobVolume{
 		Name:      "hostoutput",
@@ -110,6 +128,19 @@ func (j *JobRunSpec) mounts() []core.VolumeMount {
 	return volumeMounts
 }
 
+func (j *JobRunSpec) securityContext() *core.SecurityContext {
+	if !j.Privileged {
+		return nil
+	}
+
+	return &core.SecurityContext{
+		Capabilities: &core.Capabilities{
+			Add: []core.Capability{"SYS_PTRACE"},
+		},
+		Privileged: boolPtr(true),
+	}
+}
+
 // RunJob will run job with specified parameters
 func (k8s *Client) RunJob(spec *JobRunSpec) error {
 	commonMeta := meta.ObjectMeta{
@@ -144,8 +175,10 @@ func (k8s *Client) RunJob(spec *JobRunSpec) error {
 							Args:                     spec.Args,
 							VolumeMounts:             spec.mounts(),
 							TerminationMessagePolicy: core.TerminationMessageFallbackToLogsOnError,
+							SecurityContext:          spec.securityContext(),
 						},
 					},
+					HostPID:       spec.Privileged,
 					RestartPolicy: "Never",
 					NodeName:      spec.Node,
 				},
@@ -178,4 +211,8 @@ func (k8s *Client) DeleteJob(name string) error {
 
 func int32Ptr(i int32) *int32 {
 	return &i
+}
+
+func boolPtr(b bool) *bool {
+	return &b
 }
