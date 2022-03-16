@@ -4,9 +4,10 @@ Get dotnet-trace results
 
 ### Synopsis
 
-This subcommand will capture runtime events with dotnet-trace tool for running in k8s application.
-Result will be saved locally in nettrace format so you'll be able to convert it and analyze with appropriate tools.
-You can find more info about dotnet-trace tool by the following links:
+This subcommand will run trace tool for running in k8s application.
+Result will be saved locally (or on host) so you'll be able to analyze it with appropriate instruments.
+Tool specific additional arguments are also supported.
+You can find more info about this tool by the following links:
 
 	* https://github.com/dotnet/diagnostics/blob/master/documentation/dotnet-trace-instructions.md
 	* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-trace
@@ -29,19 +30,6 @@ Use `-o`/`--output` to define name of dump file:
 Also use `-n`/`--namespace` if your pod is not in current context's namespace:
 
 	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -n default
-
-Use `--duration` to define duration of trace to 30 seconds:
-
-	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --duration 30s
-
-Use `--format` to specify Speedscope format:
-
-	kubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --format Speedscope
-
-And then you can analyze it with https://www.speedscope.app/
-Or convert any other format to speedscope format with:
-
-	dotnet trace convert myapp.trace --format Speedscope
 ```
 
 ### Options
