@@ -13,6 +13,7 @@ At the moment the following diagnostic tools are supported:
 * `dotnet-gcdump`
 * `dotnet-trace`
 * `dotnet-dump`
+* `createdump`
 
 Inspired by [`kubectl-flame`](https://github.com/VerizonMedia/kubectl-flame).
 
@@ -49,10 +50,16 @@ Or trace:
 kubectl shovel trace --pod-name pod-name-74df554df7-qldq7 -o ./trace.nettrace
 ```
 
-Or get full memory dump:
+Or get full managed memory dump:
 
 ```shell
-kubectl shovel dump --pod-name pod-name-74df554df7-qldq7 -o ./memory.dump --type full
+kubectl shovel dump --pod-name pod-name-74df554df7-qldq7 -o ./memory.dump --type Full
+```
+
+Or get full (managed and unmanaged) memory dump with [createdump](https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/botr/xplat-minidump-generation.md) utility:
+
+```shell
+kubectl shovel coredump --pod-name pod-name-74df554df7-qldq7 -o ./coredump.dump --type Full
 ```
 
 Most of dotnet tools flags supported as well to use, e.g `--duration` and `--format` for `trace`.
