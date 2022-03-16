@@ -81,6 +81,8 @@ func (options *CommonOptions) GetFlags() *pflag.FlagSet {
 	return fs
 }
 
+// NewCommandBuilder returns *CommandBuilder instance with specified factory flags.DotnetToolFactory
+// that responsible for creation of any available flags.DotnetTool
 func NewCommandBuilder(factory flags.DotnetToolFactory) *CommandBuilder {
 	tool := factory()
 
