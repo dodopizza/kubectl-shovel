@@ -38,7 +38,7 @@ var (
 
 type TestCase struct {
 	name       string
-	args       []string
+	args       map[string]string
 	pod        *core.Pod
 	output     string
 	hostOutput bool
@@ -54,6 +54,10 @@ func (tc *TestCase) FormatArgs(command string) []string {
 		args.AppendKey("store-output-on-host")
 	} else {
 		args.Append("output", tc.output)
+	}
+
+	for key, value := range tc.args {
+		args.Append(key, value)
 	}
 
 	return args.Get()
@@ -217,33 +221,31 @@ func cases(additional ...TestCase) []TestCase {
 	basic := []TestCase{
 		{
 			name: "Basic test",
-			args: []string{},
+			args: map[string]string{},
 			pod:  singleContainerPod(),
 		},
 		{
 			name:       "Store output on host",
-			args:       []string{"store-output-on-host"},
+			args:       map[string]string{},
 			pod:        singleContainerPod(),
 			hostOutput: true,
 		},
 		{
 			name: "MultiContainer pod",
-			args: []string{
-				"--container",
-				targetContainerName,
+			args: map[string]string{
+				"container": targetContainerName,
 			},
 			pod: multiContainerPod(),
 		},
 		{
 			name: "MultiContainer pod with default-container annotation",
-			args: []string{},
+			args: map[string]string{},
 			pod:  multiContainerPodWithDefaultContainer(),
 		},
 		{
 			name: "MultiContainer pod with shared mount",
-			args: []string{
-				"--container",
-				targetContainerName,
+			args: map[string]string{
+				"container": targetContainerName,
 			},
 			pod: multiContainerPodWithSharedMount(),
 		},

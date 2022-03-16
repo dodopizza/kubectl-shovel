@@ -16,17 +16,15 @@ func Test_GCDumpSubcommand(t *testing.T) {
 	testCases := cases(
 		TestCase{
 			name: "Custom timeout",
-			args: []string{
-				"--timeout",
-				"60",
+			args: map[string]string{
+				"timeout": "60",
 			},
 			pod: singleContainerPod(),
 		},
 		TestCase{
 			name: "Custom timeout with unit",
-			args: []string{
-				"--timeout",
-				"1m",
+			args: map[string]string{
+				"timeout": "1m",
 			},
 			pod: singleContainerPod(),
 		},
