@@ -6,6 +6,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
+// todo: add optional flags support:
+// https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/botr/xplat-minidump-generation.md
+
 type CreateDump struct {
 	ProcessID int
 	Output    string
@@ -24,7 +27,6 @@ func (cd *CreateDump) GetFlags() *pflag.FlagSet {
 }
 
 func (cd *CreateDump) FormatArgs(args *Args) {
-	// todo: additional flags
 	args.
 		AppendCommand(strconv.Itoa(cd.ProcessID)).
 		Append("name", cd.Output)
@@ -46,7 +48,6 @@ func (cd *CreateDump) SetProcessID(processID int) DotnetToolFlags {
 }
 
 func (*CreateDump) BinaryName() string {
-	// todo: use full path to tool ?
 	return "createdump"
 }
 

@@ -7,7 +7,8 @@ RUN dotnet tool install -g dotnet-gcdump && \
 FROM mcr.microsoft.com/dotnet/runtime:6.0.2-focal
 
 ARG DOTNET_TOOLS_PATH="/root/.dotnet/tools"
-ENV PATH="${PATH}:${DOTNET_TOOLS_PATH}"
+ARG DOTNET_RUNTIME_PATH="/usr/share/dotnet/shared/Microsoft.NETCore.App/6.0.2"
+ENV PATH="${PATH}:${DOTNET_TOOLS_PATH}:${DOTNET_RUNTIME_PATH}"
 
 WORKDIR /app
 COPY --from=tools-install ${DOTNET_TOOLS_PATH} ${DOTNET_TOOLS_PATH}
