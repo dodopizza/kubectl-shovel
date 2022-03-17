@@ -16,8 +16,8 @@ func Test_DumpSubcommand(t *testing.T) {
 	testCases := cases(
 		TestCase{
 			name: "Custom type",
-			args: []string{
-				"--type", "Heap",
+			args: map[string]string{
+				"type": "Heap",
 			},
 			pod: singleContainerPod(),
 		},

@@ -34,13 +34,14 @@ func (cb *CommandBuilder) args(pod *kubernetes.PodInfo, container *kubernetes.Co
 		args.AppendKey("store-output-on-host")
 	}
 
-	return args.
+	args.
 		Append("container-name", container.Name).
 		Append("pod-name", pod.Name).
 		Append("pod-namespace", pod.Namespace).
-		AppendCommand(cb.tool.ToolName()).
-		AppendFrom(cb.tool).
-		Get()
+		AppendRaw(cb.tool.ToolName())
+	cb.tool.FormatArgs(args, flags.FormatArgsTypeTool)
+
+	return args.Get()
 }
 
 func (cb *CommandBuilder) copyOutput(pod *kubernetes.PodInfo, output string) error {
@@ -98,6 +99,13 @@ func (cb *CommandBuilder) launch() error {
 
 	if cb.CommonOptions.StoreOutputOnHost {
 		jobSpec.WithHostTmpVolume(cb.CommonOptions.OutputHostPath)
+	}
+
+	// additional spec for privileged tool command
+	if cb.tool.IsPrivileged() {
+		jobSpec.
+			WithPrivilegedOptions().
+			WithHostProcVolume()
 	}
 
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))

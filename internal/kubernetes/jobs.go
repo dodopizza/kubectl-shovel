@@ -20,12 +20,13 @@ var (
 
 // JobRunSpec is helper struct to describe job spec customization
 type JobRunSpec struct {
-	Args      []string
-	Image     string
-	Name      string
-	Node      string
-	Selectors map[string]string
-	Volumes   []JobVolume
+	Args       []string
+	Image      string
+	Name       string
+	Node       string
+	Privileged bool
+	Selectors  map[string]string
+	Volumes    []JobVolume
 }
 
 // JobVolume is helper struct to describe job volume customization
@@ -52,6 +53,12 @@ func NewJobRunSpec(args []string, image string, pod *PodInfo) *JobRunSpec {
 	}
 }
 
+// WithPrivilegedOptions adds core.SecurityContext to with SYS_PTRACE capability to core.JobSpec
+func (j *JobRunSpec) WithPrivilegedOptions() *JobRunSpec {
+	j.Privileged = true
+	return j
+}
+
 // WithContainerFSVolume add host volume that used to store container file system volumes
 func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec {
 	j.appendVolume(container.GetContainerFSVolume())
@@ -64,6 +71,17 @@ func (j *JobRunSpec) WithContainerMountsVolume(container *ContainerInfo) *JobRun
 	return j
 }
 
+// WithHostProcVolume adds host volume that used to locate target process memory sections
+func (j *JobRunSpec) WithHostProcVolume() *JobRunSpec {
+	j.appendVolume(JobVolume{
+		Name:      "hostproc",
+		HostPath:  globals.PathHostProcFolder,
+		MountPath: globals.PathHostProcFolder,
+	})
+	return j
+}
+
+// WithHostTmpVolume add host /tmp volume that used to store output
 func (j *JobRunSpec) WithHostTmpVolume(path string) *JobRunSpec {
 	j.appendVolume(JobVolume{
 		Name:      "hostoutput",
@@ -71,6 +89,52 @@ func (j *JobRunSpec) WithHostTmpVolume(path string) *JobRunSpec {
 		MountPath: globals.PathHostOutputFolder,
 	})
 	return j
+}
+
+// Build returns resulted batch.Job spec from JobRunSpec options
+func (j *JobRunSpec) Build(namespace string) *batch.Job {
+	metaSpec := meta.ObjectMeta{
+		Name:      j.Name,
+		Namespace: namespace,
+		Labels:    j.Selectors,
+	}
+
+	return &batch.Job{
+		TypeMeta: meta.TypeMeta{
+			Kind:       "Job",
+			APIVersion: "batch/v1",
+		},
+		ObjectMeta: metaSpec,
+		Spec: batch.JobSpec{
+			Parallelism:             int32Ptr(1),
+			Completions:             int32Ptr(1),
+			TTLSecondsAfterFinished: int32Ptr(5),
+			BackoffLimit:            int32Ptr(0),
+			Template: core.PodTemplateSpec{
+				ObjectMeta: metaSpec,
+				Spec: core.PodSpec{
+					Volumes:        j.volumes(),
+					InitContainers: nil,
+					Containers: []core.Container{
+						{
+							ImagePullPolicy:          core.PullIfNotPresent,
+							Name:                     globals.PluginName,
+							Image:                    j.Image,
+							TTY:                      true,
+							Stdin:                    true,
+							Args:                     j.Args,
+							VolumeMounts:             j.mounts(),
+							TerminationMessagePolicy: core.TerminationMessageFallbackToLogsOnError,
+							SecurityContext:          j.securityContext(),
+						},
+					},
+					HostPID:       j.Privileged,
+					RestartPolicy: "Never",
+					NodeName:      j.Node,
+				},
+			},
+		},
+	}
 }
 
 func (j *JobRunSpec) appendVolume(item JobVolume) {
@@ -110,47 +174,22 @@ func (j *JobRunSpec) mounts() []core.VolumeMount {
 	return volumeMounts
 }
 
-// RunJob will run job with specified parameters
-func (k8s *Client) RunJob(spec *JobRunSpec) error {
-	commonMeta := meta.ObjectMeta{
-		Name:      spec.Name,
-		Namespace: k8s.Namespace,
-		Labels:    spec.Selectors,
+func (j *JobRunSpec) securityContext() *core.SecurityContext {
+	if !j.Privileged {
+		return nil
 	}
 
-	job := &batch.Job{
-		TypeMeta: meta.TypeMeta{
-			Kind:       "Job",
-			APIVersion: "batch/v1",
+	return &core.SecurityContext{
+		Capabilities: &core.Capabilities{
+			Add: []core.Capability{"SYS_PTRACE"},
 		},
-		ObjectMeta: commonMeta,
-		Spec: batch.JobSpec{
-			Parallelism:             int32Ptr(1),
-			Completions:             int32Ptr(1),
-			TTLSecondsAfterFinished: int32Ptr(5),
-			BackoffLimit:            int32Ptr(0),
-			Template: core.PodTemplateSpec{
-				ObjectMeta: commonMeta,
-				Spec: core.PodSpec{
-					Volumes:        spec.volumes(),
-					InitContainers: nil,
-					Containers: []core.Container{
-						{
-							ImagePullPolicy: core.PullIfNotPresent,
-							Name:            globals.PluginName,
-							Image:           spec.Image,
-							TTY:             true,
-							Stdin:           true,
-							Args:            spec.Args,
-							VolumeMounts:    spec.mounts(),
-						},
-					},
-					RestartPolicy: "Never",
-					NodeName:      spec.Node,
-				},
-			},
-		},
+		Privileged: boolPtr(true),
 	}
+}
+
+// RunJob will run job with specified parameters
+func (k8s *Client) RunJob(spec *JobRunSpec) error {
+	job := spec.Build(k8s.Namespace)
 
 	_, err := k8s.
 		BatchV1().
@@ -177,4 +216,8 @@ func (k8s *Client) DeleteJob(name string) error {
 
 func int32Ptr(i int32) *int32 {
 	return &i
+}
+
+func boolPtr(b bool) *bool {
+	return &b
 }

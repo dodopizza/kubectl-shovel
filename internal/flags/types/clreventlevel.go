@@ -7,14 +7,16 @@ import (
 
 type CLREventLevel string
 
-var supportedCLREventLevels = []string{
-	"logalways",
-	"critical",
-	"error",
-	"warning",
-	"informational",
-	"verbose",
-}
+var (
+	supportedCLREventLevels = []string{
+		"logalways",
+		"critical",
+		"error",
+		"warning",
+		"informational",
+		"verbose",
+	}
+)
 
 func (c *CLREventLevel) String() string {
 	return string(*c)

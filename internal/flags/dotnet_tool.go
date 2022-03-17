@@ -6,36 +6,19 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type DotnetToolFactory func() DotnetTool
-
-type DotnetToolFlags interface {
-	Formatter
-	GetFlags() *pflag.FlagSet
-	SetAction(action string) DotnetToolFlags
-	SetOutput(output string) DotnetToolFlags
-	SetProcessID(id int) DotnetToolFlags
-}
-
-type DotnetTool interface {
-	DotnetToolFlags
-	BinaryName() string
-	ToolName() string
-	GetProperties() DotnetToolFlags
-}
-
-type DotnetToolProperties struct {
+type DotnetToolSharedOptions struct {
 	Action    string
 	Output    string
 	ProcessID int
 }
 
-func NewDotnetToolProperties() *DotnetToolProperties {
-	return &DotnetToolProperties{
+func NewDotnetToolSharedOptions() *DotnetToolSharedOptions {
+	return &DotnetToolSharedOptions{
 		ProcessID: 1,
 	}
 }
 
-func (dt *DotnetToolProperties) GetFlags() *pflag.FlagSet {
+func (dt *DotnetToolSharedOptions) GetFlags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("dotnet-tools", pflag.ExitOnError)
 	flagSet.IntVarP(
 		&dt.ProcessID,
@@ -54,9 +37,10 @@ func (dt *DotnetToolProperties) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (dt *DotnetToolProperties) FormatArgs(args *Args) {
-	if dt.Action != "" {
-		args.AppendCommand(dt.Action)
+func (dt *DotnetToolSharedOptions) FormatArgs(args *Args, t FormatArgsType) {
+	// append command (collect) for binary execution
+	if t == FormatArgsTypeBinary {
+		args.AppendRaw("collect")
 	}
 
 	args.Append("process-id", strconv.Itoa(dt.ProcessID))
@@ -66,17 +50,14 @@ func (dt *DotnetToolProperties) FormatArgs(args *Args) {
 	}
 }
 
-func (dt *DotnetToolProperties) SetAction(action string) DotnetToolFlags {
-	dt.Action = action
-	return dt
-}
-
-func (dt *DotnetToolProperties) SetOutput(output string) DotnetToolFlags {
+func (dt *DotnetToolSharedOptions) SetOutput(output string) {
 	dt.Output = output
-	return dt
 }
 
-func (dt *DotnetToolProperties) SetProcessID(id int) DotnetToolFlags {
+func (dt *DotnetToolSharedOptions) SetProcessID(id int) {
 	dt.ProcessID = id
-	return dt
+}
+
+func (*DotnetToolSharedOptions) IsPrivileged() bool {
+	return false
 }

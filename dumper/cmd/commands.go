@@ -20,3 +20,8 @@ func NewTraceCommand(commonOptions *CommonOptions) *cobra.Command {
 func NewDumpCommand(commonOptions *CommonOptions) *cobra.Command {
 	return NewCommandBuilder(commonOptions, flags.NewDotnetDump).Build()
 }
+
+// NewCoreDumpCommand return command that perform createdump on target process
+func NewCoreDumpCommand(commonOptions *CommonOptions) *cobra.Command {
+	return NewCommandBuilder(commonOptions, flags.NewCoreDump).Build()
+}

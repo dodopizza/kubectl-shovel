@@ -6,8 +6,8 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/flags/types"
 )
 
-type DotnetDump struct {
-	*DotnetToolProperties
+type dump struct {
+	*DotnetToolSharedOptions
 
 	Diagnostics bool
 	Type        types.DumpType
@@ -16,16 +16,16 @@ type DotnetDump struct {
 }
 
 func NewDotnetDump() DotnetTool {
-	return &DotnetDump{
-		DotnetToolProperties: NewDotnetToolProperties(),
-		Diagnostics:          false,
-		Type:                 types.DumpTypeFull,
+	return &dump{
+		DotnetToolSharedOptions: NewDotnetToolSharedOptions(),
+		Diagnostics:             false,
+		Type:                    types.DumpTypeFull,
 	}
 }
 
-func (d *DotnetDump) GetFlags() *pflag.FlagSet {
-	flagSet := pflag.NewFlagSet("dotnet-dump", pflag.ExitOnError)
-	flagSet.AddFlagSet(d.DotnetToolProperties.GetFlags())
+func (d *dump) GetFlags() *pflag.FlagSet {
+	flagSet := pflag.NewFlagSet(d.BinaryName(), pflag.ExitOnError)
+	flagSet.AddFlagSet(d.DotnetToolSharedOptions.GetFlags())
 	flagSet.BoolVar(
 		&d.Diagnostics,
 		"diag",
@@ -42,22 +42,18 @@ func (d *DotnetDump) GetFlags() *pflag.FlagSet {
 	return flagSet
 }
 
-func (d *DotnetDump) FormatArgs(args *Args) {
-	args.AppendFrom(d.DotnetToolProperties)
+func (d *dump) FormatArgs(args *Args, t FormatArgsType) {
+	d.DotnetToolSharedOptions.FormatArgs(args, t)
 	if d.flagSet.Changed("diag") {
 		args.AppendKey("diag")
 	}
 	args.Append("type", d.Type.String())
 }
 
-func (*DotnetDump) BinaryName() string {
+func (*dump) BinaryName() string {
 	return "dotnet-dump"
 }
 
-func (*DotnetDump) ToolName() string {
+func (*dump) ToolName() string {
 	return "dump"
-}
-
-func (d *DotnetDump) GetProperties() DotnetToolFlags {
-	return d.DotnetToolProperties
 }

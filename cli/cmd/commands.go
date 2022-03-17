@@ -15,6 +15,12 @@ var (
 		"\tkubectl shovel %[1]s --pod-name my-app-65c4fc589c-gznql -o ./myapp.%[1]s\n\n" +
 		"Also use `-n`/`--namespace` if your pod is not in current context's namespace:\n\n" +
 		"\tkubectl shovel %[1]s --pod-name my-app-65c4fc589c-gznql -n default"
+	descriptionTemplate = "This subcommand will run %s tool for running in k8s application.\n" +
+		"Result will be saved locally (or on host) so you'll be able to analyze it with appropriate instruments.\n" +
+		"Tool specific additional arguments are also supported.\n" +
+		"You can find more info about this tool by the following links:\n\n" +
+		"\t* %s\n" +
+		"\t* %s"
 )
 
 // NewGCDumpCommand return command that start dumper with dotnet-gcdump tool
@@ -22,49 +28,48 @@ func NewGCDumpCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetGCDump)
 	return builder.Build(
 		"Get dotnet-gcdump results",
-		"This subcommand will run dotnet-gcdump tool for running in k8s application.\n"+
-			"Result will be saved locally so you'll be able to analyze it with appropriate tools.\n"+
-			"You can find more info about dotnet-gcdump tool by the following links:\n\n"+
-			"\t* https://devblogs.microsoft.com/dotnet/collecting-and-analyzing-memory-dumps/\n"+
-			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-gcdump",
+		fmt.Sprintf(descriptionTemplate,
+			builder.Tool(),
+			"https://devblogs.microsoft.com/dotnet/collecting-and-analyzing-memory-dumps",
+			"https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-gcdump"),
 		fmt.Sprintf(examplesTemplate, builder.Tool()),
 	)
 }
 
 // NewTraceCommand return command that start dumper with dotnet-trace tool
-// revive:disable:line-length-limit, This is an extended description
 func NewTraceCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetTrace)
 	return builder.Build(
 		"Get dotnet-trace results",
-		"This subcommand will capture runtime events with dotnet-trace tool for running in k8s application.\n"+
-			"Result will be saved locally in nettrace format so you'll be able to convert it and analyze with appropriate tools.\n"+
-			"You can find more info about dotnet-trace tool by the following links:\n\n"+
-			"\t* https://github.com/dotnet/diagnostics/blob/master/documentation/dotnet-trace-instructions.md\n"+
-			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-trace",
-		fmt.Sprintf(examplesTemplate, builder.Tool())+"\n\n"+
-			"Use `--duration` to define duration of trace to 30 seconds:\n\n"+
-			"\tkubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --duration 30s\n\n"+
-			"Use `--format` to specify Speedscope format:\n\n"+
-			"\tkubectl shovel trace --pod-name my-app-65c4fc589c-gznql -o ./myapp.trace --format Speedscope\n\n"+
-			"And then you can analyze it with https://www.speedscope.app/\n"+
-			"Or convert any other format to speedscope format with:\n\n"+
-			"\tdotnet trace convert myapp.trace --format Speedscope",
+		fmt.Sprintf(descriptionTemplate,
+			builder.Tool(),
+			"https://github.com/dotnet/diagnostics/blob/master/documentation/dotnet-trace-instructions.md",
+			"https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-trace"),
+		fmt.Sprintf(examplesTemplate, builder.Tool()),
 	)
 }
-
-// revive:enable:line-length-limit
 
 // NewDumpCommand return command that start dumper with dotnet-dump tool
 func NewDumpCommand() *cobra.Command {
 	builder := NewCommandBuilder(flags.NewDotnetDump)
 	return builder.Build(
 		"Get dotnet-dump results",
-		"This subcommand will run dotnet-dump tool for running in k8s application.\n"+
-			"Result will be saved locally so you'll be able to analyze it with appropriate tools.\n"+
-			"You can find more info about dotnet-dump tool by the following links:\n\n"+
-			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-dump\n"+
-			"\t* https://docs.microsoft.com/en-us/dotnet/core/diagnostics/debug-linux-dumps\n",
+		fmt.Sprintf(descriptionTemplate,
+			builder.Tool(),
+			"https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-dump",
+			"https://docs.microsoft.com/en-us/dotnet/core/diagnostics/debug-linux-dumps"),
 		fmt.Sprintf(examplesTemplate, builder.Tool()),
 	)
+}
+
+// NewCoreDumpCommand return command that start full process dump with createdump tool
+func NewCoreDumpCommand() *cobra.Command {
+	builder := NewCommandBuilder(flags.NewCoreDump)
+	return builder.Build(
+		"Get full process dump results",
+		fmt.Sprintf(descriptionTemplate,
+			builder.Tool(),
+			"https://docs.microsoft.com/en-us/dotnet/core/diagnostics/debug-linux-dumps#core-dumps-with-createdump",
+			"https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/botr/xplat-minidump-generation.md"),
+		fmt.Sprintf(examplesTemplate, builder.Tool()))
 }

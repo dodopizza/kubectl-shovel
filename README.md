@@ -13,6 +13,7 @@ At the moment the following diagnostic tools are supported:
 * `dotnet-gcdump`
 * `dotnet-trace`
 * `dotnet-dump`
+* `createdump`
 
 Inspired by [`kubectl-flame`](https://github.com/VerizonMedia/kubectl-flame).
 
@@ -49,10 +50,16 @@ Or trace:
 kubectl shovel trace --pod-name pod-name-74df554df7-qldq7 -o ./trace.nettrace
 ```
 
-Or get full memory dump:
+Or get full managed memory dump:
 
 ```shell
-kubectl shovel dump --pod-name pod-name-74df554df7-qldq7 -o ./memory.dump --type full
+kubectl shovel dump --pod-name pod-name-74df554df7-qldq7 -o ./memory.dump --type Full
+```
+
+Or get full (managed and unmanaged) memory dump with [createdump](https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/botr/xplat-minidump-generation.md) utility:
+
+```shell
+kubectl shovel coredump --pod-name pod-name-74df554df7-qldq7 -o ./coredump.dump --type Full
 ```
 
 Most of dotnet tools flags supported as well to use, e.g `--duration` and `--format` for `trace`.
@@ -67,7 +74,7 @@ So it requires permissions to get pods and create jobs and allowance to mount `/
 
 To run all kinds of checks and generators please use:
 
-```
+```bash
 make prepare
 ```
 
@@ -79,9 +86,9 @@ make prepare
 
 ### Testing
 
-#### Unit tests:
+#### Unit tests
 
-```
+```bash
 make test-unit
 ```
 
@@ -89,7 +96,7 @@ make test-unit
 
 > kind-clusters use containerd as container runtime, so functionality with docker-runtime won't be covered.
 
-* Integration tests require running kind-cluster. You can create it with `kind create cluster`. Also you can specify some version for cluster: `kind create cluster --image=kindest/node:<version>`, e.g v1.19.1 version.
+* Integration tests require running kind-cluster. You can create it with `make setup`. Also you can specify some version for cluster: `kind create cluster --image=kindest/node:<version>`, e.g v1.19.1 version.
 * Then run integration tests with `make test-integration`. It will:
   * Build docker image for dumper
   * Upload it to kind-cluster
@@ -98,6 +105,6 @@ make test-unit
 
 #### All in one
 
-```
+```bash
 make test
 ```

@@ -16,25 +16,22 @@ func Test_TraceSubcommand(t *testing.T) {
 	testCases := cases(
 		TestCase{
 			name: "Custom duration",
-			args: []string{
-				"--duration",
-				"00:00:00:30",
+			args: map[string]string{
+				"duration": "00:00:00:30",
 			},
 			pod: singleContainerPod(),
 		},
 		TestCase{
 			name: "Custom duration with units",
-			args: []string{
-				"--duration",
-				"1m",
+			args: map[string]string{
+				"duration": "1m",
 			},
 			pod: singleContainerPod(),
 		},
 		TestCase{
 			name: "Custom format",
-			args: []string{
-				"--format",
-				"Speedscope",
+			args: map[string]string{
+				"format": "Speedscope",
 			},
 			pod: singleContainerPod(),
 		},

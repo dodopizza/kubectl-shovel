@@ -21,6 +21,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
+	"github.com/dodopizza/kubectl-shovel/internal/flags"
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 	"github.com/dodopizza/kubectl-shovel/internal/kubernetes"
 )
@@ -37,25 +38,29 @@ var (
 
 type TestCase struct {
 	name       string
-	args       []string
+	args       map[string]string
 	pod        *core.Pod
 	output     string
 	hostOutput bool
 }
 
 func (tc *TestCase) FormatArgs(command string) []string {
-	result := []string{command}
-
-	result = append(result, "--pod-name", tc.pod.Name)
-	result = append(result, "--image", dumperImage)
+	args := flags.NewArgs().
+		AppendRaw(command).
+		Append("pod-name", tc.pod.Name).
+		Append("image", dumperImage)
 
 	if tc.hostOutput {
-		result = append(result, "--store-output-on-host")
+		args.AppendKey("store-output-on-host")
 	} else {
-		result = append(result, "--output", tc.output)
+		args.Append("output", tc.output)
 	}
 
-	return append(result, tc.args...)
+	for key, value := range tc.args {
+		args.Append(key, value)
+	}
+
+	return args.Get()
 }
 
 func newTestKubeClient() *kubernetes.Client {
@@ -216,33 +221,31 @@ func cases(additional ...TestCase) []TestCase {
 	basic := []TestCase{
 		{
 			name: "Basic test",
-			args: []string{},
+			args: map[string]string{},
 			pod:  singleContainerPod(),
 		},
 		{
 			name:       "Store output on host",
-			args:       []string{"store-output-on-host"},
+			args:       map[string]string{},
 			pod:        singleContainerPod(),
 			hostOutput: true,
 		},
 		{
 			name: "MultiContainer pod",
-			args: []string{
-				"--container",
-				targetContainerName,
+			args: map[string]string{
+				"container": targetContainerName,
 			},
 			pod: multiContainerPod(),
 		},
 		{
 			name: "MultiContainer pod with default-container annotation",
-			args: []string{},
+			args: map[string]string{},
 			pod:  multiContainerPodWithDefaultContainer(),
 		},
 		{
 			name: "MultiContainer pod with shared mount",
-			args: []string{
-				"--container",
-				targetContainerName,
+			args: map[string]string{
+				"container": targetContainerName,
 			},
 			pod: multiContainerPodWithSharedMount(),
 		},

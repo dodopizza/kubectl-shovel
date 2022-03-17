@@ -12,19 +12,12 @@ import (
 	"github.com/dodopizza/kubectl-shovel/cli/cmd"
 )
 
-func Test_GCDumpSubcommand(t *testing.T) {
+func Test_CoreDumpSubcommand(t *testing.T) {
 	testCases := cases(
 		TestCase{
-			name: "Custom timeout",
+			name: "Custom type",
 			args: map[string]string{
-				"timeout": "60",
-			},
-			pod: singleContainerPod(),
-		},
-		TestCase{
-			name: "Custom timeout with unit",
-			args: map[string]string{
-				"timeout": "1m",
+				"type": "Heap",
 			},
 			pod: singleContainerPod(),
 		},
@@ -33,9 +26,9 @@ func Test_GCDumpSubcommand(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			teardown := setup(t, &tc, "gcdump-test")
+			teardown := setup(t, &tc, "coredump-test")
 			defer teardown()
-			args := tc.FormatArgs("gcdump")
+			args := tc.FormatArgs("coredump")
 			shovel := cmd.NewShovelCommand()
 			shovel.SetArgs(args)
 
