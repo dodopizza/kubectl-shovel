@@ -74,7 +74,7 @@ So it requires permissions to get pods and create jobs and allowance to mount `/
 
 To run all kinds of checks and generators please use:
 
-```
+```bash
 make prepare
 ```
 
@@ -86,9 +86,9 @@ make prepare
 
 ### Testing
 
-#### Unit tests:
+#### Unit tests
 
-```
+```bash
 make test-unit
 ```
 
@@ -96,7 +96,7 @@ make test-unit
 
 > kind-clusters use containerd as container runtime, so functionality with docker-runtime won't be covered.
 
-* Integration tests require running kind-cluster. You can create it with `kind create cluster`. Also you can specify some version for cluster: `kind create cluster --image=kindest/node:<version>`, e.g v1.19.1 version.
+* Integration tests require running kind-cluster. You can create it with `make setup`. Also you can specify some version for cluster: `kind create cluster --image=kindest/node:<version>`, e.g v1.19.1 version.
 * Then run integration tests with `make test-integration`. It will:
   * Build docker image for dumper
   * Upload it to kind-cluster
@@ -105,6 +105,6 @@ make test-unit
 
 #### All in one
 
-```
+```bash
 make test
 ```
