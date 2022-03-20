@@ -13,6 +13,7 @@ import (
 )
 
 func Test_GCDumpSubcommand(t *testing.T) {
+	command := "gcdump"
 	testCases := cases(
 		TestCase{
 			name: "Custom timeout",
@@ -30,25 +31,28 @@ func Test_GCDumpSubcommand(t *testing.T) {
 		},
 	)
 
-	for _, tc := range testCases {
-		tc := tc
+	t.Cleanup(testSetup(t, command))
+	t.Run(command, func(t *testing.T) {
+		for _, tc := range testCases {
+			tc := tc
 
-		t.Run(tc.name, func(t *testing.T) {
-			teardown := setup(t, &tc, "gcdump-test")
-			defer teardown()
-			args := tc.FormatArgs("gcdump")
-			shovel := cmd.NewShovelCommand()
-			shovel.SetArgs(args)
+			t.Run(tc.name, func(t *testing.T) {
+				t.Cleanup(testCaseSetup(t, &tc, command))
 
-			t.Logf("Execute shovel command with args: %s", args)
-			err := shovel.Execute()
+				args := tc.FormatArgs(command)
+				shovel := cmd.NewShovelCommand()
+				shovel.SetArgs(args)
 
-			require.NoError(t, err)
-			if !tc.hostOutput {
-				file, err := os.Stat(tc.output)
+				t.Logf("Execute shovel command with args: %s", args)
+				err := shovel.Execute()
+
 				require.NoError(t, err)
-				require.NotEmpty(t, file.Size())
-			}
-		})
-	}
+				if !tc.hostOutput {
+					file, err := os.Stat(tc.output)
+					require.NoError(t, err)
+					require.NotEmpty(t, file.Size())
+				}
+			})
+		}
+	})
 }

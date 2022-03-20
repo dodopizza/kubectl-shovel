@@ -89,7 +89,21 @@ func newTestKubeClient() *kubernetes.Client {
 	}
 }
 
-func setup(t *testing.T, tc *TestCase, prefix string) func() {
+func testSetup(t *testing.T, command string) func() {
+	t.Helper()
+
+	dir := filepath.Join(os.TempDir(), globals.PluginName, command)
+	t.Logf("Create directory (%s) for command (%s) tests outputs\n", dir, command)
+	_ = os.MkdirAll(dir, os.ModePerm)
+
+	return func() {
+		t.Helper()
+		t.Logf("Remove directory (%s) for command (%s) tests outputs\n", dir, command)
+		_ = os.Remove(dir)
+	}
+}
+
+func testCaseSetup(t *testing.T, tc *TestCase, command string) func() {
 	t.Parallel()
 	t.Helper()
 	k := newTestKubeClient()
@@ -107,12 +121,14 @@ func setup(t *testing.T, tc *TestCase, prefix string) func() {
 	require.NoError(t, err)
 
 	if !tc.hostOutput {
-		dir, _ := ioutil.TempDir("", "*-kubectl-shovel")
-		tc.output = filepath.Join(dir, prefix)
+		parent := filepath.Join(os.TempDir(), globals.PluginName, command)
+		dir, _ := ioutil.TempDir(parent, "*")
+		tc.output = filepath.Join(dir, "output")
 		t.Logf("Output for test case will be stored at: %s\n", tc.output)
 	}
 
 	return func() {
+		t.Helper()
 		t.Logf("Delete test pod: %s\n", tc.pod.Name)
 
 		policy := meta.DeletePropagationForeground
@@ -121,12 +137,6 @@ func setup(t *testing.T, tc *TestCase, prefix string) func() {
 			tc.pod.Name,
 			meta.DeleteOptions{PropagationPolicy: &policy},
 		)
-
-		if !tc.hostOutput {
-			dir := filepath.Dir(tc.output)
-			t.Logf("Cleanup test case output dir: %s\n", dir)
-			_ = os.Remove(dir)
-		}
 	}
 }
 
