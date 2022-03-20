@@ -28,12 +28,14 @@ import (
 )
 
 var (
-	targetPodNamePrefix  = "sample-app"
-	targetContainerImage = "mcr.microsoft.com/dotnet/core/samples:aspnetapp"
-	targetContainerName  = "target"
-	namespace            = "default"
-	dumperImage          = "kubectl-shovel/dumper-integration-tests"
-	tempDirPattern       = "*-kubectl-shovel"
+	dumperImage = "kubectl-shovel/dumper-integration-tests"
+
+	namespace             = "default"
+	sidecarContainerImage = "gcr.io/google_containers/pause:3.1"
+	sidecarContainerName  = "sidecar"
+	targetPodNamePrefix   = "sample-app"
+	targetContainerImage  = "kubectl-shovel/sample-integration-tests"
+	targetContainerName   = "target"
 )
 
 type TestCase struct {
@@ -99,7 +101,7 @@ func setup(t *testing.T, tc *TestCase, prefix string) func() {
 	require.NoError(t, err)
 
 	if !tc.hostOutput {
-		dir, _ := ioutil.TempDir("", tempDirPattern)
+		dir, _ := ioutil.TempDir("", "*-kubectl-shovel")
 		tc.output = filepath.Join(dir, prefix)
 		t.Logf("Output for test case will be stored at: %s\n", tc.output)
 	}
@@ -138,14 +140,14 @@ func targetContainer() core.Container {
 		Name:  targetContainerName,
 		Image: targetContainerImage,
 		Ports: []core.ContainerPort{{
-			ContainerPort: 80,
+			ContainerPort: 6000,
 			Name:          "app",
 			Protocol:      "TCP",
 		}},
 		LivenessProbe: &core.Probe{
 			ProbeHandler: core.ProbeHandler{
 				HTTPGet: &core.HTTPGetAction{
-					Path: "/",
+					Path: "/health/live",
 					Port: intstr.IntOrString{
 						Type:   intstr.String,
 						StrVal: "app",
@@ -165,8 +167,8 @@ func targetContainer() core.Container {
 
 func sidecarContainer() core.Container {
 	return core.Container{
-		Name:  "sidecar",
-		Image: "gcr.io/google_containers/pause-amd64:3.1",
+		Name:  sidecarContainerName,
+		Image: sidecarContainerImage,
 	}
 }
 
