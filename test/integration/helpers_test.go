@@ -13,6 +13,7 @@ import (
 
 	core "k8s.io/api/core/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	k8s "k8s.io/client-go/kubernetes"
 
 	"k8s.io/client-go/tools/clientcmd"
@@ -27,13 +28,12 @@ import (
 )
 
 var (
-	sampleAppName       = "sample-app"
-	sampleAppImage      = "mcr.microsoft.com/dotnet/core/samples:aspnetapp"
-	deletePolicy        = meta.DeletePropagationForeground
-	targetContainerName = "target"
-	namespace           = "default"
-	dumperImage         = "kubectl-shovel/dumper-integration-tests"
-	tempDirPattern      = "*-kubectl-shovel"
+	targetPodNamePrefix  = "sample-app"
+	targetContainerImage = "mcr.microsoft.com/dotnet/core/samples:aspnetapp"
+	targetContainerName  = "target"
+	namespace            = "default"
+	dumperImage          = "kubectl-shovel/dumper-integration-tests"
+	tempDirPattern       = "*-kubectl-shovel"
 )
 
 type TestCase struct {
@@ -106,10 +106,12 @@ func setup(t *testing.T, tc *TestCase, prefix string) func() {
 
 	return func() {
 		t.Logf("Delete test pod: %s\n", tc.pod.Name)
+
+		policy := meta.DeletePropagationForeground
 		_ = k.CoreV1().Pods(namespace).Delete(
 			context.TODO(),
 			tc.pod.Name,
-			meta.DeleteOptions{PropagationPolicy: &deletePolicy},
+			meta.DeleteOptions{PropagationPolicy: &policy},
 		)
 
 		if !tc.hostOutput {
@@ -121,7 +123,7 @@ func setup(t *testing.T, tc *TestCase, prefix string) func() {
 }
 
 func generateRandomPodMeta() meta.ObjectMeta {
-	name := fmt.Sprintf("%s-%s", sampleAppName, uuid.NewString())
+	name := fmt.Sprintf("%s-%s", targetPodNamePrefix, uuid.NewString())
 
 	return meta.ObjectMeta{
 		Name: name,
@@ -131,16 +133,48 @@ func generateRandomPodMeta() meta.ObjectMeta {
 	}
 }
 
+func targetContainer() core.Container {
+	return core.Container{
+		Name:  targetContainerName,
+		Image: targetContainerImage,
+		Ports: []core.ContainerPort{{
+			ContainerPort: 80,
+			Name:          "app",
+			Protocol:      "TCP",
+		}},
+		LivenessProbe: &core.Probe{
+			ProbeHandler: core.ProbeHandler{
+				HTTPGet: &core.HTTPGetAction{
+					Path: "/",
+					Port: intstr.IntOrString{
+						Type:   intstr.String,
+						StrVal: "app",
+					},
+					Scheme: "http",
+				},
+			},
+			InitialDelaySeconds: 2,
+			TimeoutSeconds:      1,
+			PeriodSeconds:       1,
+			SuccessThreshold:    1,
+			FailureThreshold:    5,
+		},
+		TerminationMessagePolicy: core.TerminationMessageFallbackToLogsOnError,
+	}
+}
+
+func sidecarContainer() core.Container {
+	return core.Container{
+		Name:  "sidecar",
+		Image: "gcr.io/google_containers/pause-amd64:3.1",
+	}
+}
+
 func singleContainerPod() *core.Pod {
 	return &core.Pod{
 		ObjectMeta: generateRandomPodMeta(),
 		Spec: core.PodSpec{
-			Containers: []core.Container{
-				{
-					Name:  targetContainerName,
-					Image: sampleAppImage,
-				},
-			},
+			Containers: []core.Container{targetContainer()},
 		},
 	}
 }
@@ -149,16 +183,7 @@ func multiContainerPod() *core.Pod {
 	return &core.Pod{
 		ObjectMeta: generateRandomPodMeta(),
 		Spec: core.PodSpec{
-			Containers: []core.Container{
-				{
-					Name:  targetContainerName,
-					Image: sampleAppImage,
-				},
-				{
-					Name:  "sidecar",
-					Image: "gcr.io/google_containers/pause-amd64:3.1",
-				},
-			},
+			Containers: []core.Container{targetContainer(), sidecarContainer()},
 		},
 	}
 }
@@ -171,48 +196,38 @@ func multiContainerPodWithDefaultContainer() *core.Pod {
 	return &core.Pod{
 		ObjectMeta: objectMeta,
 		Spec: core.PodSpec{
-			Containers: []core.Container{
-				{
-					Name:  targetContainerName,
-					Image: sampleAppImage,
-				},
-				{
-					Name:  "sidecar",
-					Image: "gcr.io/google_containers/pause-amd64:3.1",
-				},
-			},
+			Containers: []core.Container{targetContainer(), sidecarContainer()},
 		},
 	}
 }
 
 func multiContainerPodWithSharedMount() *core.Pod {
+	volumes := []core.Volume{
+		{
+			Name: "shared-path-to-tmp",
+			VolumeSource: core.VolumeSource{
+				EmptyDir: &core.EmptyDirVolumeSource{},
+			},
+		},
+	}
+	mounts := []core.VolumeMount{
+		{
+			Name:      "shared-path-to-tmp",
+			MountPath: globals.PathTmpFolder,
+		},
+	}
+
+	sidecar := sidecarContainer()
+	sidecar.VolumeMounts = mounts
+
+	target := targetContainer()
+	target.VolumeMounts = mounts
+
 	return &core.Pod{
 		ObjectMeta: generateRandomPodMeta(),
 		Spec: core.PodSpec{
-			Containers: []core.Container{
-				{
-					Name:  targetContainerName,
-					Image: sampleAppImage,
-					VolumeMounts: []core.VolumeMount{
-						{Name: "shared-path-to-tmp", MountPath: globals.PathTmpFolder},
-					},
-				},
-				{
-					Name:  "sidecar",
-					Image: "gcr.io/google_containers/pause-amd64:3.1",
-					VolumeMounts: []core.VolumeMount{
-						{Name: "shared-path-to-tmp", MountPath: globals.PathTmpFolder},
-					},
-				},
-			},
-			Volumes: []core.Volume{
-				{
-					Name: "shared-path-to-tmp",
-					VolumeSource: core.VolumeSource{
-						EmptyDir: &core.EmptyDirVolumeSource{},
-					},
-				},
-			},
+			Containers: []core.Container{target, sidecar},
+			Volumes:    volumes,
 		},
 	}
 }

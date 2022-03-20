@@ -25,6 +25,7 @@ func Test_DumpSubcommand(t *testing.T) {
 
 	for _, tc := range testCases {
 		tc := tc
+
 		t.Run(tc.name, func(t *testing.T) {
 			teardown := setup(t, &tc, "dump-test")
 			defer teardown()
