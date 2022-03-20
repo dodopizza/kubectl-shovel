@@ -141,7 +141,7 @@ jobs:
         image: kindest/node:v1.21.1
     - name: Run tests
       run: |
-        make test-integration ${{ matrix.framework }}
+        make test-integration FRAMEWORK=${{ matrix.framework }}
 
   publish-dumper:
     name: Publishing dumper docker image
