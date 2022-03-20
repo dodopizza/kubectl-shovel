@@ -39,8 +39,8 @@ if [ "$framework" == "netcoreapp3.1" ]; then
   sample_sdk_image_tag="3.1-focal"
   sample_runtime_image_tag="3.1.23-focal"
 elif [ "$framework" == "net5.0" ]; then
-  sample_sdk_image_tag="5.0.15-focal"
-  sample_runtime_image_tag="5.0.406-focal"
+  sample_sdk_image_tag="5.0.406-focal"
+  sample_runtime_image_tag="5.0.15-focal"
 elif [ "$framework" == "net6.0" ]; then
   sample_sdk_image_tag="6.0-focal"
   sample_runtime_image_tag="6.0.3-focal"
