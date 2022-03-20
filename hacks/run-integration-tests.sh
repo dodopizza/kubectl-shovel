@@ -23,7 +23,7 @@ fi
 go test $flags \
   -v \
   -ldflags="-X github.com/dodopizza/kubectl-shovel/test/integration_test.TargetContainerImage=kubectl-shovel/sample-integration-tests:$framework" \
-  -timeout 300s \
+  -timeout 600s \
   --tags=integration \
   ./test/integration/... |
   sed "/PASS/s//$(printf "\033[32mPASS\033[0m")/" |
