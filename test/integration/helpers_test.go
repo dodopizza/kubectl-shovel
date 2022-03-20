@@ -28,14 +28,16 @@ import (
 )
 
 var (
-	dumperImage = "kubectl-shovel/dumper-integration-tests"
+	namespace            = "default"
+	sidecarContainerName = "sidecar"
+	targetPodNamePrefix  = "sample-app"
+	targetContainerName  = "target"
+)
 
-	namespace             = "default"
-	sidecarContainerImage = "gcr.io/google_containers/pause:3.1"
-	sidecarContainerName  = "sidecar"
-	targetPodNamePrefix   = "sample-app"
-	targetContainerImage  = "kubectl-shovel/sample-integration-tests"
-	targetContainerName   = "target"
+var (
+	DumperImage           = "kubectl-shovel/dumper-integration-tests"
+	TargetContainerImage  = "kubectl-shovel/sample-integration-tests"
+	SidecarContainerImage = "gcr.io/google_containers/pause:3.1"
 )
 
 type TestCase struct {
@@ -50,7 +52,7 @@ func (tc *TestCase) FormatArgs(command string) []string {
 	args := flags.NewArgs().
 		AppendRaw(command).
 		Append("pod-name", tc.pod.Name).
-		Append("image", dumperImage)
+		Append("image", DumperImage)
 
 	if tc.hostOutput {
 		args.AppendKey("store-output-on-host")
@@ -66,7 +68,11 @@ func (tc *TestCase) FormatArgs(command string) []string {
 }
 
 func newTestKubeClient() *kubernetes.Client {
-	kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
+	kubeconfig := os.Getenv("KUBECONFIG")
+	if kubeconfig == "" {
+		kubeconfig = filepath.Join(homedir.HomeDir(), ".kube", "config")
+	}
+
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		panic(err.Error())
@@ -137,8 +143,9 @@ func generateRandomPodMeta() meta.ObjectMeta {
 
 func targetContainer() core.Container {
 	return core.Container{
-		Name:  targetContainerName,
-		Image: targetContainerImage,
+		Name:            targetContainerName,
+		Image:           TargetContainerImage,
+		ImagePullPolicy: core.PullIfNotPresent,
 		Ports: []core.ContainerPort{{
 			ContainerPort: 6000,
 			Name:          "app",
@@ -152,7 +159,7 @@ func targetContainer() core.Container {
 						Type:   intstr.String,
 						StrVal: "app",
 					},
-					Scheme: "http",
+					Scheme: "HTTP",
 				},
 			},
 			InitialDelaySeconds: 2,
@@ -168,7 +175,7 @@ func targetContainer() core.Container {
 func sidecarContainer() core.Container {
 	return core.Container{
 		Name:  sidecarContainerName,
-		Image: sidecarContainerImage,
+		Image: SidecarContainerImage,
 	}
 }
 
