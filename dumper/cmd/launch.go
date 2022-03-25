@@ -25,7 +25,7 @@ func (cb *CommandBuilder) launch() error {
 		return err
 	}
 	// remove /tmp directory,
-	// because will be mounted either from rootfs or container mounts
+	// because it will be mounted from container /tmp directory
 	if err := os.RemoveAll(globals.PathTmpFolder); err != nil {
 		return err
 	}
@@ -41,35 +41,27 @@ func (cb *CommandBuilder) launch() error {
 	output := fmt.Sprintf("%s/output.%s", globals.PathTmpFolder, cb.tool.ToolName())
 	cb.tool.SetOutput(output)
 
-	// resolve host process id and set for privileged commands
 	if cb.tool.IsPrivileged() {
+		// host process required for privileged commands
 		cb.tool.SetProcessID(container.HostProcessID)
 
-		localRootPath := "/usr/share/dotnet/shared"
-		containerRootPath := fmt.Sprintf("%s%s", container.RootFS, localRootPath)
-		frameworks, err := os.ReadDir(containerRootPath)
+		// exact same versions required
+		resolver := flags.NewDotnetToolResolver(container.RootFS)
+		frameworks, err := resolver.LocateFrameworks()
 		if err != nil {
+			events.NewErrorEvent(err, "unable to locate runtime folders for target container")
 			return err
 		}
+
 		for _, framework := range frameworks {
-			frameworkSourcePath := fmt.Sprintf("%s/%s", containerRootPath, framework.Name())
-			frameworkDestPath := fmt.Sprintf("%s/%s", localRootPath, framework.Name())
-
-			_ = os.Mkdir(frameworkDestPath, os.ModePerm)
-
-			runtimes, err := os.ReadDir(frameworkSourcePath)
-			if err != nil {
-				return err
+			if framework.Name != flags.DotnetFrameworkApp {
+				continue
 			}
 
-			for _, runtime := range runtimes {
-				runtimeSourcePath := fmt.Sprintf("%s/%s", frameworkSourcePath, runtime.Name())
-				runtimeDestPath := fmt.Sprintf("%s/%s", frameworkDestPath, runtime.Name())
-
-				if err := os.Symlink(runtimeSourcePath, runtimeDestPath); err != nil {
-					events.NewErrorEvent(err, "unable to mount runtime paths")
-					return err
-				}
+			err := os.Symlink(framework.FullPath(), filepath.Join(resolver.Path, framework.NameVersion()))
+			if err != nil {
+				events.NewErrorEvent(err, "unable to mount runtime folders for target container")
+				return err
 			}
 		}
 	}
