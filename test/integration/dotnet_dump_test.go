@@ -13,34 +13,33 @@ import (
 )
 
 func Test_DumpSubcommand(t *testing.T) {
+	command := "dump"
 	testCases := cases(
-		TestCase{
-			name: "Custom type",
-			args: map[string]string{
-				"type": "Heap",
-			},
-			pod: singleContainerPod(),
-		},
+		NewTestCase("Custom type").WithArgs("type", "Heap"),
 	)
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			teardown := setup(t, &tc, "dump-test")
-			defer teardown()
-			args := tc.FormatArgs("dump")
-			shovel := cmd.NewShovelCommand()
-			shovel.SetArgs(args)
+	t.Cleanup(testSetup(t, command))
+	t.Run(command, func(t *testing.T) {
+		for _, tc := range testCases {
+			tc := tc
 
-			t.Logf("Execute shovel command with args: %s", args)
-			err := shovel.Execute()
+			t.Run(tc.name, func(t *testing.T) {
+				t.Cleanup(testCaseSetup(t, tc, command))
 
-			require.NoError(t, err)
-			if !tc.hostOutput {
-				file, err := os.Stat(tc.output)
+				args := tc.FormatArgs(command)
+				shovel := cmd.NewShovelCommand()
+				shovel.SetArgs(args)
+
+				t.Logf("Execute shovel command with args: %s", args)
+				err := shovel.Execute()
+
 				require.NoError(t, err)
-				require.NotEmpty(t, file.Size())
-			}
-		})
-	}
+				if !tc.hostOutput {
+					file, err := os.Stat(tc.output)
+					require.NoError(t, err)
+					require.NotEmpty(t, file.Size())
+				}
+			})
+		}
+	})
 }

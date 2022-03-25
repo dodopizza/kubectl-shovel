@@ -49,7 +49,7 @@ func (ep *EventAwaiter) parse() (string, error) {
 		case Status:
 			fmt.Println(event.Message)
 		case Error:
-			return "", fmt.Errorf("error in job occurred: %s", event.Message)
+			return "", fmt.Errorf("%s", event.Message)
 		case Completed:
 			return event.Message, nil
 		default:

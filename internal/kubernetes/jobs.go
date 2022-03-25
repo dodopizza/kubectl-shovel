@@ -188,30 +188,28 @@ func (j *JobRunSpec) securityContext() *core.SecurityContext {
 }
 
 // RunJob will run job with specified parameters
-func (k8s *Client) RunJob(spec *JobRunSpec) error {
-	job := spec.Build(k8s.Namespace)
+func (k *Client) RunJob(spec *JobRunSpec) error {
+	job := spec.Build(k.Namespace)
 
-	_, err := k8s.
+	_, err := k.
 		BatchV1().
-		Jobs(k8s.Namespace).
+		Jobs(k.Namespace).
 		Create(context.Background(), job, meta.CreateOptions{})
 
 	return err
 }
 
 // DeleteJob deleting job
-func (k8s *Client) DeleteJob(name string) error {
-	propagationPolicy := meta.DeletePropagationForeground
-	return k8s.
+func (k *Client) DeleteJob(name string) error {
+	policy := meta.DeletePropagationForeground
+	options := meta.DeleteOptions{
+		PropagationPolicy: &policy,
+	}
+
+	return k.
 		BatchV1().
-		Jobs(k8s.Namespace).
-		Delete(
-			context.Background(),
-			name,
-			meta.DeleteOptions{
-				PropagationPolicy: &propagationPolicy,
-			},
-		)
+		Jobs(k.Namespace).
+		Delete(context.Background(), name, options)
 }
 
 func int32Ptr(i int32) *int32 {

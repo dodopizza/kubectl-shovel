@@ -3,6 +3,7 @@ trash/
 vendor/
 dist/
 **/bin/**
+**/obj/**
 
 # Binaries for programs and plugins
 *.exe

@@ -2,7 +2,6 @@ package kubernetes
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -113,10 +112,10 @@ func (p *PodInfo) findContainerInfo(name string) (container *core.Container, sta
 }
 
 // GetPodInfo get info about pod by name
-func (k8s *Client) GetPodInfo(name string) (*PodInfo, error) {
-	pod, err := k8s.
+func (k *Client) GetPodInfo(name string) (*PodInfo, error) {
+	pod, err := k.
 		CoreV1().
-		Pods(k8s.Namespace).
+		Pods(k.Namespace).
 		Get(context.Background(), name, meta.GetOptions{})
 
 	if err != nil {
@@ -127,39 +126,55 @@ func (k8s *Client) GetPodInfo(name string) (*PodInfo, error) {
 }
 
 // WaitPod will wait until pod to start or failed
-func (k8s *Client) WaitPod(labelSelector map[string]string) (*PodInfo, error) {
+func (k *Client) WaitPod(labelSelector map[string]string) (*PodInfo, error) {
 	var pod *core.Pod
 
-	err := wait.Poll(1*time.Second, 5*time.Minute,
-		func() (bool, error) {
-			podList, err := k8s.
-				CoreV1().
-				Pods(k8s.Namespace).
-				List(
-					context.Background(),
-					meta.ListOptions{
-						LabelSelector: labels.Set(labelSelector).String(),
-					},
-				)
-			if err != nil {
-				return false, err
+	err := wait.Poll(1*time.Second, 5*time.Minute, func() (bool, error) {
+		options := meta.ListOptions{
+			LabelSelector: labels.Set(labelSelector).String(),
+		}
+		list, err := k.CoreV1().
+			Pods(k.Namespace).
+			List(context.Background(), options)
+
+		if err != nil {
+			return false, err
+		}
+
+		if len(list.Items) == 0 {
+			return false, nil
+		}
+
+		pod = &list.Items[0]
+		switch pod.Status.Phase {
+		case core.PodFailed:
+			message := ""
+
+			for _, c := range pod.Status.ContainerStatuses {
+				if c.State.Terminated != nil {
+					state := c.State.Terminated
+					message += fmt.Sprintf("container: %s, reason: %s, state:\n%s",
+						c.Name,
+						state.Reason,
+						state.Message)
+				}
+				if c.State.Waiting != nil {
+					state := c.State.Waiting
+					message += fmt.Sprintf("container: %s, reason: %s, state:\n%s",
+						c.Name,
+						state.Reason,
+						state.Message)
+				}
 			}
 
-			if len(podList.Items) == 0 {
-				return false, nil
-			}
+			return false, fmt.Errorf("pod has been failed, container statuses:\n%s", message)
+		case core.PodSucceeded, core.PodRunning:
+			return true, nil
+		default:
+			return false, nil
+		}
+	})
 
-			pod = &podList.Items[0]
-			switch pod.Status.Phase {
-			case core.PodFailed:
-				return false, errors.New("pod has been failed")
-			case core.PodSucceeded, core.PodRunning:
-				return true, nil
-			default:
-				return false, nil
-			}
-		},
-	)
 	if err != nil {
 		return nil, err
 	}
@@ -168,9 +183,9 @@ func (k8s *Client) WaitPod(labelSelector map[string]string) (*PodInfo, error) {
 }
 
 // ReadPodLogs stream logs from pod
-func (k8s *Client) ReadPodLogs(podName, containerName string) (io.ReadCloser, error) {
-	req := k8s.CoreV1().
-		Pods(k8s.Namespace).
+func (k *Client) ReadPodLogs(podName, containerName string) (io.ReadCloser, error) {
+	req := k.CoreV1().
+		Pods(k.Namespace).
 		GetLogs(podName, &core.PodLogOptions{
 			Container: containerName,
 			Follow:    true,
