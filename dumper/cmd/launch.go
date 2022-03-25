@@ -44,6 +44,34 @@ func (cb *CommandBuilder) launch() error {
 	// resolve host process id and set for privileged commands
 	if cb.tool.IsPrivileged() {
 		cb.tool.SetProcessID(container.HostProcessID)
+
+		localRootPath := "/usr/share/dotnet/shared"
+		containerRootPath := fmt.Sprintf("%s%s", container.RootFS, localRootPath)
+		frameworks, err := os.ReadDir(containerRootPath)
+		if err != nil {
+			return err
+		}
+		for _, framework := range frameworks {
+			frameworkSourcePath := fmt.Sprintf("%s/%s", containerRootPath, framework.Name())
+			frameworkDestPath := fmt.Sprintf("%s/%s", localRootPath, framework.Name())
+
+			_ = os.Mkdir(frameworkDestPath, os.ModePerm)
+
+			runtimes, err := os.ReadDir(frameworkSourcePath)
+			if err != nil {
+				return err
+			}
+
+			for _, runtime := range runtimes {
+				runtimeSourcePath := fmt.Sprintf("%s/%s", frameworkSourcePath, runtime.Name())
+				runtimeDestPath := fmt.Sprintf("%s/%s", frameworkDestPath, runtime.Name())
+
+				if err := os.Symlink(runtimeSourcePath, runtimeDestPath); err != nil {
+					events.NewErrorEvent(err, "unable to mount runtime paths")
+					return err
+				}
+			}
+		}
 	}
 
 	args := flags.NewArgs()
