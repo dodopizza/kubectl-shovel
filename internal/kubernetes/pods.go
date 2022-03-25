@@ -151,23 +151,23 @@ func (k *Client) WaitPod(labelSelector map[string]string) (*PodInfo, error) {
 			message := ""
 
 			for _, c := range pod.Status.ContainerStatuses {
-				if c.LastTerminationState.Terminated != nil {
-					state := c.LastTerminationState.Terminated
-					message += fmt.Sprintf("container: %s, reason: %s, state: %s",
+				if c.State.Terminated != nil {
+					state := c.State.Terminated
+					message += fmt.Sprintf("container: %s, reason: %s, state:\n%s",
 						c.Name,
 						state.Reason,
 						state.Message)
 				}
-				if c.LastTerminationState.Waiting != nil {
-					state := c.LastTerminationState.Waiting
-					message += fmt.Sprintf("container: %s, reason: %s, state: %s",
+				if c.State.Waiting != nil {
+					state := c.State.Waiting
+					message += fmt.Sprintf("container: %s, reason: %s, state:\n%s",
 						c.Name,
 						state.Reason,
 						state.Message)
 				}
 			}
 
-			return false, fmt.Errorf("pod has been failed, container statuses: %s", message)
+			return false, fmt.Errorf("pod has been failed, container statuses:\n%s", message)
 		case core.PodSucceeded, core.PodRunning:
 			return true, nil
 		default:
