@@ -15,20 +15,8 @@ import (
 func Test_GCDumpSubcommand(t *testing.T) {
 	command := "gcdump"
 	testCases := cases(
-		TestCase{
-			name: "Custom timeout",
-			args: map[string]string{
-				"timeout": "60",
-			},
-			pod: singleContainerPod(),
-		},
-		TestCase{
-			name: "Custom timeout with unit",
-			args: map[string]string{
-				"timeout": "1m",
-			},
-			pod: singleContainerPod(),
-		},
+		NewTestCase("Custom timeout").WithArgs("timeout", "60"),
+		NewTestCase("Custom timeout with unit").WithArgs("timeout", "1m"),
 	)
 
 	t.Cleanup(testSetup(t, command))
@@ -37,7 +25,7 @@ func Test_GCDumpSubcommand(t *testing.T) {
 			tc := tc
 
 			t.Run(tc.name, func(t *testing.T) {
-				t.Cleanup(testCaseSetup(t, &tc, command))
+				t.Cleanup(testCaseSetup(t, tc, command))
 
 				args := tc.FormatArgs(command)
 				shovel := cmd.NewShovelCommand()

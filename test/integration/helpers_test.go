@@ -42,10 +42,32 @@ var (
 
 type TestCase struct {
 	name       string
-	args       map[string]string
+	args       []string
 	pod        *core.Pod
 	output     string
 	hostOutput bool
+}
+
+func NewTestCase(name string) *TestCase {
+	return &TestCase{name: name, args: []string{}, pod: singleContainerPod(), hostOutput: true}
+}
+
+func (tc *TestCase) WithPod(pod *core.Pod) *TestCase {
+	tc.pod = pod
+	return tc
+}
+
+func (tc *TestCase) DownloadOutput() *TestCase {
+	tc.hostOutput = false
+	return tc
+}
+
+func (tc *TestCase) WithArgs(args ...string) *TestCase {
+	if len(args)%2 != 0 {
+		panic(fmt.Errorf("length of args must be divided by two"))
+	}
+	tc.args = append(tc.args, args...)
+	return tc
 }
 
 func (tc *TestCase) FormatArgs(command string) []string {
@@ -60,8 +82,9 @@ func (tc *TestCase) FormatArgs(command string) []string {
 		args.Append("output", tc.output)
 	}
 
-	for key, value := range tc.args {
-		args.Append(key, value)
+	for key := 0; key < len(tc.args); key += 2 {
+		value := key + 1
+		args.Append(tc.args[key], tc.args[value])
 	}
 
 	return args.Get()
@@ -251,38 +274,22 @@ func multiContainerPodWithSharedMount() *core.Pod {
 	}
 }
 
-func cases(additional ...TestCase) []TestCase {
-	basic := []TestCase{
-		{
-			name: "Basic test",
-			args: map[string]string{},
-			pod:  singleContainerPod(),
-		},
-		{
-			name:       "Store output on host",
-			args:       map[string]string{},
-			pod:        singleContainerPod(),
-			hostOutput: true,
-		},
-		{
-			name: "MultiContainer pod",
-			args: map[string]string{
-				"container": targetContainerName,
-			},
-			pod: multiContainerPod(),
-		},
-		{
-			name: "MultiContainer pod with default-container annotation",
-			args: map[string]string{},
-			pod:  multiContainerPodWithDefaultContainer(),
-		},
-		{
-			name: "MultiContainer pod with shared mount",
-			args: map[string]string{
-				"container": targetContainerName,
-			},
-			pod: multiContainerPodWithSharedMount(),
-		},
+func cases(additional ...*TestCase) []*TestCase {
+	basic := []*TestCase{
+		NewTestCase("Basic test with output on host"),
+		NewTestCase("Basic test with downloading output").
+			DownloadOutput(),
+		NewTestCase("MultiContainer pod").
+			WithPod(multiContainerPod()).
+			WithArgs("container", targetContainerName).
+			DownloadOutput(),
+		NewTestCase("MultiContainer pod with default-container annotation").
+			WithPod(multiContainerPodWithDefaultContainer()).
+			DownloadOutput(),
+		NewTestCase("MultiContainer pod with shared mount").
+			WithPod(multiContainerPodWithSharedMount()).
+			WithArgs("container", targetContainerName).
+			DownloadOutput(),
 	}
 
 	return append(basic, additional...)

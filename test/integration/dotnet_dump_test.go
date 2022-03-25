@@ -15,13 +15,7 @@ import (
 func Test_DumpSubcommand(t *testing.T) {
 	command := "dump"
 	testCases := cases(
-		TestCase{
-			name: "Custom type",
-			args: map[string]string{
-				"type": "Heap",
-			},
-			pod: singleContainerPod(),
-		},
+		NewTestCase("Custom type").WithArgs("type", "Heap"),
 	)
 
 	t.Cleanup(testSetup(t, command))
@@ -30,7 +24,7 @@ func Test_DumpSubcommand(t *testing.T) {
 			tc := tc
 
 			t.Run(tc.name, func(t *testing.T) {
-				t.Cleanup(testCaseSetup(t, &tc, command))
+				t.Cleanup(testCaseSetup(t, tc, command))
 
 				args := tc.FormatArgs(command)
 				shovel := cmd.NewShovelCommand()

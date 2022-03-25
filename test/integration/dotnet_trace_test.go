@@ -15,27 +15,9 @@ import (
 func Test_TraceSubcommand(t *testing.T) {
 	command := "trace"
 	testCases := cases(
-		TestCase{
-			name: "Custom duration",
-			args: map[string]string{
-				"duration": "00:00:00:30",
-			},
-			pod: singleContainerPod(),
-		},
-		TestCase{
-			name: "Custom duration with units",
-			args: map[string]string{
-				"duration": "1m",
-			},
-			pod: singleContainerPod(),
-		},
-		TestCase{
-			name: "Custom format",
-			args: map[string]string{
-				"format": "Speedscope",
-			},
-			pod: singleContainerPod(),
-		},
+		NewTestCase("Custom duration").WithArgs("duration", "00:00:00:30"),
+		NewTestCase("Custom duration with units").WithArgs("duration", "1m"),
+		NewTestCase("Custom format").WithArgs("format", "Speedscope"),
 	)
 
 	t.Cleanup(testSetup(t, command))
@@ -44,7 +26,7 @@ func Test_TraceSubcommand(t *testing.T) {
 			tc := tc
 
 			t.Run(tc.name, func(t *testing.T) {
-				t.Cleanup(testCaseSetup(t, &tc, command))
+				t.Cleanup(testCaseSetup(t, tc, command))
 
 				args := tc.FormatArgs(command)
 				shovel := cmd.NewShovelCommand()
@@ -55,6 +37,7 @@ func Test_TraceSubcommand(t *testing.T) {
 
 				require.NoError(t, err)
 				if !tc.hostOutput {
+					t.Logf("Looking for artifact at path: %s", tc.output)
 					file, err := os.Stat(tc.output)
 					require.NoError(t, err)
 					require.NotEmpty(t, file.Size())
