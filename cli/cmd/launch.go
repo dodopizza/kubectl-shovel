@@ -116,7 +116,7 @@ func (cb *CommandBuilder) launch() error {
 	fmt.Println("Waiting for a diagnostics job to start")
 	jobPod, err := cb.kube.WaitPod(jobSpec.Selectors)
 	if err != nil {
-		return errors.Wrap(err, "Failed to wait diagnostics job execution")
+		return errors.Wrap(err, "Failed to start diagnostics job")
 	}
 
 	jobPodLogs, err := cb.kube.ReadPodLogs(jobPod.Name, globals.PluginName)
@@ -128,7 +128,7 @@ func (cb *CommandBuilder) launch() error {
 	awaiter := events.NewEventAwaiter()
 	output, err := awaiter.AwaitCompletedEvent(jobPodLogs)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Failed to complete diagnostics job")
 	}
 
 	// dealing with output
