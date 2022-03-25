@@ -17,7 +17,7 @@ if [ -z "${CI:-""}" ]; then
   flags="-parallel 1"
 else
   # restrict parallel degree for ci mode because kind can hang with large amount of pods
-  flags="-parallel 4"
+  flags="-parallel 2"
 fi
 
 go test $flags \
