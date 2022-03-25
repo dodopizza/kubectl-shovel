@@ -35,5 +35,5 @@ func FileExists(path string) bool {
 		return true
 	}
 
-	return errors.Is(err, os.ErrNotExist)
+	return !errors.Is(err, os.ErrNotExist)
 }

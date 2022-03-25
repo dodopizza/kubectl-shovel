@@ -17,6 +17,8 @@ import (
 )
 
 func (cb *CommandBuilder) prepareFS(container *kubernetes.ContainerConfigInfo) error {
+	events.NewStatusEvent("Looking for and mapping container /tmp")
+
 	// remove /tmp directory,
 	// because it will be mounted from container /tmp directory
 	if err := os.RemoveAll(globals.PathTmpFolder); err != nil {
@@ -34,6 +36,7 @@ func (cb *CommandBuilder) prepareFS(container *kubernetes.ContainerConfigInfo) e
 	}
 
 	// for privileged commands link framework runtime libs to root
+	events.NewStatusEvent("Looking for and mapping container runtime libs")
 	resolver := flags.NewDotnetToolResolver(container.RootFS)
 	frameworks, err := resolver.LocateFrameworks()
 	if err != nil {
@@ -61,8 +64,6 @@ func (cb *CommandBuilder) prepareFS(container *kubernetes.ContainerConfigInfo) e
 }
 
 func (cb *CommandBuilder) launch() error {
-	events.NewStatusEvent("Looking for and mapping container fs")
-
 	container, err := kubernetes.NewContainerConfigInfo(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
 	if err != nil {
 		events.NewErrorEvent(err, "unable to locate container configuration")
