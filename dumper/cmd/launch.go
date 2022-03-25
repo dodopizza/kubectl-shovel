@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,13 +16,7 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
-func (cb *CommandBuilder) launch() error {
-	events.NewStatusEvent("Looking for and mapping container fs")
-
-	container, err := kubernetes.NewContainerConfigInfo(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
-	if err != nil {
-		return err
-	}
+func (cb *CommandBuilder) prepareFS(container *kubernetes.ContainerConfigInfo) error {
 	// remove /tmp directory,
 	// because it will be mounted from container /tmp directory
 	if err := os.RemoveAll(globals.PathTmpFolder); err != nil {
@@ -33,7 +26,51 @@ func (cb *CommandBuilder) launch() error {
 	// for dotnet tools, in /tmp folder must exists sockets to running dotnet apps
 	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#diagnostic-ipc-protocol
 	if err := os.Symlink(container.GetTmpSource(), globals.PathTmpFolder); err != nil {
-		events.NewErrorEvent(err, "unable to mount tmp folder for container")
+		return err
+	}
+
+	if !cb.tool.IsPrivileged() {
+		return nil
+	}
+
+	// for privileged commands link framework runtime libs to root
+	resolver := flags.NewDotnetToolResolver(container.RootFS)
+	frameworks, err := resolver.LocateFrameworks()
+	if err != nil {
+		return err
+	}
+
+	for _, framework := range frameworks {
+		if framework.Name != flags.DotnetFrameworkApp {
+			continue
+		}
+
+		source := framework.FullPath()
+		destination := filepath.Join(resolver.Path, framework.NameVersion())
+
+		if utils.FileExists(destination) {
+			continue
+		}
+
+		if err := os.Symlink(source, destination); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (cb *CommandBuilder) launch() error {
+	events.NewStatusEvent("Looking for and mapping container fs")
+
+	container, err := kubernetes.NewContainerConfigInfo(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
+	if err != nil {
+		events.NewErrorEvent(err, "unable to locate container configuration")
+		return err
+	}
+
+	if err := cb.prepareFS(container); err != nil {
+		events.NewErrorEvent(err, "unable to prepare job file system for command execution")
 		return err
 	}
 
@@ -44,26 +81,6 @@ func (cb *CommandBuilder) launch() error {
 	if cb.tool.IsPrivileged() {
 		// host process required for privileged commands
 		cb.tool.SetProcessID(container.HostProcessID)
-
-		// exact same versions required
-		resolver := flags.NewDotnetToolResolver(container.RootFS)
-		frameworks, err := resolver.LocateFrameworks()
-		if err != nil {
-			events.NewErrorEvent(err, "unable to locate runtime folders for target container")
-			return err
-		}
-
-		for _, framework := range frameworks {
-			if framework.Name != flags.DotnetFrameworkApp {
-				continue
-			}
-
-			err := os.Symlink(framework.FullPath(), filepath.Join(resolver.Path, framework.NameVersion()))
-			if err != nil {
-				events.NewErrorEvent(err, "unable to mount runtime folders for target container")
-				return err
-			}
-		}
 	}
 
 	args := flags.NewArgs()
@@ -82,9 +99,8 @@ func (cb *CommandBuilder) launch() error {
 	}
 	events.NewStatusEvent("Gathering completed")
 
-	_, err = ioutil.ReadFile(output)
-	if err != nil {
-		events.NewErrorEvent(err, "failed to locate output result")
+	if !utils.FileExists(output) {
+		events.NewErrorEvent(fmt.Errorf("failed to locate execution result at: %s", output), "")
 		return err
 	}
 
