@@ -12,20 +12,24 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/globals"
 )
 
-// ContainerInfo is information about container struct
+// ContainerInfo is an information about container struct
 type ContainerInfo struct {
 	ID      string
 	Name    string
 	Runtime string
 }
 
-type containerConfig struct {
+// ContainerConfigInfo is an information about container state located at node
+type ContainerConfigInfo struct {
+	ID            string
 	HostProcessID int
+	Mounts        []ContainerMount
 	RootFS        string
-	Mounts        []containerMount
+	Runtime       string
 }
 
-type containerMount struct {
+// ContainerMount is an information about available container mounts
+type ContainerMount struct {
 	Source      string
 	Destination string
 }
@@ -41,45 +45,34 @@ func NewContainerInfo(cs *core.ContainerStatus) *ContainerInfo {
 	}
 }
 
-// NewContainerInfoRaw returns container info with specified runtime and id
-func NewContainerInfoRaw(runtime, id string) *ContainerInfo {
-	return &ContainerInfo{
-		Runtime: runtime,
-		ID:      id,
+// NewContainerConfigInfo returns container configuration state
+func NewContainerConfigInfo(runtime, id string) (*ContainerConfigInfo, error) {
+	switch runtime {
+	case "containerd":
+		return containerd(id)
+	case "docker":
+		return docker(id)
+	default:
+		return nil, fmt.Errorf("unsupported runtime: %s for container: %s", runtime, id)
 	}
 }
 
 // GetTmpSource returns mount point for /tmp folder, depending upon container runtime and existing mounts
 // If container contains mounts to /tmp folder, this mount source path will be used, otherwise – container rootfs
-func (c *ContainerInfo) GetTmpSource() (string, error) {
-	config, err := c.config()
-	if err != nil {
-		return "", err
-	}
-
-	for _, mount := range config.Mounts {
+func (c *ContainerConfigInfo) GetTmpSource() string {
+	for _, mount := range c.Mounts {
 		if mount.Destination == globals.PathTmpFolder {
-			return mount.Source, nil
+			return mount.Source
 		}
 	}
 
-	return fmt.Sprintf("%s%s", config.RootFS, globals.PathTmpFolder), nil
-}
-
-// GetHostProcessID returns container's process id, relative to host
-func (c *ContainerInfo) GetHostProcessID() (int, error) {
-	config, err := c.config()
-	if err != nil {
-		return 0, err
-	}
-
-	return config.HostProcessID, nil
+	return fmt.Sprintf("%s%s", c.RootFS, globals.PathTmpFolder)
 }
 
 // GetContainerFSVolume returns JobVolume (mounted from host) that contains container definitions,
 // depending upon container runtime
 func (c *ContainerInfo) GetContainerFSVolume() JobVolume {
-	if c.containerd() {
+	if c.Runtime == "containerd" {
 		return JobVolume{
 			Name:      "containerdfs",
 			HostPath:  globals.PathContainerDFS,
@@ -97,7 +90,7 @@ func (c *ContainerInfo) GetContainerFSVolume() JobVolume {
 // GetContainerSharedVolumes returns JobVolume (mounted from host) that contains container additional mounts,
 // depending upon container runtime
 func (c *ContainerInfo) GetContainerSharedVolumes() JobVolume {
-	if c.containerd() {
+	if c.Runtime == "containerd" {
 		return JobVolume{
 			Name:      "containerdvolumes",
 			HostPath:  globals.PathContainerDVolumes,
@@ -112,21 +105,14 @@ func (c *ContainerInfo) GetContainerSharedVolumes() JobVolume {
 	}
 }
 
-func (c *ContainerInfo) config() (*containerConfig, error) {
-	if c.containerd() {
-		return c.containerdConfig()
-	}
-	return c.dockerConfig()
-}
-
-func (c *ContainerInfo) dockerConfig() (*containerConfig, error) {
-	mountFile := fmt.Sprintf("%s/image/overlay2/layerdb/mounts/%s/mount-id", globals.PathDockerFS, c.ID)
+func docker(id string) (*ContainerConfigInfo, error) {
+	mountFile := fmt.Sprintf("%s/image/overlay2/layerdb/mounts/%s/mount-id", globals.PathDockerFS, id)
 	mountId, err := ioutil.ReadFile(mountFile)
 	if err != nil {
 		return nil, err
 	}
 
-	stateFile, err := os.Open(fmt.Sprintf("%s/containers/%s/config.v2.json", globals.PathDockerFS, c.ID))
+	stateFile, err := os.Open(fmt.Sprintf("%s/containers/%s/config.v2.json", globals.PathDockerFS, id))
 	if err != nil {
 		return nil, err
 	}
@@ -144,23 +130,25 @@ func (c *ContainerInfo) dockerConfig() (*containerConfig, error) {
 		return nil, err
 	}
 
-	mounts := make([]containerMount, 0)
+	mounts := make([]ContainerMount, 0)
 	for _, mount := range state.MountPoints {
-		mounts = append(mounts, containerMount{
+		mounts = append(mounts, ContainerMount{
 			Source:      mount.Source,
 			Destination: mount.Destination,
 		})
 	}
 
-	return &containerConfig{
+	return &ContainerConfigInfo{
+		ID:            id,
 		HostProcessID: state.State.Pid,
-		RootFS:        fmt.Sprintf("%s/overlay2/%s/merged", globals.PathDockerFS, mountId),
 		Mounts:        mounts,
+		Runtime:       "docker",
+		RootFS:        fmt.Sprintf("%s/overlay2/%s/merged", globals.PathDockerFS, mountId),
 	}, nil
 }
 
-func (c *ContainerInfo) containerdConfig() (*containerConfig, error) {
-	file, err := os.Open(fmt.Sprintf("%s/runc/k8s.io/%s/state.json", globals.PathContainerDFS, c.ID))
+func containerd(id string) (*ContainerConfigInfo, error) {
+	file, err := os.Open(fmt.Sprintf("%s/runc/k8s.io/%s/state.json", globals.PathContainerDFS, id))
 	if err != nil {
 		return nil, err
 	}
@@ -180,21 +168,19 @@ func (c *ContainerInfo) containerdConfig() (*containerConfig, error) {
 		return nil, err
 	}
 
-	mounts := make([]containerMount, len(state.Config.Mounts))
+	mounts := make([]ContainerMount, len(state.Config.Mounts))
 	for i, mount := range state.Config.Mounts {
-		mounts[i] = containerMount{
+		mounts[i] = ContainerMount{
 			Source:      mount.Source,
 			Destination: mount.Destination,
 		}
 	}
 
-	return &containerConfig{
+	return &ContainerConfigInfo{
+		ID:            id,
 		HostProcessID: state.InitProcessPID,
-		RootFS:        state.Config.RootFS,
 		Mounts:        mounts,
+		Runtime:       "containerd",
+		RootFS:        state.Config.RootFS,
 	}, nil
-}
-
-func (c *ContainerInfo) containerd() bool {
-	return c.Runtime == "containerd"
 }

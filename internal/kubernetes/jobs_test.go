@@ -64,18 +64,26 @@ func Test_NewRunJobSpec(t *testing.T) {
 func Test_JobRunSpecWithContainerFSVolumes(t *testing.T) {
 	testCases := []struct {
 		name      string
-		container ContainerInfo
+		container *ContainerInfo
 		expCount  int
 	}{
 		{
-			name:      "ContainerD volumes added volume mounts per each volume",
-			container: *NewContainerInfoRaw("containerd", ""),
-			expCount:  2,
+			name: "ContainerD volumes added volume mounts per each volume",
+			container: NewContainerInfo(
+				&core.ContainerStatus{
+					ContainerID: "containerd://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
+				},
+			),
+			expCount: 2,
 		},
 		{
-			name:      "Docker volumes added only one",
-			container: *NewContainerInfoRaw("docker", ""),
-			expCount:  1,
+			name: "Docker volumes added only one",
+			container: NewContainerInfo(
+				&core.ContainerStatus{
+					ContainerID: "docker://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
+				},
+			),
+			expCount: 1,
 		},
 	}
 
@@ -88,8 +96,8 @@ func Test_JobRunSpecWithContainerFSVolumes(t *testing.T) {
 			})
 
 			spec := NewJobRunSpec([]string{"sleep"}, "alpine", pod).
-				WithContainerFSVolume(&tc.container).
-				WithContainerMountsVolume(&tc.container)
+				WithContainerFSVolume(tc.container).
+				WithContainerMountsVolume(tc.container)
 			job := spec.Build(jobNamespace)
 
 			requireJobSpecMatches(t, spec, job)

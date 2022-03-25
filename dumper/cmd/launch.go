@@ -20,22 +20,19 @@ import (
 func (cb *CommandBuilder) launch() error {
 	events.NewStatusEvent("Looking for and mapping container fs")
 
-	container := kubernetes.NewContainerInfoRaw(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
+	container, err := kubernetes.NewContainerConfigInfo(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
+	if err != nil {
+		return err
+	}
 	// remove /tmp directory,
 	// because will be mounted either from rootfs or container mounts
 	if err := os.RemoveAll(globals.PathTmpFolder); err != nil {
 		return err
 	}
 
-	tmpSource, err := container.GetTmpSource()
-	if err != nil {
-		events.NewErrorEvent(err, "unable to find mount point for container")
-		return err
-	}
-
 	// for dotnet tools, in /tmp folder must exists sockets to running dotnet apps
 	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#diagnostic-ipc-protocol
-	if err := os.Symlink(tmpSource, globals.PathTmpFolder); err != nil {
+	if err := os.Symlink(container.GetTmpSource(), globals.PathTmpFolder); err != nil {
 		events.NewErrorEvent(err, "unable to mount tmp folder for container")
 		return err
 	}
@@ -46,12 +43,7 @@ func (cb *CommandBuilder) launch() error {
 
 	// resolve host process id and set for privileged commands
 	if cb.tool.IsPrivileged() {
-		processID, err := container.GetHostProcessID()
-		if err != nil {
-			events.NewErrorEvent(err, "unable to find process id")
-			return err
-		}
-		cb.tool.SetProcessID(processID)
+		cb.tool.SetProcessID(container.HostProcessID)
 	}
 
 	args := flags.NewArgs()
