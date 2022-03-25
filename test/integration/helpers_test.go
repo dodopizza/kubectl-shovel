@@ -114,6 +114,7 @@ func newTestKubeClient() *kubernetes.Client {
 
 func testSetup(t *testing.T, command string) func() {
 	t.Helper()
+	t.Parallel()
 
 	dir := filepath.Join(os.TempDir(), globals.PluginName, command)
 	t.Logf("Create directory (%s) for command (%s) tests outputs\n", dir, command)
@@ -127,7 +128,6 @@ func testSetup(t *testing.T, command string) func() {
 }
 
 func testCaseSetup(t *testing.T, tc *TestCase, command string) func() {
-	t.Parallel()
 	t.Helper()
 	k := newTestKubeClient()
 
