@@ -44,7 +44,13 @@ test: test-unit test-integration
 
 .PHONY: test-unit
 test-unit:
-	TEST_RUN_ARGS="$(TEST_RUN_ARGS)" TEST_DIR="$(TEST_DIR)" ./hacks/run-unit-tests.sh
+	go test \
+      -v \
+      -race \
+      -cover \
+      -coverprofile cover.out \
+      -timeout 30s \
+      ./...
 
 .PHONY: test-integration-setup
 test-integration-setup:
@@ -52,12 +58,17 @@ test-integration-setup:
 
 .PHONY: test-integration-prepare
 test-integration-prepare:
-	./hacks/prepare-integration-tests.sh "$(CURRENT_DIR)" "kind-kind" "$(ARCH)" "$(FRAMEWORK)"
+	FRAMEWORK=$(FRAMEWORK) ./hacks/prepare-integration-tests.sh "$(CURRENT_DIR)" "kind-kind" "$(ARCH)" "$(FRAMEWORK)"
 
 .PHONY: test-integration
-test-integration:
-	./hacks/prepare-integration-tests.sh "$(CURRENT_DIR)" "kind-kind" "$(ARCH)" "$(FRAMEWORK)"
-	./hacks/run-integration-tests.sh "$(FRAMEWORK)"
+test-integration: test-integration-prepare
+	FRAMEWORK=$(FRAMEWORK) go test \
+      -v \
+      -ldflags="-X github.com/dodopizza/kubectl-shovel/test/integration_test.TargetContainerImage=kubectl-shovel/sample-integration-tests:$(FRAMEWORK)" \
+      -parallel 1 \
+      -timeout 600s \
+      --tags=integration \
+      ./test/integration/...
 
 .PHONY: help
 help:
