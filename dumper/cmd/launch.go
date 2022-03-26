@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,26 +16,62 @@ import (
 	"github.com/dodopizza/kubectl-shovel/internal/watchdog"
 )
 
-func (cb *CommandBuilder) launch() error {
-	events.NewStatusEvent("Looking for and mapping container fs")
+func (cb *CommandBuilder) prepareFS(container *kubernetes.ContainerConfigInfo) error {
+	events.NewStatusEvent("Looking for and mapping container /tmp")
 
-	container := kubernetes.NewContainerInfoRaw(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
 	// remove /tmp directory,
-	// because will be mounted either from rootfs or container mounts
+	// because it will be mounted from container /tmp directory
 	if err := os.RemoveAll(globals.PathTmpFolder); err != nil {
-		return err
-	}
-
-	tmpSource, err := container.GetTmpSource()
-	if err != nil {
-		events.NewErrorEvent(err, "unable to find mount point for container")
 		return err
 	}
 
 	// for dotnet tools, in /tmp folder must exists sockets to running dotnet apps
 	// https://github.com/dotnet/diagnostics/blob/main/documentation/design-docs/ipc-protocol.md#diagnostic-ipc-protocol
-	if err := os.Symlink(tmpSource, globals.PathTmpFolder); err != nil {
-		events.NewErrorEvent(err, "unable to mount tmp folder for container")
+	if err := os.Symlink(container.GetTmpSource(), globals.PathTmpFolder); err != nil {
+		return err
+	}
+
+	if !cb.tool.IsPrivileged() {
+		return nil
+	}
+
+	// for privileged commands link framework runtime libs to root
+	events.NewStatusEvent("Looking for and mapping container runtime libs")
+	resolver := flags.NewDotnetToolResolver(container.RootFS)
+	frameworks, err := resolver.LocateFrameworks()
+	if err != nil {
+		return err
+	}
+
+	for _, framework := range frameworks {
+		if framework.Name != flags.DotnetFrameworkApp {
+			continue
+		}
+
+		source := framework.FullPath()
+		destination := filepath.Join(resolver.Path, framework.NameVersion())
+
+		if utils.FileExists(destination) {
+			continue
+		}
+
+		if err := os.Symlink(source, destination); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (cb *CommandBuilder) launch() error {
+	container, err := kubernetes.NewContainerConfigInfo(cb.CommonOptions.ContainerRuntime, cb.CommonOptions.ContainerID)
+	if err != nil {
+		events.NewErrorEvent(err, "unable to locate container configuration")
+		return err
+	}
+
+	if err := cb.prepareFS(container); err != nil {
+		events.NewErrorEvent(err, "unable to prepare job file system for command execution")
 		return err
 	}
 
@@ -44,14 +79,9 @@ func (cb *CommandBuilder) launch() error {
 	output := fmt.Sprintf("%s/output.%s", globals.PathTmpFolder, cb.tool.ToolName())
 	cb.tool.SetOutput(output)
 
-	// resolve host process id and set for privileged commands
 	if cb.tool.IsPrivileged() {
-		processID, err := container.GetHostProcessID()
-		if err != nil {
-			events.NewErrorEvent(err, "unable to find process id")
-			return err
-		}
-		cb.tool.SetProcessID(processID)
+		// host process required for privileged commands
+		cb.tool.SetProcessID(container.HostProcessID)
 	}
 
 	args := flags.NewArgs()
@@ -70,9 +100,8 @@ func (cb *CommandBuilder) launch() error {
 	}
 	events.NewStatusEvent("Gathering completed")
 
-	_, err = ioutil.ReadFile(output)
-	if err != nil {
-		events.NewErrorEvent(err, "failed to locate output result")
+	if !utils.FileExists(output) {
+		events.NewErrorEvent(fmt.Errorf("failed to locate execution result at: %s", output), "")
 		return err
 	}
 

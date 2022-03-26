@@ -119,14 +119,14 @@ func (cb *CommandBuilder) launch() error {
 		return errors.Wrap(err, "Failed to start diagnostics job")
 	}
 
-	jobPodLogs, err := cb.kube.ReadPodLogs(jobPod.Name, globals.PluginName)
+	logs, err := cb.kube.ReadPodLogs(jobPod.Name, globals.PluginName)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read logs from diagnostics job targetPod")
 	}
-	defer utils.Ignore(jobPodLogs.Close)
+	defer utils.Ignore(logs.Close)
 
 	awaiter := events.NewEventAwaiter()
-	output, err := awaiter.AwaitCompletedEvent(jobPodLogs)
+	output, err := awaiter.AwaitCompletedEvent(logs)
 	if err != nil {
 		return errors.Wrap(err, "Failed to complete diagnostics job")
 	}

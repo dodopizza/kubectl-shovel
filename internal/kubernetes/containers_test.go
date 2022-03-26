@@ -47,33 +47,31 @@ func Test_NewContainerInfo(t *testing.T) {
 func Test_GetContainerFSVolume(t *testing.T) {
 	testCases := []struct {
 		name          string
-		runtime       string
+		status        core.ContainerStatus
 		expVolumeName string
 		expVolumePath string
 	}{
 		{
-			name:          "DockerFS used if specified",
-			runtime:       "docker",
+			name: "DockerFS used if specified",
+			status: core.ContainerStatus{
+				ContainerID: "docker://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
+			},
 			expVolumeName: "dockerfs",
 			expVolumePath: globals.PathDockerFS,
 		},
 		{
-			name:          "ContainerdFS used if specified",
-			runtime:       "containerd",
+			name: "ContainerdFS used if specified",
+			status: core.ContainerStatus{
+				ContainerID: "containerd://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
+			},
 			expVolumeName: "containerdfs",
 			expVolumePath: globals.PathContainerDFS,
-		},
-		{
-			name:          "DockerFS used by default",
-			runtime:       "",
-			expVolumeName: "dockerfs",
-			expVolumePath: globals.PathDockerFS,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			container := NewContainerInfoRaw(tc.runtime, "")
+			container := NewContainerInfo(&tc.status)
 
 			volume := container.GetContainerFSVolume()
 
@@ -87,33 +85,31 @@ func Test_GetContainerFSVolume(t *testing.T) {
 func Test_GetContainerSharedVolumes(t *testing.T) {
 	testCases := []struct {
 		name          string
-		runtime       string
+		status        core.ContainerStatus
 		expVolumeName string
 		expVolumePath string
 	}{
 		{
-			name:          "Docker mounts used if specified",
-			runtime:       "docker",
+			name: "Docker mounts used if specified",
+			status: core.ContainerStatus{
+				ContainerID: "docker://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
+			},
 			expVolumeName: "dockervolumes",
 			expVolumePath: globals.PathDockerVolumes,
 		},
 		{
-			name:          "Containerd mounts used if specified",
-			runtime:       "containerd",
+			name: "Containerd mounts used if specified",
+			status: core.ContainerStatus{
+				ContainerID: "containerd://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
+			},
 			expVolumeName: "containerdvolumes",
 			expVolumePath: globals.PathContainerDVolumes,
-		},
-		{
-			name:          "Docker mounts used if specified",
-			runtime:       "docker",
-			expVolumeName: "dockervolumes",
-			expVolumePath: globals.PathDockerVolumes,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			container := NewContainerInfoRaw(tc.runtime, "")
+			container := NewContainerInfo(&tc.status)
 
 			volume := container.GetContainerSharedVolumes()
 

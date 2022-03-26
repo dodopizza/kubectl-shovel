@@ -26,3 +26,14 @@ func MoveFile(source, dest string) error {
 	}
 	return nil
 }
+
+// FileExists returns value indicating that file exists on file system
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+
+	if err == nil {
+		return true
+	}
+
+	return !errors.Is(err, os.ErrNotExist)
+}
