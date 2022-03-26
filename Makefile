@@ -52,17 +52,19 @@ test-unit:
       -timeout 30s \
       ./...
 
+NODE_VERSION ?= v1.21.1
 .PHONY: test-integration-setup
 test-integration-setup:
-	kind create cluster --name "kind"
+	kind create cluster --name "kind" --image=kindest/node:$(NODE_VERSION)
 
+FRAMEWORK ?= net6.0
 .PHONY: test-integration-prepare
 test-integration-prepare:
-	FRAMEWORK=$(FRAMEWORK) ./hacks/prepare-integration-tests.sh "$(CURRENT_DIR)" "kind-kind" "$(ARCH)" "$(FRAMEWORK)"
+	./hacks/prepare-integration-tests.sh "$(CURRENT_DIR)" "kind-kind" "$(ARCH)" "$(FRAMEWORK)"
 
 .PHONY: test-integration
 test-integration: test-integration-prepare
-	FRAMEWORK=$(FRAMEWORK) go test \
+	go test \
       -v \
       -ldflags="-X github.com/dodopizza/kubectl-shovel/test/integration_test.TargetContainerImage=kubectl-shovel/sample-integration-tests:$(FRAMEWORK)" \
       -parallel 1 \
