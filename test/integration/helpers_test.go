@@ -6,7 +6,6 @@ package integration_test
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -145,7 +144,7 @@ func testCaseSetup(t *testing.T, tc *TestCase, command string) func() {
 
 	if !tc.hostOutput {
 		parent := filepath.Join(os.TempDir(), globals.PluginName, command)
-		dir, _ := ioutil.TempDir(parent, "*")
+		dir, _ := os.MkdirTemp(parent, "*")
 		tc.output = filepath.Join(dir, "output")
 		t.Logf("Output for test case will be stored at: %s\n", tc.output)
 	}

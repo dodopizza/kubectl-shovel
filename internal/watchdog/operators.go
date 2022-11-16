@@ -1,7 +1,6 @@
 package watchdog
 
 import (
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -29,7 +28,7 @@ func NewWatcher() *Operator {
 func NewPinger(k8s *kubernetes.Client, pod string) *Operator {
 	return NewOperator(
 		func() bool {
-			file, err := ioutil.TempFile("", globals.PluginName)
+			file, err := os.CreateTemp("", globals.PluginName)
 			if err != nil {
 				return false
 			}

@@ -3,7 +3,6 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -107,7 +106,7 @@ func (c *ContainerInfo) GetContainerSharedVolumes() JobVolume {
 
 func docker(id string) (*ContainerConfigInfo, error) {
 	mountFile := fmt.Sprintf("%s/image/overlay2/layerdb/mounts/%s/mount-id", globals.PathDockerFS, id)
-	mountId, err := ioutil.ReadFile(mountFile)
+	mountId, err := os.ReadFile(mountFile)
 	if err != nil {
 		return nil, err
 	}
