@@ -108,6 +108,10 @@ func (cb *CommandBuilder) launch() error {
 			WithHostProcVolume()
 	}
 
+	if cb.tool.IsLimitedResources() {
+		jobSpec.WithLimits(cb.CommonOptions.LimitCpu, cb.CommonOptions.LimitMemory)
+	}
+
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
 	if err := cb.kube.RunJob(jobSpec); err != nil {
 		return errors.Wrap(err, "Failed to spawn diagnostics job")

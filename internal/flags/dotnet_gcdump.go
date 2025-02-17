@@ -48,3 +48,7 @@ func (*gcdump) BinaryName() string {
 func (*gcdump) ToolName() string {
 	return "gcdump"
 }
+
+func (*gcdump) IsLimitedResources() bool {
+	return true
+}

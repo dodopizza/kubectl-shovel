@@ -17,6 +17,7 @@ type DotnetTool interface {
 	BinaryName() string
 	ToolName() string
 	IsPrivileged() bool
+	IsLimitedResources() bool
 }
 
 type DotnetToolFlagsFormatter interface {

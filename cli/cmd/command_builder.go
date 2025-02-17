@@ -20,6 +20,8 @@ type CommonOptions struct {
 	Pod               string
 	Output            string
 	OutputHostPath    string
+	LimitCpu          string
+	LimitMemory       string
 	StoreOutputOnHost bool
 
 	kubeConfig *genericclioptions.ConfigFlags
@@ -67,6 +69,18 @@ func (options *CommonOptions) GetFlags() *pflag.FlagSet {
 		"output-host-path",
 		options.OutputHostPath,
 		"Host folder, where will be stored artifact",
+	)
+	fs.StringVar(
+		&options.LimitCpu,
+		"limit-cpu",
+		options.LimitCpu,
+		"Limit maximal consumptions cpu for the executing job",
+	)
+	fs.StringVar(
+		&options.LimitMemory,
+		"limit-memory",
+		options.LimitMemory,
+		"Limit maximal consumptions memory for the executing job",
 	)
 	fs.BoolVarP(
 		&options.StoreOutputOnHost,

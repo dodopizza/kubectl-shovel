@@ -16,6 +16,9 @@ func Test_CoreDumpSubcommand(t *testing.T) {
 	command := "coredump"
 	testCases := cases(
 		NewTestCase("Custom type").WithArgs("type", "Heap"),
+		NewTestCase("Limits memory and cpu").WithArgs("limit-cpu", "300m").WithArgs("limit-memory", "500Mi"),
+		NewTestCase("Limits memory").WithArgs("limit-memory", "500Mi"),
+		NewTestCase("Limits cpu").WithArgs("limit-cpu", "300m"),
 	)
 
 	t.Cleanup(testSetup(t, command))
