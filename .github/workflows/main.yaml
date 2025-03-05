@@ -52,7 +52,7 @@ jobs:
     - name: Lint
       uses: golangci/golangci-lint-action@v4
       with:
-        version: v1.46.2
+        version: v1.56.2
         github-token: ${{ secrets.GITHUB_TOKEN }}
         args: "--fix=false --timeout=10m"
 
