@@ -13,7 +13,7 @@ on:
     - "*"
 
 env:
-  GOLANG_VERSION: "^1.22.0"
+  GOLANG_VERSION: "^1.18.2"
 
 jobs:
   doc:
@@ -21,12 +21,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
     - name: Setup Golang
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
+    - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -48,11 +48,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
     - name: Lint
-      uses: golangci/golangci-lint-action@v4
+      uses: golangci/golangci-lint-action@v2
       with:
-        version: v1.56.2
+        version: v1.46.2
         github-token: ${{ secrets.GITHUB_TOKEN }}
         args: "--fix=false --timeout=10m"
 
@@ -61,12 +61,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
     - name: Setup Golang
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
+    - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -88,12 +88,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
     - name: Setup Golang
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
+    - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -110,9 +110,9 @@ jobs:
       fail-fast: false
       matrix:
         framework:
+        - netcoreapp3.1
+        - net5.0
         - net6.0
-        - net8.0
-        - net9.0
     needs:
     - doc
     - lint
@@ -120,26 +120,26 @@ jobs:
     - test
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v1
     - name: Setup Golang
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
+    - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
     - name: Setup Kubernetes
-      uses: helm/kind-action@v1.8.0
+      uses: engineerd/setup-kind@v0.5.0
       with:
-        version: v0.20.0
-        node_image: kindest/node:v1.28.0
+        version: v0.11.1
+        image: kindest/node:v1.21.1
     - name: Run tests
       run: |
         make test-integration FRAMEWORK=${{ matrix.framework }}
@@ -152,12 +152,12 @@ jobs:
     - integration-tests
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
     - name: Setup Golang
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
+    - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -168,7 +168,7 @@ jobs:
       run: |
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -v -o bin/dumper .
     - name: Docker build and push
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -186,26 +186,26 @@ jobs:
     - integration-tests
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
       with:
         fetch-depth: 0
     - name: Setup Golang
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
+    - uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
     - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v5
+      uses: goreleaser/goreleaser-action@v2
       with:
-        version: v1.24.0
+        version: v0.181.1
         args: release --rm-dist
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Update new version in krew-index
       if: ${{ !contains(github.ref, 'beta') }}
-      uses: rajatjindal/krew-release-bot@v0.0.46
+      uses: rajatjindal/krew-release-bot@v0.0.38
