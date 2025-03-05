@@ -26,7 +26,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -66,7 +66,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -93,7 +93,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -132,7 +132,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -160,7 +160,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -204,7 +204,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
