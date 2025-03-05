@@ -13,7 +13,7 @@ func NewDocCommand() *cobra.Command {
 		Args:   cobra.NoArgs,
 		Short:  "Generate documentation",
 		Long:   "This command will generate documentation for this CLI.",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			return doc.GenMarkdownTree(cmd.Root(), "./docs")
 		},
 	}

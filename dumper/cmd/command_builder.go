@@ -90,7 +90,7 @@ func (cb *CommandBuilder) Build() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Short: "",
 		Long:  "",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			return cb.launch()
 		},
 	}
