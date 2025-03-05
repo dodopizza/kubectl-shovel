@@ -1,10 +1,10 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-noble AS tools-install
+FROM mcr.microsoft.com/dotnet/sdk:9.0-noble AS tools-install
 
-RUN dotnet tool install -g dotnet-gcdump --version 8.* && \
-    dotnet tool install -g dotnet-trace --version 8.* && \
-    dotnet tool install -g dotnet-dump --version 8.*
+RUN dotnet tool install -g dotnet-gcdump --version "9.*" && \
+    dotnet tool install -g dotnet-trace --version "9.*" && \
+    dotnet tool install -g dotnet-dump --version "9.*"
 
-FROM mcr.microsoft.com/dotnet/runtime:8.0-noble
+FROM mcr.microsoft.com/dotnet/runtime:9.0-noble
 
 ARG DOTNET_TOOLS_PATH="/root/.dotnet/tools"
 ARG DOTNET_RUNTIME_PATH="/usr/share/dotnet/shared/Microsoft.NETCore.App/${DOTNET_VERSION}"
