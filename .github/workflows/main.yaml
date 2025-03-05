@@ -110,9 +110,9 @@ jobs:
       fail-fast: false
       matrix:
         framework:
-        - netcoreapp3.1
-        - net5.0
         - net6.0
+        - net8.0
+        - net9.0
     needs:
     - doc
     - lint
