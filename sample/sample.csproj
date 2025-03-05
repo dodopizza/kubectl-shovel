@@ -1,8 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFrameworks Condition="'$(Framework)' != 'net5.0'">netcoreapp3.1;net6.0</TargetFrameworks>
+        <TargetFramework Condition="'$(Framework)' == 'netcoreapp3.1'">netcoreapp3.1</TargetFramework>
         <TargetFramework Condition="'$(Framework)' == 'net5.0'">net5.0</TargetFramework>
+        <TargetFramework Condition="'$(Framework)' == 'net6.0'">net6.0</TargetFramework>
+        <TargetFramework Condition="'$(Framework)' == 'net7.0'">net7.0</TargetFramework>
+        <TargetFramework Condition="'$(Framework)' == 'net8.0'">net8.0</TargetFramework>
+        <TargetFramework Condition="'$(Framework)' == 'net9.0'">net9.0</TargetFramework>
     </PropertyGroup>
 
 </Project>

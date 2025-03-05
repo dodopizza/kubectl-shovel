@@ -54,7 +54,7 @@ elif [ "$framework" == "net9.0" ]; then
   sample_sdk_image_tag="9.0-noble"
   sample_runtime_image_tag="9.0-noble"
 else
-  echo "Unsupported .net target framework $framework specified, choose from: netcoreapp3.1, net5.0 or net6.0"
+  echo "Unsupported .net target framework $framework specified, choose from: netcoreapp3.1, net5.0, net6.0, net7.0, net8.0, net9.0"
   exit 1
 fi
 
