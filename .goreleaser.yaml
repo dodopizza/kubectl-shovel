@@ -20,18 +20,17 @@ builds:
   - goos: windows
     goarch: arm64
 archives:
-- id: default
-  name_template: '{{ .ProjectName }}_{{ .os }}_{{ .arch }}{{ if .arm }}v{{ .arm }}{{ end }}'
+- name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    amd64: x86_64
   format_overrides:
   - goos: windows
     format: zip
   files:
   - LICENSE
-replacements:
-  darwin: Darwin
-  linux: Linux
-  windows: Windows
-  amd64: x86_64
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
 snapshot:
@@ -39,12 +38,12 @@ snapshot:
 changelog:
   sort: asc
   filters:
-  exclude:
-  - 'typo'
-  - 'static check'
-  - 'lint'
-  - 'format'
-  - 'tidy'
+    exclude:
+    - typo
+    - static check
+    - lint
+    - format
+    - tidy
 release:
   name_template: "{{ .ProjectName }}-v{{ .Version }}"
   prerelease: auto
