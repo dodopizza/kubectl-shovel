@@ -1,6 +1,6 @@
-version: 2
-
+---
 project_name: kubectl-shovel
+
 builds:
 - binary: kubectl-shovel
   id: general
@@ -19,6 +19,7 @@ builds:
   ignore:
   - goos: windows
     goarch: arm64
+
 archives:
 - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
   replacements:
@@ -31,10 +32,13 @@ archives:
     format: zip
   files:
   - LICENSE
+
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
+
 snapshot:
   name_template: "{{ .Tag }}-next"
+
 changelog:
   sort: asc
   filters:
@@ -44,6 +48,7 @@ changelog:
     - lint
     - format
     - tidy
+
 release:
   name_template: "{{ .ProjectName }}-v{{ .Version }}"
   prerelease: auto
