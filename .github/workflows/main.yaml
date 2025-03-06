@@ -26,12 +26,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run doc generation
       run: |
         make doc
@@ -66,12 +60,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run tidy
       run: |
         make tidy
@@ -93,12 +81,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run tests
       run: |
         make test-unit
@@ -132,12 +114,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Setup Kubernetes
       uses: engineerd/setup-kind@v0.5.0
       with:
@@ -160,12 +136,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Build dumper
       working-directory: ./dumper
       run: |
@@ -204,12 +174,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v4
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v2
       with:
