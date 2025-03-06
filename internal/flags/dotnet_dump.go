@@ -57,3 +57,7 @@ func (*dump) BinaryName() string {
 func (*dump) ToolName() string {
 	return "dump"
 }
+
+func (*dump) IsLimitedResources() bool {
+	return true
+}

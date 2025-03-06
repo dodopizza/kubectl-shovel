@@ -117,3 +117,7 @@ func (*trace) BinaryName() string {
 func (*trace) ToolName() string {
 	return "trace"
 }
+
+func (*trace) IsLimitedResources() bool {
+	return true
+}

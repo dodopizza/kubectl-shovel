@@ -65,3 +65,6 @@ func (*coredump) ToolName() string {
 func (*coredump) IsPrivileged() bool {
 	return true
 }
+func (*coredump) IsLimitedResources() bool {
+	return true
+}

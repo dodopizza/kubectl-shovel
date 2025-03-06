@@ -10,6 +10,7 @@ import (
 
 	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -20,13 +21,15 @@ var (
 
 // JobRunSpec is helper struct to describe job spec customization
 type JobRunSpec struct {
-	Args       []string
-	Image      string
-	Name       string
-	Node       string
-	Privileged bool
-	Selectors  map[string]string
-	Volumes    []JobVolume
+	Args        []string
+	Image       string
+	Name        string
+	Node        string
+	limitCpu    string
+	limitMemory string
+	Privileged  bool
+	Selectors   map[string]string
+	Volumes     []JobVolume
 }
 
 // JobVolume is helper struct to describe job volume customization
@@ -51,6 +54,12 @@ func NewJobRunSpec(args []string, image string, pod *PodInfo) *JobRunSpec {
 		},
 		Volumes: []JobVolume{},
 	}
+}
+
+func (j *JobRunSpec) WithLimits(cpu, memory string) *JobRunSpec {
+	j.limitCpu = cpu
+	j.limitMemory = memory
+	return j
 }
 
 // WithPrivilegedOptions adds core.SecurityContext to with SYS_PTRACE capability to core.JobSpec
@@ -124,6 +133,7 @@ func (j *JobRunSpec) Build(namespace string) *batch.Job {
 							Stdin:                    true,
 							Args:                     j.Args,
 							VolumeMounts:             j.mounts(),
+							Resources:                j.limits(),
 							TerminationMessagePolicy: core.TerminationMessageFallbackToLogsOnError,
 							SecurityContext:          j.securityContext(),
 						},
@@ -172,6 +182,19 @@ func (j *JobRunSpec) mounts() []core.VolumeMount {
 		}
 	}
 	return volumeMounts
+}
+
+func (j *JobRunSpec) limits() core.ResourceRequirements {
+	resources := core.ResourceList{}
+	if j.limitCpu != "" {
+		resources[core.ResourceCPU] = resource.MustParse(j.limitCpu)
+	}
+	if j.limitMemory != "" {
+		resources[core.ResourceMemory] = resource.MustParse(j.limitMemory)
+	}
+	return core.ResourceRequirements{
+		Limits: resources,
+	}
 }
 
 func (j *JobRunSpec) securityContext() *core.SecurityContext {

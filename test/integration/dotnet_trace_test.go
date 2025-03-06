@@ -18,6 +18,9 @@ func Test_TraceSubcommand(t *testing.T) {
 		NewTestCase("Custom duration").WithArgs("duration", "00:00:00:30"),
 		NewTestCase("Custom duration with units").WithArgs("duration", "1m"),
 		NewTestCase("Custom format").WithArgs("format", "Speedscope"),
+		NewTestCase("Limits memory and cpu").WithArgs("limit-cpu", "300m").WithArgs("limit-memory", "500Mi"),
+		NewTestCase("Limits memory").WithArgs("limit-memory", "500Mi"),
+		NewTestCase("Limits cpu").WithArgs("limit-cpu", "300m"),
 	)
 
 	t.Cleanup(testSetup(t, command))
