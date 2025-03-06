@@ -37,15 +37,24 @@ sample_context="${directory}/sample"
 
 if [ "$framework" == "netcoreapp3.1" ]; then
   sample_sdk_image_tag="3.1-focal"
-  sample_runtime_image_tag="3.1.23-focal"
+  sample_runtime_image_tag="3.1-focal"
 elif [ "$framework" == "net5.0" ]; then
-  sample_sdk_image_tag="5.0.406-focal"
-  sample_runtime_image_tag="5.0.15-focal"
+  sample_sdk_image_tag="5.0-focal"
+  sample_runtime_image_tag="5.0-focal"
 elif [ "$framework" == "net6.0" ]; then
   sample_sdk_image_tag="6.0-focal"
-  sample_runtime_image_tag="6.0.3-focal"
+  sample_runtime_image_tag="6.0-focal"
+elif [ "$framework" == "net7.0" ]; then
+  sample_sdk_image_tag="7.0-jammy"
+  sample_runtime_image_tag="7.0-jammy"
+elif [ "$framework" == "net8.0" ]; then
+  sample_sdk_image_tag="8.0-jammy"
+  sample_runtime_image_tag="8.0-jammy"
+elif [ "$framework" == "net9.0" ]; then
+  sample_sdk_image_tag="9.0-noble"
+  sample_runtime_image_tag="9.0-noble"
 else
-  echo "Unsupported .net target framework $framework specified, choose from: netcoreapp3.1, net5.0 or net6.0"
+  echo "Unsupported .net target framework $framework specified, choose from: netcoreapp3.1, net5.0, net6.0, net7.0, net8.0, net9.0"
   exit 1
 fi
 

@@ -14,7 +14,7 @@ func NewVersionCommand() *cobra.Command {
 		Use:   "version",
 		Args:  cobra.NoArgs,
 		Short: "Print your cli version",
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(_ *cobra.Command, _ []string) {
 			fmt.Println(globals.GetVersion())
 		},
 	}

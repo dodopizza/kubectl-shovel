@@ -13,7 +13,7 @@ on:
     - "*"
 
 env:
-  GOLANG_VERSION: "^1.18.2"
+  GOLANG_VERSION: "^1.24.1"
 
 jobs:
   doc:
@@ -21,17 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Setup Golang
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v2
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run doc generation
       run: |
         make doc
@@ -48,11 +42,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Lint
-      uses: golangci/golangci-lint-action@v2
+      uses: golangci/golangci-lint-action@v3
       with:
-        version: v1.46.2
+        version: v1.64.6
         github-token: ${{ secrets.GITHUB_TOKEN }}
         args: "--fix=false --timeout=10m"
 
@@ -61,17 +55,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Setup Golang
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v2
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run tidy
       run: |
         make tidy
@@ -88,17 +76,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Setup Golang
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v2
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run tests
       run: |
         make test-unit
@@ -113,6 +95,9 @@ jobs:
         - netcoreapp3.1
         - net5.0
         - net6.0
+        - net7.0
+        - net8.0
+        - net9.0
     needs:
     - doc
     - lint
@@ -120,21 +105,15 @@ jobs:
     - test
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
     - name: Setup Golang
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v2
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Setup Kubernetes
       uses: engineerd/setup-kind@v0.5.0
       with:
@@ -152,31 +131,33 @@ jobs:
     - integration-tests
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Setup Golang
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v2
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Build dumper
       working-directory: ./dumper
       run: |
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -v -o bin/dumper .
-    - name: Docker build and push
-      uses: docker/build-push-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        repository: dodopizza/kubectl-shovel-dumper
-        dockerfile: ./dumper/Dockerfile
-        path: ./dumper
-        tag_with_ref: true
-        tags: latest
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Docker build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: ./dumper
+        file: ./dumper/Dockerfile
+        push: true
+        tags: |
+          dodopizza/kubectl-shovel-dumper:latest
+          dodopizza/kubectl-shovel-dumper:${{ github.ref_name }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
   publish-cli:
     name: Publishing cli
@@ -186,24 +167,18 @@ jobs:
     - integration-tests
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Setup Golang
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ env.GOLANG_VERSION }}
-    - uses: actions/cache@v2
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v2
+      uses: goreleaser/goreleaser-action@v6
       with:
-        version: v0.181.1
-        args: release --rm-dist
+        version: '~> v2'
+        args: release --clean
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Update new version in krew-index
