@@ -58,6 +58,8 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
       --image string                   Image of dumper to use for job (default "dodopizza/kubectl-shovel-dumper:undefined")
       --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string              Path to the kubeconfig file to use for CLI requests.
+      --limit-cpu string               Limit maximal consumptions cpu for the executing job
+      --limit-memory string            Limit maximal consumptions memory for the executing job
   -n, --namespace string               If present, the namespace scope for this CLI request
   -o, --output string                  Output file (default "./output.trace")
       --output-host-path string        Host folder, where will be stored artifact (default "/tmp/kubectl-shovel")

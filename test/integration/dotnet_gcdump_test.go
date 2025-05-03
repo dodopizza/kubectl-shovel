@@ -17,6 +17,9 @@ func Test_GCDumpSubcommand(t *testing.T) {
 	testCases := cases(
 		NewTestCase("Custom timeout").WithArgs("timeout", "60"),
 		NewTestCase("Custom timeout with unit").WithArgs("timeout", "1m"),
+		NewTestCase("Limits memory and cpu").WithArgs("limit-cpu", "300m").WithArgs("limit-memory", "500Mi"),
+		NewTestCase("Limits memory").WithArgs("limit-memory", "500Mi"),
+		NewTestCase("Limits cpu").WithArgs("limit-cpu", "300m"),
 	)
 
 	t.Cleanup(testSetup(t, command))
