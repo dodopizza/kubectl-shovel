@@ -20,7 +20,7 @@ type CommonOptions struct {
 	Pod               string
 	Output            string
 	OutputHostPath    string
-	LimitCpu          string
+	LimitCPU          string
 	LimitMemory       string
 	StoreOutputOnHost bool
 
@@ -71,9 +71,9 @@ func (options *CommonOptions) GetFlags() *pflag.FlagSet {
 		"Host folder, where will be stored artifact",
 	)
 	fs.StringVar(
-		&options.LimitCpu,
+		&options.LimitCPU,
 		"limit-cpu",
-		options.LimitCpu,
+		options.LimitCPU,
 		"Limit maximal consumptions cpu for the executing job",
 	)
 	fs.StringVar(

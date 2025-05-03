@@ -109,7 +109,7 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	if cb.tool.IsLimitedResources() {
-		jobSpec.WithLimits(cb.CommonOptions.LimitCpu, cb.CommonOptions.LimitMemory)
+		jobSpec.WithLimits(cb.CommonOptions.LimitCPU, cb.CommonOptions.LimitMemory)
 	}
 
 	fmt.Printf("Spawning diagnostics job with command:\n%s\n", strings.Join(jobSpec.Args, " "))
