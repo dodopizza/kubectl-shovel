@@ -25,7 +25,7 @@ type JobRunSpec struct {
 	Image       string
 	Name        string
 	Node        string
-	limitCpu    string
+	limitCPU    string
 	limitMemory string
 	Privileged  bool
 	Selectors   map[string]string
@@ -57,7 +57,7 @@ func NewJobRunSpec(args []string, image string, pod *PodInfo) *JobRunSpec {
 }
 
 func (j *JobRunSpec) WithLimits(cpu, memory string) *JobRunSpec {
-	j.limitCpu = cpu
+	j.limitCPU = cpu
 	j.limitMemory = memory
 	return j
 }
@@ -186,8 +186,8 @@ func (j *JobRunSpec) mounts() []core.VolumeMount {
 
 func (j *JobRunSpec) limits() core.ResourceRequirements {
 	resources := core.ResourceList{}
-	if j.limitCpu != "" {
-		resources[core.ResourceCPU] = resource.MustParse(j.limitCpu)
+	if j.limitCPU != "" {
+		resources[core.ResourceCPU] = resource.MustParse(j.limitCPU)
 	}
 	if j.limitMemory != "" {
 		resources[core.ResourceMemory] = resource.MustParse(j.limitMemory)
