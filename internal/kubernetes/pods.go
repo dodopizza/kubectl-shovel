@@ -69,7 +69,7 @@ func (p *PodInfo) FindContainerInfo(container string) (*ContainerInfo, error) {
 			return nil, fmt.Errorf(
 				"init container '%s' does not have a valid container ID. "+
 					"If this init container has completed, you may not be able to gather diagnostics from it. "+
-					"Consider using an init container with restart policy 'Always' if you need to gather diagnostics", 
+					"Consider using an init container with restart policy 'Always'", 
 				container)
 		}
 		return nil, fmt.Errorf("container '%s' does not have a valid container ID. Container may not be running", container)
@@ -108,10 +108,8 @@ func (p *PodInfo) HasRegularContainer(containerName string) bool {
 // and not also a regular container with the same name (regular containers take precedence)
 func (p *PodInfo) IsInitContainer(containerName string) bool {
 	// First check if a regular container with this name exists (takes precedence)
-	for _, c := range p.containers {
-		if c.Name == containerName {
-			return false
-		}
+	if p.HasRegularContainer(containerName) {
+		return false
 	}
 	
 	// Now check if it's an init container
@@ -126,7 +124,6 @@ func (p *PodInfo) IsInitContainer(containerName string) bool {
 // findContainerInList searches for a container and its status by name in the provided lists
 func (p *PodInfo) findContainerInList(name string, containers []core.Container, 
 	statuses []core.ContainerStatus) (*core.Container, *core.ContainerStatus) {
-	
 	var container *core.Container
 	var status *core.ContainerStatus
 	
