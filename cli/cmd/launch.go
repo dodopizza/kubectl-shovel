@@ -85,23 +85,26 @@ func (cb *CommandBuilder) launch() error {
 	}
 
 	// Check for container name conflicts (same name in both regular and init containers)
-	// This check is performed before FindContainerInfo because the logic prioritizes regular containers
 	hasRegularContainer := false
 	hasInitContainer := false
 	
-	for _, c := range targetPod.GetContainerNames() {
-		if c == targetContainerName {
+	// Check for regular container with the target name
+	for _, container := range targetPod.containers {
+		if container.Name == targetContainerName {
 			hasRegularContainer = true
 			break
 		}
 	}
 	
+	// Check for init container with the target name
 	if targetPod.IsInitContainer(targetContainerName) {
 		hasInitContainer = true
 	}
 	
+	// Warn about duplicate container names
 	if hasRegularContainer && hasInitContainer {
-		fmt.Printf("Warning: Both a regular container and an init container named '%s' exist. Using the regular container.\n", targetContainerName)
+		fmt.Printf("Warning: Both a regular container and an init container named '%s' exist. "+
+			"Using the regular container.\n", targetContainerName)
 	}
 
 	targetContainer, err := targetPod.FindContainerInfo(targetContainerName)
