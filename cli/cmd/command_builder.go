@@ -42,7 +42,7 @@ func (options *CommonOptions) GetFlags() *pflag.FlagSet {
 		"container",
 		"c",
 		options.Container,
-		"Target container in pod. Required if pod run multiple containers",
+		"Target container in pod. Required if pod run multiple containers. Will look in init containers if not found in regular containers",
 	)
 	fs.StringVar(
 		&options.Image,

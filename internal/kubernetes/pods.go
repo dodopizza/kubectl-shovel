@@ -65,7 +65,11 @@ func (p *PodInfo) FindContainerInfo(container string) (*ContainerInfo, error) {
 	
 	// Check if container has a valid container ID
 	if cs.ContainerID == "" {
-		return nil, fmt.Errorf("container '%s' does not have a valid container ID. Container may not be running or has already completed", container)
+		if p.IsInitContainer(container) {
+			return nil, fmt.Errorf("init container '%s' does not have a valid container ID. If this init container has completed, you may not be able to gather diagnostics from it. Consider using an init container with restart policy 'Always' if you need to gather diagnostics", container)
+		} else {
+			return nil, fmt.Errorf("container '%s' does not have a valid container ID. Container may not be running", container)
+		}
 	}
 	
 	return NewContainerInfo(cs), nil
@@ -99,7 +103,8 @@ func (p *PodInfo) IsInitContainer(containerName string) bool {
 
 func (p *PodInfo) findContainerInfo(name string) (container *core.Container, status *core.ContainerStatus, err error) {
 	regularCount := len(p.containerStatuses)
-	totalCount := regularCount + len(p.initContainerStatuses)
+	initCount := len(p.initContainerStatuses)
+	totalCount := regularCount + initCount
 
 	// check against multiple containers
 	if totalCount > 1 && name == "" {
@@ -111,45 +116,57 @@ func (p *PodInfo) findContainerInfo(name string) (container *core.Container, sta
 		return
 	}
 
+	// Default to the only container if no name specified
 	if regularCount == 1 && name == "" {
 		container = &p.containers[0]
 		status = &p.containerStatuses[0]
 		return
+	} else if regularCount == 0 && initCount == 1 && name == "" {
+		// Fall back to the only init container if there are no regular containers
+		container = &p.initContainers[0]
+		status = &p.initContainerStatuses[0]
+		return
 	}
 
-	// First search in regular containers
+	// First search in regular containers - ensure we match both container and status
 	for i := range p.containers {
 		if p.containers[i].Name == name {
 			container = &p.containers[i]
+			// Find the matching status
+			for j := range p.containerStatuses {
+				if p.containerStatuses[j].Name == name {
+					status = &p.containerStatuses[j]
+					return // Found both container and status in regular containers
+				}
+			}
+			// If we get here, we found a container but no matching status
+			container = nil // Reset to avoid mismatches
 		}
 	}
 
-	for i := range p.containerStatuses {
-		if p.containerStatuses[i].Name == name {
-			status = &p.containerStatuses[i]
-		}
-	}
-
-	// If container or status is not found in regular containers, search in init containers
+	// If not found in regular containers, search in init containers
 	if container == nil || status == nil {
+		container = nil
+		status = nil
+		
 		for i := range p.initContainers {
 			if p.initContainers[i].Name == name {
 				container = &p.initContainers[i]
-			}
-		}
-
-		for i := range p.initContainerStatuses {
-			if p.initContainerStatuses[i].Name == name {
-				status = &p.initContainerStatuses[i]
+				// Find the matching status
+				for j := range p.initContainerStatuses {
+					if p.initContainerStatuses[j].Name == name {
+						status = &p.initContainerStatuses[j]
+						return // Found both container and status in init containers
+					}
+				}
+				// If we get here, we found a container but no matching status
+				container = nil // Reset to avoid mismatches
 			}
 		}
 	}
 
 	// not found in either regular or init containers
-	if container == nil || status == nil {
-		err = fmt.Errorf("container '%s' is not valid for pod %s", name, p.Name)
-	}
-
+	err = fmt.Errorf("container '%s' is not valid for pod %s", name, p.Name)
 	return
 }
 

@@ -84,6 +84,26 @@ func (cb *CommandBuilder) launch() error {
 		targetContainerName = targetPod.Annotations["kubectl.kubernetes.io/default-container"]
 	}
 
+	// Check for container name conflicts (same name in both regular and init containers)
+	// This check is performed before FindContainerInfo because the logic prioritizes regular containers
+	hasRegularContainer := false
+	hasInitContainer := false
+	
+	for _, c := range targetPod.GetContainerNames() {
+		if c == targetContainerName {
+			hasRegularContainer = true
+			break
+		}
+	}
+	
+	if targetPod.IsInitContainer(targetContainerName) {
+		hasInitContainer = true
+	}
+	
+	if hasRegularContainer && hasInitContainer {
+		fmt.Printf("Warning: Both a regular container and an init container named '%s' exist. Using the regular container.\n", targetContainerName)
+	}
+
 	targetContainer, err := targetPod.FindContainerInfo(targetContainerName)
 	if err != nil {
 		return errors.Wrap(err, "Failed to get info about target container")
