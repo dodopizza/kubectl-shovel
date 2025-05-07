@@ -30,10 +30,11 @@ func Test_InitContainer_Support(t *testing.T) {
 
 			args := tc.FormatArgs("dump")
 
-			t.Logf("Run command with args: %v", args)
-			output, err := execCommand(t, args)
-			
-			t.Logf("Command output: %s", output)
+			// Initialize and execute shovel command
+			shovel := cmd.NewShovelCommand()
+			shovel.SetArgs(args)
+			t.Logf("Execute shovel command with args: %v", args)
+			err := shovel.Execute()
 			require.NoError(t, err)
 			
 			if !tc.hostOutput {
