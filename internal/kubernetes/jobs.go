@@ -115,10 +115,10 @@ func (j *JobRunSpec) Build(namespace string) *batch.Job {
 		},
 		ObjectMeta: metaSpec,
 		Spec: batch.JobSpec{
-			Parallelism:             ptr(int32(1)),
-			Completions:             ptr(int32(1)),
-			TTLSecondsAfterFinished: ptr(int32(5)),
-			BackoffLimit:            ptr(int32(0)),
+			Parallelism:             ptr32(1),
+			Completions:             ptr32(1),
+			TTLSecondsAfterFinished: ptr32(5),
+			BackoffLimit:            ptr32(0),
 			Template: core.PodTemplateSpec{
 				ObjectMeta: metaSpec,
 				Spec: core.PodSpec{
@@ -206,7 +206,7 @@ func (j *JobRunSpec) securityContext() *core.SecurityContext {
 		Capabilities: &core.Capabilities{
 			Add: []core.Capability{"SYS_PTRACE"},
 		},
-		Privileged: ptr(true),
+		Privileged: ptrBool(true),
 	}
 }
 
@@ -235,6 +235,11 @@ func (k *Client) DeleteJob(name string) error {
 		Delete(context.Background(), name, options)
 }
 
-func ptr[T any](t T) *T {
-	return &t
+// Helper functions for pointer values
+func ptr32(i int32) *int32 {
+	return &i
+}
+
+func ptrBool(b bool) *bool {
+	return &b
 }

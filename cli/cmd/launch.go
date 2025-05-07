@@ -84,24 +84,9 @@ func (cb *CommandBuilder) launch() error {
 		targetContainerName = targetPod.Annotations["kubectl.kubernetes.io/default-container"]
 	}
 
-	// Check for container name conflicts directly
-	hasRegularContainer := false
-	hasInitContainer := false
-	
-	// Check if the container exists in both lists
-	for _, container := range targetPod.containers {
-		if container.Name == targetContainerName {
-			hasRegularContainer = true
-			break
-		}
-	}
-	
-	for _, container := range targetPod.initContainers {
-		if container.Name == targetContainerName {
-			hasInitContainer = true
-			break
-		}
-	}
+	// Check for container name conflicts using proper accessor methods
+	hasRegularContainer := targetPod.HasRegularContainer(targetContainerName)
+	hasInitContainer := targetPod.IsInitContainer(targetContainerName)
 	
 	// Warn about duplicate container names
 	if hasRegularContainer && hasInitContainer {
