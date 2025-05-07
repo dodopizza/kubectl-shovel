@@ -56,3 +56,4 @@ changelog:
 release:
   name_template: "{{ .ProjectName }}-v{{ .Version }}"
   prerelease: auto
+  replace_existing_artifacts: true
