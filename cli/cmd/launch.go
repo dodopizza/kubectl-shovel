@@ -88,6 +88,11 @@ func (cb *CommandBuilder) launch() error {
 	if err != nil {
 		return errors.Wrap(err, "Failed to get info about target container")
 	}
+	
+	// Log if we're using an init container
+	if targetPod.IsInitContainer(targetContainerName) {
+		fmt.Printf("Using init container: %s\n", targetContainerName)
+	}
 
 	jobSpec := kubernetes.
 		NewJobRunSpec(cb.args(targetPod, targetContainer), cb.CommonOptions.Image, targetPod).
