@@ -72,7 +72,9 @@ func (p *PodInfo) FindContainerInfo(container string) (*ContainerInfo, error) {
 					"Consider using an init container with restart policy 'Always'", 
 				container)
 		}
-		return nil, fmt.Errorf("container '%s' does not have a valid container ID. Container may not be running", container)
+		return nil, fmt.Errorf(
+			"container '%s' does not have a valid container ID. Container may not be running",
+			container)
 	}
 	
 	return NewContainerInfo(cs), nil
@@ -122,7 +124,7 @@ func (p *PodInfo) IsInitContainer(containerName string) bool {
 }
 
 // findContainerInList searches for a container and its status by name in the provided lists
-func (p *PodInfo) findContainerInList(name string, containers []core.Container, 
+func (*PodInfo) findContainerInList(name string, containers []core.Container, 
 	statuses []core.ContainerStatus) (*core.Container, *core.ContainerStatus) {
 	var container *core.Container
 	var status *core.ContainerStatus
