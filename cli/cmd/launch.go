@@ -84,11 +84,11 @@ func (cb *CommandBuilder) launch() error {
 		targetContainerName = targetPod.Annotations["kubectl.kubernetes.io/default-container"]
 	}
 
-	// Check for container name conflicts (same name in both regular and init containers)
+	// Check for container name conflicts directly
 	hasRegularContainer := false
 	hasInitContainer := false
 	
-	// Check for regular container with the target name
+	// Check if the container exists in both lists
 	for _, container := range targetPod.containers {
 		if container.Name == targetContainerName {
 			hasRegularContainer = true
@@ -96,9 +96,11 @@ func (cb *CommandBuilder) launch() error {
 		}
 	}
 	
-	// Check for init container with the target name
-	if targetPod.IsInitContainer(targetContainerName) {
-		hasInitContainer = true
+	for _, container := range targetPod.initContainers {
+		if container.Name == targetContainerName {
+			hasInitContainer = true
+			break
+		}
 	}
 	
 	// Warn about duplicate container names
@@ -112,7 +114,7 @@ func (cb *CommandBuilder) launch() error {
 		return errors.Wrap(err, "Failed to get info about target container")
 	}
 	
-	// Log if we're using an init container
+	// Log if we're using an init container - IsInitContainer will now correctly handle the priority
 	if targetPod.IsInitContainer(targetContainerName) {
 		fmt.Printf("Using init container: %s\n", targetContainerName)
 	}

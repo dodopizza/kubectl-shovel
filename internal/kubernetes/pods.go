@@ -95,7 +95,16 @@ func (p *PodInfo) ContainsMountedTmp(container string) bool {
 }
 
 // IsInitContainer returns true if the specified container is an init container
+// and not also a regular container with the same name (regular containers take precedence)
 func (p *PodInfo) IsInitContainer(containerName string) bool {
+	// First check if a regular container with this name exists (takes precedence)
+	for _, c := range p.containers {
+		if c.Name == containerName {
+			return false
+		}
+	}
+	
+	// Now check if it's an init container
 	for _, c := range p.initContainers {
 		if c.Name == containerName {
 			return true
