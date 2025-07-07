@@ -124,11 +124,11 @@ jobs:
         make test-integration FRAMEWORK=${{ matrix.framework }}
 
   publish-dumper:
-    name: Publishing Dumper docker image
+    name: Publishing dumper docker image
     runs-on: ubuntu-latest
-#    if: startsWith(github.ref, 'refs/tags')
-#    needs:
-#    - integration-tests
+    if: startsWith(github.ref, 'refs/tags')
+    needs:
+    - integration-tests
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -155,8 +155,8 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          dodopizza/kubectl-shovel-dumper:0.9.2-dev-dev
-          dodopizza/kubectl-shovel-dumper:0.9.1-dev
+          dodopizza/kubectl-shovel-dumper:latest
+          dodopizza/kubectl-shovel-dumper:${{ github.ref_name }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
