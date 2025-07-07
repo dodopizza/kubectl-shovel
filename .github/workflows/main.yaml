@@ -124,7 +124,7 @@ jobs:
         make test-integration FRAMEWORK=${{ matrix.framework }}
 
   publish-dumper:
-    name: Publishing dumper docker image
+    name: Publishing Dumper docker image
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags')
     needs:
