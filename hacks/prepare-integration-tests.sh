@@ -27,7 +27,7 @@ fi
 # dumper options
 dumper_image_tag="latest"
 dumper_image_repository="kubectl-shovel/dumper-integration-tests"
-dumper_context="${directory}"
+dumper_context="${directory}/dumper"
 dumper_binary="$dumper_context/bin/dumper"
 
 # sample app options
@@ -73,7 +73,7 @@ docker buildx build \
   --load \
   -t "$dumper_image_repository:$dumper_image_tag" \
   -f "$dumper_context/Dockerfile" \
-  "$dumper_context"
+  "${directory}"
 rm "$dumper_binary"
 
 echo "Building sample docker image ($cluster_os/$cluster_arch):"
