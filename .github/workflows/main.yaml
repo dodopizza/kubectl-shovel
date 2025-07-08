@@ -145,7 +145,7 @@ jobs:
     - name: Docker build and push for multi-arch
       uses: docker/build-push-action@v5
       with:
-        context: ./dumper
+        context: .
         file: ./dumper/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
