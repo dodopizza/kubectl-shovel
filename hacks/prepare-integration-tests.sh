@@ -27,7 +27,7 @@ fi
 # dumper options
 dumper_image_tag="latest"
 dumper_image_repository="kubectl-shovel/dumper-integration-tests"
-dumper_context="${directory}/dumper"
+dumper_context="${directory}"
 dumper_binary="$dumper_context/bin/dumper"
 
 # sample app options
