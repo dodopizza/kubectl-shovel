@@ -16,7 +16,6 @@ RUN dotnet tool install -g dotnet-gcdump --version "9.*" && \
     dotnet tool install -g dotnet-trace --version "9.*" && \
     dotnet tool install -g dotnet-dump --version "9.*"
 
-
 FROM mcr.microsoft.com/dotnet/runtime:9.0-noble
 
 ARG DOTNET_TOOLS_PATH="/root/.dotnet/tools"

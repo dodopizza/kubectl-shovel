@@ -126,9 +126,6 @@ jobs:
   publish-dumper:
     name: Publishing dumper docker image
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags')
-    needs:
-    - integration-tests
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -136,8 +133,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
           go-version: ${{ env.GOLANG_VERSION }}
-    - name: Run build
-      run:  make build
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
@@ -155,8 +150,8 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          dodopizza/kubectl-shovel-dumper:latest
-          dodopizza/kubectl-shovel-dumper:${{ github.ref_name }}
+          dodopizza/kubectl-shovel-dumper:v0.9.2-dev
+          dodopizza/kubectl-shovel-dumper:v0.9.2-test
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
