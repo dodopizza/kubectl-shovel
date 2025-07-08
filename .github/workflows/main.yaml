@@ -136,8 +136,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
           go-version: ${{ env.GOLANG_VERSION }}
-    - name: Run build
-      run:  make build
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
@@ -147,16 +145,20 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
     - name: Docker build and push for multi-arch
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
-        context: ./dumper
+        context: .
         file: ./dumper/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
           dodopizza/kubectl-shovel-dumper:latest
           dodopizza/kubectl-shovel-dumper:${{ github.ref_name }}
+          ghcr.io/dodopizza/kubectl-shovel:latest
+          ghcr.io/dodopizza/kubectl-shovel:${{ github.ref_name }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
