@@ -150,8 +150,8 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          dodopizza/kubectl-shovel-dumper:v0.9.2-dev
-          dodopizza/kubectl-shovel-dumper:v0.9.2-test
+          dodopizza/kubectl-shovel-dumper:v0.9.22-test
+          dodopizza/kubectl-shovel-dumper:v0.9.22-dev
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
