@@ -74,7 +74,7 @@ func Test_JobRunSpecWithContainerFSVolumes(t *testing.T) {
 					ContainerID: "containerd://fb5dca57a03a05cd7b1291a6cf295196dbfaae51cc5c477ec8748817df4b7208",
 				},
 			),
-			expCount: 2,
+			expCount: 3,
 		},
 		{
 			name: "Docker volumes added only one",

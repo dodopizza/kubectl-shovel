@@ -70,7 +70,10 @@ func (j *JobRunSpec) WithPrivilegedOptions() *JobRunSpec {
 
 // WithContainerFSVolume add host volume that used to store container file system volumes
 func (j *JobRunSpec) WithContainerFSVolume(container *ContainerInfo) *JobRunSpec {
-	j.appendVolume(container.GetContainerFSVolume())
+	volumes := container.GetContainerFSVolumes()
+	for _, volume := range volumes {
+		j.appendVolume(volume)
+	}
 	return j
 }
 

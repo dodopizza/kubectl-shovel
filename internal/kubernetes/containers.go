@@ -68,21 +68,30 @@ func (c *ContainerConfigInfo) GetTmpSource() string {
 	return fmt.Sprintf("%s%s", c.RootFS, globals.PathTmpFolder)
 }
 
-// GetContainerFSVolume returns JobVolume (mounted from host) that contains container definitions,
+// GetContainerFSVolumes returns JobVolume (mounted from host) that contains container definitions,
 // depending upon container runtime
-func (c *ContainerInfo) GetContainerFSVolume() JobVolume {
+func (c *ContainerInfo) GetContainerFSVolumes() []JobVolume {
 	if c.Runtime == "containerd" {
-		return JobVolume{
-			Name:      "containerdfs",
-			HostPath:  globals.PathContainerDFS,
-			MountPath: globals.PathContainerDFS,
+		return []JobVolume{
+			{
+				Name:      "containerdfs",
+				HostPath:  globals.PathContainerDFS,
+				MountPath: globals.PathContainerDFS,
+			},
+			{
+				Name:      "k3scontainerdfs",
+				HostPath:  globals.K3sPathContainerDFS,
+				MountPath: globals.K3sPathContainerDFS,
+			},
 		}
 	}
 
-	return JobVolume{
-		Name:      "dockerfs",
-		HostPath:  globals.PathDockerFS,
-		MountPath: globals.PathDockerFS,
+	return []JobVolume{
+		{
+			Name:      "dockerfs",
+			HostPath:  globals.PathDockerFS,
+			MountPath: globals.PathDockerFS,
+		},
 	}
 }
 

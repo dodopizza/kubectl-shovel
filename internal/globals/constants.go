@@ -13,6 +13,7 @@ const (
 	PathHostProcFolder   = "/proc"
 
 	PathContainerDFS      = "/run/containerd"
+	K3sPathContainerDFS   = "/run/k3s/containerd"
 	PathContainerDVolumes = "/var/lib/kubelet/pods"
 
 	PathDockerFS      = "/var/lib/docker"
