@@ -75,6 +75,16 @@ You can find more info and examples in [cli documentation](./cli/docs/kubectl-sh
   * `docker` or `containerd` runtime folders (`/var/lib/docker` or `/run/containerd`)
   * `/proc` folder mounted from host to find host process id for container
 
+### Container Selection
+
+When using the `-c/--container` flag to specify a target container:
+
+1. First, the tool will look for the container in the pod's regular containers
+2. If not found in regular containers, it will automatically look in the pod's init containers
+3. If found in init containers, the tool will use that container for diagnostic operations
+
+This is especially useful for side container cases where init containers have a restart policy of always. Note that if a regular container and an init container have the same name, the regular container will be used.
+
 ## Development
 
 To run all kinds of checks and generators please use:

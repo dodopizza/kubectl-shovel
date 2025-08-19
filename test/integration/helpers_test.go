@@ -29,6 +29,7 @@ import (
 var (
 	namespace            = "default"
 	sidecarContainerName = "sidecar"
+	initContainerName    = "init-container"
 	targetPodNamePrefix  = "sample-app"
 	targetContainerName  = "target"
 )
@@ -211,6 +212,13 @@ func sidecarContainer() core.Container {
 	}
 }
 
+func initContainer() core.Container {
+	return core.Container{
+		Name:  initContainerName,
+		Image: TargetContainerImage,
+	}
+}
+
 func singleContainerPod() *core.Pod {
 	return &core.Pod{
 		ObjectMeta: generateRandomPodMeta(),
@@ -273,6 +281,31 @@ func multiContainerPodWithSharedMount() *core.Pod {
 	}
 }
 
+func podWithInitContainer() *core.Pod {
+	return &core.Pod{
+		ObjectMeta: generateRandomPodMeta(),
+		Spec: core.PodSpec{
+			Containers:     []core.Container{targetContainer()},
+			InitContainers: []core.Container{initContainer()},
+		},
+	}
+}
+
+func podWithInitContainerSidecar() *core.Pod {
+	// This simulates the scenario where an init container has a restart policy of always
+	// and acts as a side container
+	init := initContainer()
+	init.Name = "side-container"
+	
+	return &core.Pod{
+		ObjectMeta: generateRandomPodMeta(),
+		Spec: core.PodSpec{
+			Containers:     []core.Container{targetContainer()},
+			InitContainers: []core.Container{init},
+		},
+	}
+}
+
 func cases(additional ...*TestCase) []*TestCase {
 	basic := []*TestCase{
 		NewTestCase("Basic test with output on host"),
@@ -288,6 +321,14 @@ func cases(additional ...*TestCase) []*TestCase {
 		NewTestCase("MultiContainer pod with shared mount").
 			WithPod(multiContainerPodWithSharedMount()).
 			WithArgs("container", targetContainerName).
+			DownloadOutput(),
+		NewTestCase("Pod with init container").
+			WithPod(podWithInitContainer()).
+			WithArgs("container", initContainerName).
+			DownloadOutput(),
+		NewTestCase("Pod with init container as side container").
+			WithPod(podWithInitContainerSidecar()).
+			WithArgs("container", "side-container").
 			DownloadOutput(),
 	}
 

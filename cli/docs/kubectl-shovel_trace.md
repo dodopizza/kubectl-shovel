@@ -49,7 +49,7 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
                                        This is a simple mapping that lets you specify event keywords via string aliases rather than their hex values.
                                        More info here: https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-trace#options-1
       --cluster string                 The name of the kubeconfig cluster to use
-  -c, --container string               Target container in pod. Required if pod run multiple containers
+  -c, --container string               Target container in pod. Required if pod run multiple containers. Will look in init containers if not found in regular containers
       --context string                 The name of the kubeconfig context to use
       --duration duration              Trace for the given timespan and then automatically stop the trace.Provided in the form of dd:hh:mm:ss or corresponding time unit representation (e.g. 1s, 2m, 3h) (default 10s) (default 00:00:00:10)
       --format format                  Sets the output format for the trace file conversion. Supported formats:

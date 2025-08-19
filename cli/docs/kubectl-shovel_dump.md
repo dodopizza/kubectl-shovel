@@ -43,7 +43,7 @@ Also use `-n`/`--namespace` if your pod is not in current context's namespace:
       --client-certificate string      Path to a client certificate file for TLS
       --client-key string              Path to a client key file for TLS
       --cluster string                 The name of the kubeconfig cluster to use
-  -c, --container string               Target container in pod. Required if pod run multiple containers
+  -c, --container string               Target container in pod. Required if pod run multiple containers. Will look in init containers if not found in regular containers
       --context string                 The name of the kubeconfig context to use
       --diag                           Enable dump collection diagnostic logging
   -h, --help                           help for dump

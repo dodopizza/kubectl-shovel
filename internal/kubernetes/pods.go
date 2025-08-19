@@ -16,32 +16,41 @@ import (
 )
 
 type PodInfo struct {
-	Annotations       map[string]string
-	Name              string
-	Namespace         string
-	Node              string
-	containers        []core.Container
-	containerStatuses []core.ContainerStatus
+	Annotations             map[string]string
+	Name                    string
+	Namespace               string
+	Node                    string
+	containers              []core.Container
+	containerStatuses       []core.ContainerStatus
+	initContainers          []core.Container
+	initContainerStatuses   []core.ContainerStatus
 }
 
 // NewPodInfo returns PodInfo generated from core.Pod spec
 func NewPodInfo(pod *core.Pod) *PodInfo {
 	return &PodInfo{
-		Annotations:       pod.Annotations,
-		Name:              pod.Name,
-		Namespace:         pod.Namespace,
-		Node:              pod.Spec.NodeName,
-		containers:        pod.Spec.Containers,
-		containerStatuses: pod.Status.ContainerStatuses,
+		Annotations:           pod.Annotations,
+		Name:                  pod.Name,
+		Namespace:             pod.Namespace,
+		Node:                  pod.Spec.NodeName,
+		containers:            pod.Spec.Containers,
+		containerStatuses:     pod.Status.ContainerStatuses,
+		initContainers:        pod.Spec.InitContainers,
+		initContainerStatuses: pod.Status.InitContainerStatuses,
 	}
 }
 
 // GetContainerNames returns container names associated with pod
 func (p *PodInfo) GetContainerNames() []string {
-	names := make([]string, len(p.containerStatuses))
+	names := make([]string, len(p.containerStatuses)+len(p.initContainerStatuses))
 
 	for i, cs := range p.containerStatuses {
 		names[i] = cs.Name
+	}
+
+	offset := len(p.containerStatuses)
+	for i, cs := range p.initContainerStatuses {
+		names[offset+i] = cs.Name
 	}
 
 	return names
@@ -53,6 +62,21 @@ func (p *PodInfo) FindContainerInfo(container string) (*ContainerInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	
+	// Check if container has a valid container ID
+	if cs.ContainerID == "" {
+		if p.IsInitContainer(container) {
+			return nil, fmt.Errorf(
+				"init container '%s' does not have a valid container ID. "+
+					"If this init container has completed, you may not be able to gather diagnostics from it. "+
+					"Consider using an init container with restart policy 'Always'", 
+				container)
+		}
+		return nil, fmt.Errorf(
+			"container '%s' does not have a valid container ID. Container may not be running",
+			container)
+	}
+	
 	return NewContainerInfo(cs), nil
 }
 
@@ -72,11 +96,67 @@ func (p *PodInfo) ContainsMountedTmp(container string) bool {
 	return false
 }
 
+// HasRegularContainer returns true if a regular container with the specified name exists
+func (p *PodInfo) HasRegularContainer(containerName string) bool {
+	for _, c := range p.containers {
+		if c.Name == containerName {
+			return true
+		}
+	}
+	return false
+}
+
+// IsInitContainer returns true if the specified container is an init container
+// and not also a regular container with the same name (regular containers take precedence)
+func (p *PodInfo) IsInitContainer(containerName string) bool {
+	// First check if a regular container with this name exists (takes precedence)
+	if p.HasRegularContainer(containerName) {
+		return false
+	}
+	
+	// Now check if it's an init container
+	for _, c := range p.initContainers {
+		if c.Name == containerName {
+			return true
+		}
+	}
+	return false
+}
+
+// findContainerInList searches for a container and its status by name in the provided lists
+func (*PodInfo) findContainerInList(name string, containers []core.Container, 
+	statuses []core.ContainerStatus) (*core.Container, *core.ContainerStatus) {
+	var container *core.Container
+	var status *core.ContainerStatus
+	
+	// Find container
+	for i := range containers {
+		if containers[i].Name == name {
+			container = &containers[i]
+			break
+		}
+	}
+	
+	// If container found, find its matching status
+	if container != nil {
+		for j := range statuses {
+			if statuses[j].Name == name {
+				status = &statuses[j]
+				break
+			}
+		}
+	}
+	
+	return container, status
+}
+
 func (p *PodInfo) findContainerInfo(name string) (container *core.Container, status *core.ContainerStatus, err error) {
-	count := len(p.containerStatuses)
+	regularCount := len(p.containerStatuses)
+	initCount := len(p.initContainerStatuses)
+	totalCount := regularCount + initCount
 
 	// check against multiple containers
-	if count > 1 && name == "" {
+	if totalCount > 1 && name == "" {
 		err = fmt.Errorf(
 			"container name must be specified for pod %s, choose one of: [%s]",
 			p.Name,
@@ -85,27 +165,33 @@ func (p *PodInfo) findContainerInfo(name string) (container *core.Container, sta
 		return
 	}
 
-	if count == 1 && name == "" {
+	// Default to the only container if no name specified
+	if regularCount == 1 && name == "" {
 		container = &p.containers[0]
 		status = &p.containerStatuses[0]
 		return
 	}
-
-	for i := range p.containers {
-		if p.containers[i].Name == name {
-			container = &p.containers[i]
-		}
+	
+	if regularCount == 0 && initCount == 1 && name == "" {
+		container = &p.initContainers[0]
+		status = &p.initContainerStatuses[0]
+		return
 	}
 
-	for i := range p.containerStatuses {
-		if p.containerStatuses[i].Name == name {
-			status = &p.containerStatuses[i]
-		}
+	// First search in regular containers
+	container, status = p.findContainerInList(name, p.containers, p.containerStatuses)
+	
+	// If found both in regular containers, return early
+	if container != nil && status != nil {
+		return
 	}
+	
+	// If not found in regular containers, search in init containers
+	container, status = p.findContainerInList(name, p.initContainers, p.initContainerStatuses)
 
-	// not found
+	// Not found in either regular or init containers
 	if container == nil || status == nil {
-		err = fmt.Errorf("container %s is not valid for pod %s", container, p.Name)
+		err = fmt.Errorf("container '%s' is not valid for pod %s", name, p.Name)
 	}
 
 	return
